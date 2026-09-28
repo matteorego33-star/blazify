@@ -8,20 +8,28 @@ package com.blazify.music.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -68,6 +76,17 @@ fun BrowseScreen(
         columns = GridCells.Adaptive(minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp),
         contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
     ) {
+        // Still coming: the placeholders. They used to show for an answer that
+        // had already arrived empty, which is a page that shimmers for ever and
+        // reads as broken.
+        if (items == null) {
+            items(8) {
+                ShimmerHost {
+                    GridItemPlaceHolder(fillMaxWidth = true)
+                }
+            }
+        }
+
         items?.let { items ->
             items(
                 items = items.distinctBy { it.id },
@@ -135,10 +154,23 @@ fun BrowseScreen(
                 )
             }
 
+            // An answer that holds nothing says so. Whatever YouTube meant by
+            // this shelf, it gave us no page for it, and an empty screen with
+            // nothing written on it is the worst way to say that.
             if (items.isEmpty()) {
-                items(8) {
-                    ShimmerHost {
-                        GridItemPlaceHolder(fillMaxWidth = true)
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 120.dp, start = 32.dp, end = 32.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.no_results_found),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
             }

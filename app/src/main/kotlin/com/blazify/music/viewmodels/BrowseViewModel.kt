@@ -23,22 +23,27 @@ class BrowseViewModel @Inject constructor(
 ) : ViewModel() {
     private val browseId: String? = savedStateHandle.get<String>("browseId")
  
-    val items = MutableStateFlow<List<YTItem>?>(emptyList())
+    /** Null while the answer is still coming; a list, possibly empty, once it has. */
+    val items = MutableStateFlow<List<YTItem>?>(null)
     val title = MutableStateFlow<String?>("")
  
     init {
         viewModelScope.launch {
-            browseId?.let {
-                YouTube.browse(browseId, null).onSuccess { result ->
-                    // Store the title
-                    title.value = result.title
+            if (browseId == null) {
+                items.value = emptyList()
+                return@launch
+            }
+            YouTube.browse(browseId, null).onSuccess { result ->
+                // Store the title
+                title.value = result.title
  
-                    // Flatten the nested structure to get all YTItems
-                    val allItems = result.items.flatMap { it.items }
-                    items.value = allItems
-                }.onFailure {
-                    reportException(it)
-                }
+                // Flatten the nested structure to get all YTItems
+                val allItems = result.items.flatMap { it.items }
+                items.value = allItems
+            }.onFailure {
+                reportException(it)
+                // Something to say, rather than a page that waits for ever.
+                items.value = emptyList()
             }
         }
     }
