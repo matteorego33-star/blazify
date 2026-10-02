@@ -42,7 +42,52 @@ object Updater {
     private var cachedAllReleases: List<ReleaseInfo> = emptyList()
 
     private const val CHECK_INTERVAL_MILLIS = 2 * 60 * 60 * 1000L // 2 hours
-    private const val GITHUB_API_BASE = "https://api.github.com/repos/rajendra7169/blazify"
+
+    /**
+     * Where to ask about releases — and, more importantly, where that answer
+     * comes from.
+     *
+     * This used to be one address written into the application. Every copy ever
+     * installed asked that one place, which meant the day it stopped answering
+     * was the day every installed copy stopped hearing about new versions, with
+     * nothing anybody could do from this side. That is not a hypothetical: it
+     * happened, and the only way left to reach people was to edit the posts they
+     * had once found us through.
+     *
+     * So the address is now looked up at a place we own outright, rather than
+     * being a fact about the application. Moving to another host becomes a
+     * one-line edit to a file on our own domain, and every installed copy
+     * follows within a couple of hours. The built-in value below is only what to
+     * believe when the lookup itself cannot be reached.
+     *
+     * It is worth being plain about what this trusts: whoever controls that
+     * domain decides where updates are fetched from. What it cannot do is
+     * replace Blazify with something else — Android refuses an update that is
+     * not signed with the same key, so a wrong answer here can at worst offer a
+     * download that will not install.
+     */
+    private const val HOME = "https://rajendrapandey.info.np/blazify/home.json"
+    private const val BUILT_IN_RELEASES = "https://codeberg.org/api/v1/repos/rajendra7169/blazify"
+
+    @Volatile
+    private var releasesApi: String? = null
+
+    /**
+     * The release API to use, asked for once per run of the application.
+     *
+     * Quiet on failure by design: an unreachable pointer means carrying on with
+     * the address we shipped with, which is the behaviour this had before the
+     * lookup existed. Only an https address is accepted, so a hijacked or
+     * mistyped file cannot send the application somewhere unencrypted.
+     */
+    private suspend fun releasesApi(): String {
+        releasesApi?.let { return it }
+        val found = runCatching {
+            val said = JSONObject(client.get(HOME).bodyAsText()).optString("releases")
+            said.takeIf { it.startsWith("https://") && it.length < 300 }
+        }.getOrNull()
+        return (found ?: BUILT_IN_RELEASES).also { releasesApi = it }
+    }
 
     /**
      * Compares two version strings.
@@ -227,7 +272,7 @@ object Updater {
 
                 val releaseInfo =
                     if (includeBetas) {
-                        val json = JSONArray(client.get("$GITHUB_API_BASE/releases?per_page=20").bodyAsText())
+                        val json = JSONArray(client.get("${releasesApi()}/releases?per_page=20").bodyAsText())
                         val releases =
                             (0 until json.length())
                                 .map { json.getJSONObject(it) }
@@ -235,7 +280,7 @@ object Updater {
                                 .map(::parseRelease)
                         newestRelease(releases, includeBetas = true) ?: error("No releases published")
                     } else {
-                        parseRelease(JSONObject(client.get("$GITHUB_API_BASE/releases/latest").bodyAsText()))
+                        parseRelease(JSONObject(client.get("${releasesApi()}/releases/latest").bodyAsText()))
                     }
 
                 cachedReleaseInfo = releaseInfo
@@ -260,7 +305,7 @@ object Updater {
                 var hasMore = true
 
                 while (hasMore && page <= 10) { // Limit to 10 pages
-                    val response = client.get("$GITHUB_API_BASE/releases?page=$page&per_page=30")
+                    val response = client.get("${releasesApi()}/releases?page=$page&per_page=30")
                         .bodyAsText()
                     val json = JSONArray(response)
 
