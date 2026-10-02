@@ -10,11 +10,12 @@
 
 **Download it now** -- one click, straight from the newest release.
 
-[![android](https://img.shields.io/badge/Download_for_Android-FFA726?style=for-the-badge&logoColor=1A0E00&logo=android)](https://github.com/rajendra7169/blazify/releases/latest/download/Blazify-gms.apk) [![windows](https://img.shields.io/badge/Download_for_Windows-FFA726?style=for-the-badge&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzFBMEUwMCIgZD0iTTEuNSAzLjkgMTAuMiAyLjd2OC42SDEuNXpNMTEuNCAyLjU1IDIyLjUgMXYxMC4zSDExLjR6TTEuNSAxMi43aDguN3Y4LjZMMS41IDIwLjF6TTExLjQgMTIuN0gyMi41VjIzbC0xMS4xLTEuNTV6Ii8+PC9zdmc+)](https://github.com/rajendra7169/blazify-desktop/releases/latest/download/Blazify-setup.exe) [![linux](https://img.shields.io/badge/Download_for_Linux-FFA726?style=for-the-badge&logoColor=1A0E00&logo=linux)](https://github.com/rajendra7169/blazify-desktop/releases/latest/download/Blazify.deb) [![iphone](https://img.shields.io/badge/Download_for_iPhone-FFA726?style=for-the-badge&logoColor=1A0E00&logo=apple)](https://github.com/rajendra7169/blazify-ios/releases/latest/download/Blazify.ipa)
+[![android](https://img.shields.io/badge/Download_for_Android-FFA726?style=for-the-badge&logoColor=1A0E00&logo=android)](https://github.com/rajendra7169/blazify/releases/latest) [![windows](https://img.shields.io/badge/Download_for_Windows-FFA726?style=for-the-badge&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzFBMEUwMCIgZD0iTTEuNSAzLjkgMTAuMiAyLjd2OC42SDEuNXpNMTEuNCAyLjU1IDIyLjUgMXYxMC4zSDExLjR6TTEuNSAxMi43aDguN3Y4LjZMMS41IDIwLjF6TTExLjQgMTIuN0gyMi41VjIzbC0xMS4xLTEuNTV6Ii8+PC9zdmc+)](https://github.com/rajendra7169/blazify-desktop/releases/latest) [![linux](https://img.shields.io/badge/Download_for_Linux-FFA726?style=for-the-badge&logoColor=1A0E00&logo=linux)](https://github.com/rajendra7169/blazify-desktop/releases/latest) [![iphone](https://img.shields.io/badge/Download_for_iPhone-FFA726?style=for-the-badge&logoColor=1A0E00&logo=apple)](https://github.com/rajendra7169/blazify-ios/releases/latest)
 
 On a phone without Google services — de-Googled, LineageOS, a Huawei — take the
-[build with no Google code](https://github.com/rajendra7169/blazify/releases/latest/download/Blazify.apk)
-instead. It is the same app without casting to a television.
+[latest release](https://github.com/rajendra7169/blazify/releases/latest) and take
+`Blazify.apk` instead of `Blazify-gms.apk`. It is the same app without casting
+to a television.
 
 **Official website: [rajendra7169.github.io/blazify](https://rajendra7169.github.io/blazify/)** · screenshots, features and downloads for every platform
 
@@ -151,8 +152,8 @@ What is planned, what has been asked for, and what is deliberately not being don
 
 ## Install
 
-Download **[the APK](https://github.com/rajendra7169/blazify/releases/latest/download/Blazify-gms.apk)** — the everyday build, casting to a television included.
-On a phone with no Google services, take **[the build without Google](https://github.com/rajendra7169/blazify/releases/latest/download/Blazify.apk)** instead.
+Open the **[latest release](https://github.com/rajendra7169/blazify/releases/latest)** and take `Blazify-gms.apk` — the everyday build, casting to a television included.
+On a phone with no Google services, take `Blazify.apk` from that same release instead.
 Every build lives on the **[Releases](https://github.com/rajendra7169/blazify/releases/latest)** page.
 
 Requires **Android 8.0 (API 26)** or newer. New install? Just open the APK, nothing else to do.
