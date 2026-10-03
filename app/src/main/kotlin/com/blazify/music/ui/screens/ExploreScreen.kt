@@ -5,6 +5,7 @@
 
 package com.blazify.music.ui.screens
 
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -444,7 +445,7 @@ fun ExploreScreen(
                             MoodAndGenresButton(
                                 title = it.title,
                                 onClick = {
-                                    navController.navigate("youtube_browse/${it.endpoint.browseId}?params=${it.endpoint.params}")
+                                    navController.navigate("youtube_browse/${it.endpoint.browseId}?params=${it.endpoint.params}&title=${Uri.encode(it.title)}")
                                 },
                                 modifier =
                                     Modifier

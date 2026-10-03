@@ -6,6 +6,7 @@
 
 package com.blazify.music.ui.screens
 
+import android.net.Uri
 import com.blazify.music.ui.component.BlazeLoader
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -2608,7 +2609,7 @@ fun HomeScreen(
                                                 title = it.title,
                                                 onClick = {
                                                     navController.navigate(
-                                                        "youtube_browse/${it.endpoint.browseId}?params=${it.endpoint.params}",
+                                                        "youtube_browse/${it.endpoint.browseId}?params=${it.endpoint.params}&title=${Uri.encode(it.title)}",
                                                     )
                                                 },
                                                 modifier =

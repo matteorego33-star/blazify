@@ -433,7 +433,9 @@ fun NavGraphBuilder.navigationBuilder(
     }
 
     composable(
-        route = "youtube_browse/{browseId}?params={params}",
+        // A mood tile passes its name along: that is how the page finds the
+        // Home chip of the same mood, whose shelves are made for the account.
+        route = "youtube_browse/{browseId}?params={params}&title={title}",
         arguments =
             listOf(
                 navArgument("browseId") {
@@ -441,6 +443,10 @@ fun NavGraphBuilder.navigationBuilder(
                     nullable = true
                 },
                 navArgument("params") {
+                    type = NavType.StringType
+                    nullable = true
+                },
+                navArgument("title") {
                     type = NavType.StringType
                     nullable = true
                 },

@@ -10,6 +10,7 @@
 
 package com.blazify.music.ui.screens
 
+import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Arrangement
@@ -317,7 +318,7 @@ fun YoursScreen(
                             iconRes = MoodIcons[index % MoodIcons.size],
                             onClick = {
                                 navController.navigate(
-                                    "youtube_browse/${mood.endpoint.browseId}?params=${mood.endpoint.params}",
+                                    "youtube_browse/${mood.endpoint.browseId}?params=${mood.endpoint.params}&title=${Uri.encode(mood.title)}",
                                 )
                             },
                         )

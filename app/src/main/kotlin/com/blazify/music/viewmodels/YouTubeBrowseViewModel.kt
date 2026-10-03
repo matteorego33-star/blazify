@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.blazify.innertube.YouTube
 import com.blazify.innertube.models.filterYoutubeShorts
 import com.blazify.innertube.pages.BrowseResult
+import com.blazify.innertube.pages.HomePage
 import com.blazify.music.constants.HideExplicitKey
 import com.blazify.music.constants.HideVideoSongsKey
 import com.blazify.music.constants.HideYoutubeShortsKey
@@ -34,8 +35,21 @@ constructor(
 ) : ViewModel() {
     private val browseId = savedStateHandle.get<String>("browseId")!!
     private val params = savedStateHandle.get<String>("params")
+    /** The mood tile's name, when this page was opened from one. */
+    private val title = savedStateHandle.get<String>("title")
 
     val result = MutableStateFlow<BrowseResult?>(null)
+
+    /**
+     * What YouTube Music puts together for this account in the mood — "Your
+     * Relax mix", the songs played in that mood. These are the Home feed
+     * filtered by the mood's chip, which is the one place YouTube's own
+     * personalisation reaches a mood; the page's grid is editorial, the same
+     * for everybody in the country, and in a country that gets little of its
+     * own it is mostly somebody else's language. Genres have no chip and get
+     * the grid alone.
+     */
+    val forYou = MutableStateFlow<List<HomePage.Section>>(emptyList())
 
     init {
         viewModelScope.launch {
@@ -53,5 +67,33 @@ constructor(
                     reportException(it)
                 }
         }
+        title?.let { loadForYou(it) }
     }
+
+    private fun loadForYou(moodTitle: String) {
+        viewModelScope.launch {
+            val hideExplicit = context.dataStore.get(HideExplicitKey, false)
+            val wanted = chipName(moodTitle)
+            val chip = YouTube.home().getOrNull()?.chips
+                ?.firstOrNull { it.title.lowercase() == wanted }
+                ?: return@launch
+            val chipParams = chip.endpoint?.params ?: return@launch
+            YouTube.home(params = chipParams)
+                .onSuccess { page ->
+                    forYou.value = page.sections
+                        .map { section ->
+                            if (hideExplicit) section.copy(items = section.items.filter { !it.explicit }) else section
+                        }
+                        .filter { it.items.isNotEmpty() }
+                }.onFailure { reportException(it) }
+        }
+    }
+
+    /** The Home chip a mood tile answers to. Most share a name; two do not. */
+    private fun chipName(moodTitle: String): String =
+        when (moodTitle.lowercase()) {
+            "chill" -> "relax"
+            "energy boosters" -> "energize"
+            else -> moodTitle.lowercase()
+        }
 }
