@@ -17,6 +17,8 @@ import com.blazify.innertube.pages.HomePage
 import com.blazify.music.constants.HideExplicitKey
 import com.blazify.music.constants.HideVideoSongsKey
 import com.blazify.music.constants.HideYoutubeShortsKey
+import com.blazify.music.db.MusicDatabase
+import com.blazify.music.utils.GenreTaste
 import com.blazify.music.utils.dataStore
 import com.blazify.music.utils.get
 import com.blazify.music.utils.reportException
@@ -31,6 +33,7 @@ class YouTubeBrowseViewModel
 @Inject
 constructor(
     @ApplicationContext val context: Context,
+    private val database: MusicDatabase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val browseId = savedStateHandle.get<String>("browseId")!!
@@ -67,7 +70,11 @@ constructor(
                     reportException(it)
                 }
         }
-        title?.let { loadForYou(it) }
+        title?.let {
+            loadForYou(it)
+            // A genre opened by hand counts towards its place on Browse.
+            viewModelScope.launch { GenreTaste.noteOpened(context, database, it) }
+        }
     }
 
     private fun loadForYou(moodTitle: String) {

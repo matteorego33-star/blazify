@@ -6,6 +6,10 @@
 
 package com.blazify.music.viewmodels
 
+import android.content.Context
+import com.blazify.music.db.MusicDatabase
+import com.blazify.music.utils.GenreTaste
+import dagger.hilt.android.qualifiers.ApplicationContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.blazify.innertube.YouTube
@@ -19,8 +23,15 @@ import javax.inject.Inject
 @HiltViewModel
 class MoodAndGenresViewModel
 @Inject
-constructor() : ViewModel() {
+constructor(
+    @ApplicationContext val context: Context,
+    database: MusicDatabase,
+) : ViewModel() {
     val moodAndGenres = MutableStateFlow<List<MoodAndGenres>?>(null)
+
+    /** Which tiles are genres, and how each scores for this listener. See [GenreTaste]. */
+    val genreScores = GenreTaste.scores
+    val genreTitles = GenreTaste.genreTitles
 
     init {
         viewModelScope.launch {
@@ -28,6 +39,7 @@ constructor() : ViewModel() {
                 .moodAndGenres()
                 .onSuccess {
                     moodAndGenres.value = it
+                    GenreTaste.refresh(context, database, it)
                 }.onFailure {
                     reportException(it)
                 }

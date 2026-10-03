@@ -15,6 +15,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.offset
 import com.blazify.music.utils.BrowseArt
+import android.net.Uri
+import androidx.compose.runtime.remember
+import com.blazify.innertube.pages.MoodAndGenres
+import com.blazify.music.viewmodels.BROWSE_GENRES_MIN
 import com.blazify.music.viewmodels.BROWSE_MOODS
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -135,6 +139,29 @@ fun OnlineSearchScreen(
     val mediaMetadata by playerConnection.mediaMetadata.collectAsStateWithLifecycle()
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val moods by viewModel.moods.collectAsStateWithLifecycle()
+    // The moods, then the listener's own genres and a couple more — the
+    // ones their history points to, not the alphabet's first few. The
+    // scores change as they listen and as the pages are read, so the
+    // order is worked out here, from the same figures the model keeps.
+    val genreScores by viewModel.genreScores.collectAsStateWithLifecycle()
+    val genreTitles by viewModel.genreTitles.collectAsStateWithLifecycle()
+    val browseTiles =
+        remember(moods, genreScores, genreTitles) {
+            if (genreTitles.isEmpty()) {
+                moods.take(BROWSE_MOODS)
+            } else {
+                val moodTiles = moods.filter { it.title !in genreTitles }.take(BROWSE_MOODS)
+                val genres =
+                    moods.withIndex()
+                        .filter { it.value.title in genreTitles }
+                        .sortedWith(
+                            compareByDescending<IndexedValue<MoodAndGenres.Item>> { genreScores[it.value.title] ?: 0.0 }
+                                .thenBy { it.index },
+                        ).map { it.value }
+                val own = genres.count { (genreScores[it.title] ?: 0.0) > 0 }
+                moodTiles + genres.take(maxOf(BROWSE_GENRES_MIN, own + 2))
+            }
+        }
     val browseArt by viewModel.browseArt.collectAsStateWithLifecycle()
 
     val lazyListState = rememberLazyListState()
@@ -490,9 +517,9 @@ fun OnlineSearchScreen(
                     )
                 }
             }
-            if (moods.isNotEmpty()) {
+            if (browseTiles.isNotEmpty()) {
                 items(
-                    items = moods.take(BROWSE_MOODS).chunked(2),
+                    items = browseTiles.chunked(2),
                     key = { row -> "browse_${row.first().title}" },
                 ) { row ->
                     Row(
@@ -514,7 +541,7 @@ fun OnlineSearchScreen(
                                 onClick = {
                                     onDismiss()
                                     navController.navigate(
-                                        "youtube_browse/${mood.endpoint.browseId}?params=${mood.endpoint.params}",
+                                        "youtube_browse/${mood.endpoint.browseId}?params=${mood.endpoint.params}&title=${Uri.encode(mood.title)}",
                                     )
                                 },
                                 modifier = Modifier.weight(1f).fillMaxHeight(),

@@ -211,6 +211,12 @@ val NonArtistsRemovedKey = booleanPreferencesKey("nonArtistsRemoved")
 // The covers chosen for each Search > Browse tile, and when they were chosen (see BrowseArt).
 val BrowseArtKey = stringPreferencesKey("browseCovers")
 val BrowseArtSavedAtKey = longPreferencesKey("browseCoversSavedAt")
+
+// Which genre tiles are the listener's — see GenreTaste.
+val GenreTasteArtistsKey = stringPreferencesKey("genreTasteArtists")
+val GenreTasteScannedAtKey = longPreferencesKey("genreTasteScannedAt")
+val GenreTasteOpenedKey = stringPreferencesKey("genreTasteOpened")
+val GenreTasteGenresKey = stringPreferencesKey("genreTasteGenres")
 val PauseSearchHistoryKey = booleanPreferencesKey("pauseSearchHistory")
 val DisableScreenshotKey = booleanPreferencesKey("disableScreenshot")
 

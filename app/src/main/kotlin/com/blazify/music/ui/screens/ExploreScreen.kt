@@ -6,6 +6,7 @@
 package com.blazify.music.ui.screens
 
 import android.net.Uri
+import com.blazify.music.utils.GenreTaste
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -436,12 +437,18 @@ fun ExploreScreen(
                             navController.navigate("mood_and_genres")
                         },
                     )
+                    // Moods first, then the listener's genres before the rest —
+                    // the languages nobody here plays are at the far end of the
+                    // row rather than in the first screenful. See GenreTaste.
+                    val genreScores by GenreTaste.scores.collectAsStateWithLifecycle()
+                    val genreTitles by GenreTaste.genreTitles.collectAsStateWithLifecycle()
+                    val tiles = remember(moodAndGenres, genreScores, genreTitles) { GenreTaste.order(moodAndGenres) { it.title } }
                     LazyHorizontalGrid(
                         rows = GridCells.Fixed(4),
                         contentPadding = PaddingValues(6.dp),
                         modifier = Modifier.height((MoodAndGenresButtonHeight + 12.dp) * 4 + 12.dp),
                     ) {
-                        items(moodAndGenres) {
+                        items(tiles) {
                             MoodAndGenresButton(
                                 title = it.title,
                                 onClick = {

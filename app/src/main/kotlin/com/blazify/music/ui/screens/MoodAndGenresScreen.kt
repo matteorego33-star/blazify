@@ -24,6 +24,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
@@ -56,6 +61,9 @@ fun MoodAndGenresScreen(
     val itemsPerRow = if (localConfiguration.orientation == ORIENTATION_LANDSCAPE) 3 else 2
 
     val moodAndGenresList by viewModel.moodAndGenres.collectAsStateWithLifecycle()
+    val genreScores by viewModel.genreScores.collectAsStateWithLifecycle()
+    val genreTitles by viewModel.genreTitles.collectAsStateWithLifecycle()
+    var allGenres by rememberSaveable { mutableStateOf(false) }
 
     LazyColumn(
         contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
@@ -73,6 +81,23 @@ fun MoodAndGenresScreen(
         }
 
         moodAndGenresList?.forEachIndexed { index, moodAndGenres ->
+            // The genres come in the listener's order — the ones their history
+            // points to first — and only their own and a couple more are out,
+            // with the rest behind a line. Moods keep YouTube's order and are
+            // all shown; Chill is for everybody.
+            val isGenres = moodAndGenres.items.any { it.title in genreTitles } && moodAndGenres.items.all { it.title in genreTitles }
+            val ordered =
+                if (isGenres) {
+                    moodAndGenres.items.withIndex()
+                        .sortedWith(
+                            compareByDescending<IndexedValue<com.blazify.innertube.pages.MoodAndGenres.Item>> { genreScores[it.value.title] ?: 0.0 }
+                                .thenBy { it.index },
+                        ).map { it.value }
+                } else {
+                    moodAndGenres.items
+                }
+            val own = if (isGenres) ordered.count { (genreScores[it.title] ?: 0.0) > 0 } else 0
+            val shown = if (isGenres && !allGenres) ordered.take(maxOf(6, own + 2)) else ordered
             item(key = "mood_and_genres_section_$index") {
                 Column(
                     modifier = Modifier
@@ -82,7 +107,7 @@ fun MoodAndGenresScreen(
                     NavigationTitle(
                         title = moodAndGenres.title,
                     )
-                    moodAndGenres.items.chunked(itemsPerRow).forEach { row ->
+                    shown.chunked(itemsPerRow).forEach { row ->
                         Row {
                             row.forEach {
                                 MoodAndGenresButton(
@@ -101,6 +126,19 @@ fun MoodAndGenresScreen(
                                 Spacer(Modifier.weight(1f))
                             }
                         }
+                    }
+                    if (isGenres && ordered.size > maxOf(6, own + 2)) {
+                        Text(
+                            text = stringResource(if (allGenres) R.string.fewer_genres else R.string.all_genres),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable { allGenres = !allGenres }
+                                    .padding(vertical = 14.dp),
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
             }

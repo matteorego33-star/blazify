@@ -38,18 +38,22 @@ import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.coroutineScope
 import com.blazify.music.utils.BrowseArt
+import com.blazify.music.utils.GenreTaste
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-/** How many moods and genres Search > Browse shows. */
+/** How many moods Search > Browse shows. */
 const val BROWSE_MOODS = 12
+
+/** The fewest genres Search > Browse shows, for a listener with no history yet. */
+const val BROWSE_GENRES_MIN = 6
 
 @HiltViewModel
 class OnlineSearchSuggestionViewModel
     @Inject
     constructor(
         @ApplicationContext val context: Context,
-        database: MusicDatabase,
+        private val database: MusicDatabase,
     ) : ViewModel() {
         val query = MutableStateFlow("")
         private val _viewState = MutableStateFlow(SearchSuggestionViewState())
@@ -65,6 +69,10 @@ class OnlineSearchSuggestionViewModel
         /** The covers for each Browse tile, by [BrowseArt] key; tiles without any show just their colour. */
         val browseArt = MutableStateFlow<Map<String, List<String>>>(emptyMap())
 
+        /** Which of [moods] are genres, and how each scores for this listener. See [GenreTaste]. */
+        val genreScores = GenreTaste.scores
+        val genreTitles = GenreTaste.genreTitles
+
         init {
             viewModelScope.launch {
                 YouTube.moodAndGenres().onSuccess { sections ->
@@ -72,7 +80,11 @@ class OnlineSearchSuggestionViewModel
                     // sits in both moods and activities — and a grid with it in
                     // twice looks like a bug.
                     moods.value = sections.flatMap { it.items }.distinctBy { it.title }
-                    loadBrowseArt(moods.value.take(BROWSE_MOODS))
+                    // The listener's genres first, learned from their history; the
+                    // tiles shown get their covers, and a few more are read for the
+                    // taste at the same time.
+                    GenreTaste.refresh(context, database, sections)
+                    loadBrowseArt(shownOnBrowse())
                 }
             }
 
@@ -135,6 +147,14 @@ class OnlineSearchSuggestionViewModel
                         _viewState.value = it
                     }
             }
+        }
+
+        /** The tiles Browse shows: the moods, then the listener's genres and a couple more. */
+        fun shownOnBrowse(): List<MoodAndGenres.Item> {
+            val ordered = GenreTaste.order(moods.value) { it.title }
+            val genres = ordered.filter { GenreTaste.isGenre(it.title) }
+            val shownGenres = maxOf(BROWSE_GENRES_MIN, GenreTaste.count(genres) { it.title } + 2)
+            return ordered.filterNot { GenreTaste.isGenre(it.title) } + genres.take(shownGenres)
         }
 
         /**
