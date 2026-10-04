@@ -441,6 +441,12 @@ fun VideoArt(
                 .build()
                 .apply {
                     volume = 0f
+                    // A video that is a different cut of the song — shorter, as a
+                    // rule — goes round again when it ends. Seeking it back from
+                    // the ended state, as the loop below did, left it standing on
+                    // its last frame on some phones; the player's own repeat does
+                    // not.
+                    if (!video.synced) repeatMode = Player.REPEAT_MODE_ONE
                     setMediaItem(MediaItem.fromUri(video.streamUrl))
                 }
         }
@@ -522,7 +528,9 @@ fun VideoArt(
                     player.seekTo(max((along * length).toLong(), OPENING_TITLES_MS.coerceAtMost(length / 4)))
                     placed = true
                 } else if (player.playbackState == Player.STATE_ENDED) {
+                    // Only if the repeat above somehow let it end.
                     player.seekTo(OPENING_TITLES_MS.coerceAtMost(length / 4))
+                    player.playWhenReady = true
                 }
             }
             if (video.synced && playing && player.playbackState == Player.STATE_READY) {
