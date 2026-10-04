@@ -29,6 +29,21 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import com.blazify.music.ui.theme.PlayerColorExtractor
+import com.blazify.music.LocalPlayerConnection
+import coil3.toBitmap
+import coil3.request.ImageRequest
+import coil3.request.allowHardware
+import coil3.imageLoader
+import androidx.palette.graphics.Palette
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -97,7 +112,10 @@ fun BlazeHomeHeader(
     // Both blocks are optional — some people want a compact home (Look & Feel → Home).
     val showGreeting by rememberPreference(ShowHomeGreetingKey, defaultValue = true)
     val showSearchBar by rememberPreference(ShowHomeSearchBarKey, defaultValue = true)
-    val iconTint = if (isDark) Color.White else Color(0xDE000000)
+    // The two icons in the theme's own colour — the album's, when the theme
+    // follows the album — as the iOS header draws them. White on black read as
+    // furniture; the colour says they belong to the app that is playing.
+    val iconTint = MaterialTheme.colorScheme.primary
 
     Column(modifier = Modifier.fillMaxWidth()) {
         // Header row: account | logo + "Blazify" | settings
@@ -155,10 +173,49 @@ fun BlazeHomeHeader(
 
         Spacer(Modifier.height(8.dp))
 
-        // Greeting card: theme-aware gradient (follows the dynamic album-art
-        // colour), text left, hero image overflowing the top.
-        val cardStart = MaterialTheme.colorScheme.primary
-        val cardEnd = lerp(cardStart, Color.Black, if (isDark) 0.30f else 0.20f)
+        // Greeting card: the song's own colours, text left, hero image overflowing
+        // the top. The mini player and the full player draw their gradient from
+        // the artwork — two or three of its colours, not one — and the card used
+        // to take only the theme's primary and darken it, so it never quite
+        // matched the player below it. It reads the same colours from the same
+        // artwork now, and falls back to the theme's primary when nothing plays.
+        val context = LocalContext.current
+        val playerConnection = LocalPlayerConnection.current
+        val mediaMetadata = playerConnection?.mediaMetadata?.collectAsState()?.value
+        var artColors by remember { mutableStateOf<List<Color>>(emptyList()) }
+        LaunchedEffect(mediaMetadata?.id) {
+            val url = mediaMetadata?.thumbnailUrl
+            if (url == null) {
+                artColors = emptyList()
+                return@LaunchedEffect
+            }
+            val extracted =
+                withContext(Dispatchers.IO) {
+                    val request =
+                        ImageRequest.Builder(context)
+                            .data(url)
+                            .size(100, 100)
+                            .allowHardware(false)
+                            .build()
+                    val bitmap = runCatching { context.imageLoader.execute(request) }.getOrNull()?.image?.toBitmap()
+                        ?: return@withContext emptyList()
+                    val palette =
+                        withContext(Dispatchers.Default) {
+                            Palette.from(bitmap).maximumColorCount(8).resizeBitmapArea(100 * 100).generate()
+                        }
+                    PlayerColorExtractor.extractGradientColors(palette = palette, fallbackColor = 0xFF000000.toInt())
+                }
+            artColors = extracted
+        }
+        val themeStart = MaterialTheme.colorScheme.primary
+        val cardColors =
+            if (artColors.size >= 2) {
+                artColors
+            } else {
+                listOf(themeStart, lerp(themeStart, Color.Black, if (isDark) 0.30f else 0.20f))
+            }
+        val cardStart = cardColors.first()
+        val cardEnd = cardColors.last()
         val onCard = if (cardStart.luminance() > 0.6f) Color.Black else Color.White
         // The buttons' fill: the card's colour where they sit, darkened (or lightened
         // under dark text). Solid, because a shadow shows through a see-through fill.
@@ -182,7 +239,7 @@ fun BlazeHomeHeader(
                     .height(160.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        Brush.linearGradient(listOf(cardStart, cardEnd)),
+                        Brush.linearGradient(cardColors),
                     ),
             )
 
