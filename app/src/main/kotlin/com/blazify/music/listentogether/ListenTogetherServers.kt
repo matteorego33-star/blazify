@@ -17,9 +17,19 @@ data class ListenTogetherServer(
     val operator: String
 )
 
+// Blazify's own server comes first and is the default. The community server
+// it borrowed until now allows only clients on its list to host rooms, and
+// since September Blazify was not on it: every "Create room" was refused.
+// The Meowery stays as a choice — joining its rooms still works from here.
 object ListenTogetherServers {
     private const val ServersJson = """
         [
+          {
+            "name": "Blazify",
+            "url": "wss://blazify-together.onrender.com/ws",
+            "location": "Singapore",
+            "operator": "Rajendra Pandey"
+          },
           {
             "name": "The Meowery",
             "url": "wss://metroserverx.meowery.eu/ws",
