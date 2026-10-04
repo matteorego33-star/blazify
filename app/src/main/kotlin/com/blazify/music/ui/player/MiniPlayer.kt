@@ -781,7 +781,7 @@ private fun NewMiniPlayerSongInfo(
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
-                modifier = Modifier.basicMarquee(iterations = 1, initialDelayMillis = 3000, velocity = 30.dp),
+                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 3000, repeatDelayMillis = 3000, velocity = 30.dp),
             )
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -799,7 +799,7 @@ private fun NewMiniPlayerSongInfo(
                         fontSize = 12.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Clip,
-                        modifier = Modifier.basicMarquee(iterations = 1, initialDelayMillis = 3000, velocity = 30.dp),
+                        modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 3000, repeatDelayMillis = 3000, velocity = 30.dp),
                     )
                 }
             }

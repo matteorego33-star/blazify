@@ -1180,7 +1180,7 @@ fun BottomSheetPlayer(
                             color = TextBackgroundColor,
                             modifier =
                                 Modifier
-                                    .basicMarquee(iterations = 1, initialDelayMillis = 3000, velocity = 30.dp)
+                                    .basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 3000, repeatDelayMillis = 3000, velocity = 30.dp)
                                     .combinedClickable(
                                         enabled = true,
                                         indication = null,
@@ -1229,7 +1229,7 @@ fun BottomSheetPlayer(
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .basicMarquee(iterations = 1, initialDelayMillis = 3000, velocity = 30.dp)
+                                        .basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 3000, repeatDelayMillis = 3000, velocity = 30.dp)
                                         .padding(end = 12.dp),
                             ) {
                                 var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
@@ -1551,20 +1551,30 @@ fun BottomSheetPlayer(
 
             Spacer(Modifier.height(24.dp))
 
-            playerSeekBar(
-                Modifier.padding(horizontal = PlayerHorizontalPadding),
-                // Dynamic album-colour progress bar for every design; style stays from Settings.
-                PlayerSliderColors.getSliderColors(
-                    activeColor = textButtonColor,
-                    playerBackground = playerBackground,
-                    useDarkTheme = useDarkTheme,
-                    activeOverride = MaterialTheme.colorScheme.primary,
-                ),
-            )
+            // Sideways, the ring, the turntable and the tape sit in the other half of the
+            // screen and carry the progress themselves (the ring with the times as well), so
+            // the bar and the times here would say it twice. Drawn only when that half is
+            // showing lyrics instead.
+            val artCarriesProgress =
+                isLandscape && !showInlineLyrics &&
+                    playerDesign in setOf(PlayerDesign.RING, PlayerDesign.RECORD, PlayerDesign.CASSETTE)
+
+            if (!artCarriesProgress) {
+                playerSeekBar(
+                    Modifier.padding(horizontal = PlayerHorizontalPadding),
+                    // Dynamic album-colour progress bar for every design; style stays from Settings.
+                    PlayerSliderColors.getSliderColors(
+                        activeColor = textButtonColor,
+                        playerBackground = playerBackground,
+                        useDarkTheme = useDarkTheme,
+                        activeOverride = MaterialTheme.colorScheme.primary,
+                    ),
+                )
+            }
 
             // The capsule style already carries "elapsed / total" in its thumb, so
             // the separate end labels would just repeat it.
-            if (sliderStyle != SliderStyle.DEFAULT) {
+            if (sliderStyle != SliderStyle.DEFAULT && !artCarriesProgress) {
                 Spacer(Modifier.height(4.dp))
 
                 Row(
@@ -1996,7 +2006,7 @@ fun BottomSheetPlayer(
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1,
                                 color = TextBackgroundColor,
-                                modifier = Modifier.basicMarquee(iterations = 1, initialDelayMillis = 3000, velocity = 30.dp),
+                                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 3000, repeatDelayMillis = 3000, velocity = 30.dp),
                             )
                             Text(
                                 text = mediaMetadata?.artists?.joinToString { it.name }.orEmpty(),

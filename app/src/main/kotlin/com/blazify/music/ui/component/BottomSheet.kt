@@ -351,17 +351,25 @@ fun rememberBottomSheetState(
     var previousAnchor by rememberSaveable {
         mutableIntStateOf(initialAnchor)
     }
-    val animatable = remember {
-        Animatable(0.dp, Dp.VectorConverter)
-    }
-
-    return remember(dismissedBound, expandedBound, collapsedBound, coroutineScope) {
-        val initialValue = when (previousAnchor) {
+    fun boundOf(anchor: Int) =
+        when (anchor) {
             expandedAnchor -> expandedBound
             collapsedAnchor -> collapsedBound
             dismissedAnchor -> dismissedBound
             else -> error("Unknown BottomSheet anchor")
         }
+    // Created where the saved anchor says the sheet was, not at the bottom.
+    // Turning the phone recreates everything but the saved anchor; starting
+    // the sheet at zero and animating up to "expanded" left it, for the first
+    // frame, exactly where a dismissed sheet sits — and the effect that puts
+    // away a dismissed sheet with a song still playing took it at its word
+    // and collapsed the player onto whatever screen was behind it.
+    val animatable = remember {
+        Animatable(boundOf(previousAnchor), Dp.VectorConverter)
+    }
+
+    return remember(dismissedBound, expandedBound, collapsedBound, coroutineScope) {
+        val initialValue = boundOf(previousAnchor)
 
         animatable.updateBounds(dismissedBound.coerceAtMost(expandedBound), expandedBound)
         coroutineScope.launch {
