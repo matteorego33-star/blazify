@@ -169,11 +169,20 @@ private object SongVideos {
                 ?.take(CANDIDATES)
                 ?.filter { it.musicVideoType == MUSIC_VIDEO_TYPE_OMV }
                 .orEmpty()
-        val sameCut = official.firstOrNull { it.duration?.let { d -> abs(d - song.duration) <= SAME_CUT_SECONDS } == true }
-        val candidate = sameCut ?: official.firstOrNull() ?: return null
+        // The official video closest in length to the song, rather than the first one found. An
+        // album track is often longer than its video — a 6:50 song with videos of 5:03 and 6:24 —
+        // and the first result was the short one, which ended with most of the song still to go.
+        val closest =
+            if (song.duration > 0) {
+                official.filter { it.duration != null }.minByOrNull { abs(it.duration!! - song.duration) }
+            } else {
+                null
+            }
+        val candidate = closest ?: official.firstOrNull() ?: return null
+        val synced = closest?.duration?.let { d -> abs(d - song.duration) <= SAME_CUT_SECONDS } == true
         val url = YTPlayerUtils.videoStreamUrl(candidate.id, maxHeight) ?: return null
-        Timber.tag("VideoArt").d("video for ${song.id}: ${candidate.id}, ${if (sameCut != null) "in step" else "on its own"}")
-        return SongVideo(candidate.id, url, synced = sameCut != null)
+        Timber.tag("VideoArt").d("video for ${song.id}: ${candidate.id} (${candidate.duration}s for a ${song.duration}s song), ${if (synced) "in step" else "on its own"}")
+        return SongVideo(candidate.id, url, synced = synced)
     }
 }
 
