@@ -766,6 +766,7 @@
     <string name="listen_together_disconnected">Disconnected</string>
     <string name="listen_together_connecting">Connecting…</string>
     <string name="listen_together_error">Connection error</string>
+    <string name="listen_together_host_not_allowed">This server doesn\'t let Blazify host rooms yet. You can still join a room someone else made.</string>
     <string name="listen_together_create_room">Create room</string>
     <string name="listen_together_create_room_desc">Create a room and share the code with your friends</string>
     <string name="listen_together_join_room">Join room</string>

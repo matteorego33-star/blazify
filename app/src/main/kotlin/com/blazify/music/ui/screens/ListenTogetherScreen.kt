@@ -190,6 +190,23 @@ fun ListenTogetherScreen(
                     clipboard.setPrimaryClip(clip)
                 }
 
+
+                is ListenTogetherEvent.ServerError -> {
+                    // The server said no. Until now this screen ignored it, and
+                    // "Create room" ended in a toast that said creating and
+                    // then nothing at all — the reason the first report of it
+                    // was "a room is not created and I don't get the code".
+                    isCreatingRoom = false
+                    isJoiningRoom = false
+                    val text =
+                        if (event.code == "host_not_allowed") {
+                            context.getString(R.string.listen_together_host_not_allowed)
+                        } else {
+                            event.message
+                        }
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+                }
+
                 else -> {}
             }
         }
