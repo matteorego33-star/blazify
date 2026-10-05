@@ -8,6 +8,8 @@
 
 package com.blazify.music.ui.screens
 
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.WindowInsets
@@ -187,6 +189,17 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                     ),
                 ),
             )
+            // It is drawn over the live app, which is already composed beneath
+            // it; without this a tap on any empty part of it went straight
+            // through to Home — on the emulators a stray one opened the account
+            // panel on top of the onboarding. Every touch it does not use stops here.
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        awaitPointerEvent(PointerEventPass.Final).changes.forEach { it.consume() }
+                    }
+                }
+            }
             // Inside the system bars. Edge to edge, the Skip button sat half under
             // the status bar, and the status bar takes every touch in its own
             // strip: on Android 13 to 15 a tap on Skip opened nothing, and on the
