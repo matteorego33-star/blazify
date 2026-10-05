@@ -8,6 +8,9 @@
 
 package com.blazify.music.ui.screens
 
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
@@ -183,7 +186,12 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                         Color.Black,
                     ),
                 ),
-            ),
+            )
+            // Inside the system bars. Edge to edge, the Skip button sat half under
+            // the status bar, and the status bar takes every touch in its own
+            // strip: on Android 13 to 15 a tap on Skip opened nothing, and on the
+            // emulators six of them in a row left the screen where it was.
+            .windowInsetsPadding(WindowInsets.safeDrawing),
     ) {
         // Held sideways, or on a tablet, there is width to spare and no height: the phones go on
         // one side and the words and buttons on the other, instead of everything squeezing into a
