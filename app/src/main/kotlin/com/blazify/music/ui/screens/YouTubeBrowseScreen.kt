@@ -6,6 +6,19 @@
 
 package com.blazify.music.ui.screens
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import com.blazify.music.constants.ListItemHeight
+import com.blazify.music.ui.component.YouTubeListItem
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.ExperimentalFoundationApi
 import com.blazify.music.ui.component.NavigationTitle
 import com.blazify.music.playback.queues.ListQueue
@@ -95,9 +108,12 @@ fun YouTubeBrowseScreen(
     // One card, however it is laid out: the same taps and the same menus in
     // the grid and in the rails above it.
     @Composable
-    fun browseItem(item: YTItem, fillMaxWidth: Boolean, modifier: Modifier) {
+    fun browseItem(item: YTItem, fillMaxWidth: Boolean, modifier: Modifier, square: Boolean = false) {
         YouTubeGridItem(
             item = item,
+            // In a rail, songs are square like everything beside them, as on Home and the
+            // iPhone. At the default 16:9 a song drew so large it covered its own heading.
+            thumbnailRatio = if (square || item !is SongItem) 1f else 16f / 9,
             isActive =
                 when (item) {
                     is SongItem -> mediaMetadata?.id == item.id
@@ -203,7 +219,108 @@ fun YouTubeBrowseScreen(
         )
     }
 
+    val playlistsTitle = stringResource(R.string.playlists)
+
+    /**
+     * One shelf under its heading: songs as a list four to a column, as Quick picks reads,
+     * everything else as square cards in a row.
+     */
+    fun LazyGridScope.shelf(key: String, title: String, label: String?, items: List<YTItem>) {
+        item(key = "${key}_title", span = { GridItemSpan(maxLineSpan) }) {
+            val songs = items.filterIsInstance<SongItem>()
+            NavigationTitle(
+                title = title,
+                label = label,
+                onPlayAllClick =
+                    if (songs.isNotEmpty()) {
+                        {
+                            playerConnection.playQueue(
+                                ListQueue(
+                                    title = title,
+                                    items = songs.map { it.toMediaMetadata().toMediaItem() },
+                                ),
+                            )
+                        }
+                    } else {
+                        null
+                    },
+            )
+        }
+        val songsOnly = items.all { it is SongItem }
+        item(key = "${key}_rail", span = { GridItemSpan(maxLineSpan) }) {
+            if (songsOnly) {
+                // A shelf of songs reads as a list — title, artist, a small cover — four
+                // to a column, as Quick picks does on Home and on the iPhone.
+                val rowWidth = LocalConfiguration.current.screenWidthDp.dp * 0.9f
+                LazyHorizontalGrid(
+                    rows = GridCells.Fixed(4),
+                    contentPadding =
+                        WindowInsets.systemBars
+                            .only(WindowInsetsSides.Horizontal)
+                            .asPaddingValues(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(ListItemHeight * 4),
+                ) {
+                    items(
+                        items = items.filterIsInstance<SongItem>().distinctBy { it.id },
+                        key = { "${key}_${it.id}" },
+                    ) { song ->
+                        YouTubeListItem(
+                            item = song,
+                            isActive = song.id == mediaMetadata?.id,
+                            isPlaying = isPlaying,
+                            isSwipeable = false,
+                            modifier =
+                                Modifier
+                                    .width(rowWidth)
+                                    .combinedClickable(
+                                        onClick = {
+                                            if (song.id == mediaMetadata?.id) {
+                                                playerConnection.togglePlayPause()
+                                            } else {
+                                                playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
+                                            }
+                                        },
+                                        onLongClick = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            menuState.show {
+                                                YouTubeSongMenu(song = song, onDismiss = menuState::dismiss)
+                                            }
+                                        },
+                                    ),
+                        )
+                    }
+                }
+            } else {
+                // Big cards, two and a bit across, as on the iPhone: a mix is chosen by its
+                // cover, and a cover the size of a stamp is hard to choose by.
+                val cardWidth = LocalConfiguration.current.screenWidthDp.dp * 0.42f
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 6.dp),
+                ) {
+                    items(
+                        items = items.distinctBy { it.id },
+                        key = { "${key}_${it.id}" },
+                    ) { item ->
+                        browseItem(item, fillMaxWidth = true, modifier = Modifier.width(cardWidth), square = true)
+                    }
+                }
+            }
+        }
+    }
+
+    // The shelves arrive after the grid and land above it, and a list keeps its place on what
+    // was first in view — so the page opened part-way down, at the grid, with the shelves out
+    // of sight above. Until somebody scrolls it themselves, the page stays at its top.
+    val gridState = rememberLazyGridState()
+    var touched by remember { mutableStateOf(false) }
+    LaunchedEffect(gridState.isScrollInProgress) { if (gridState.isScrollInProgress) touched = true }
+    LaunchedEffect(forYou) { if (!touched && forYou.isNotEmpty()) gridState.scrollToItem(0) }
+
     LazyVerticalGrid(
+        state = gridState,
         columns = GridCells.Adaptive(minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp),
         contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
     ) {
@@ -211,45 +328,28 @@ fun YouTubeBrowseScreen(
         // the editorial grid — the shelves the Home chip of the same mood
         // carries. See the view model for why the grid alone was not enough.
         forYou.forEachIndexed { index, section ->
-            item(key = "for_you_title_$index", span = { GridItemSpan(maxLineSpan) }) {
-                val songs = section.items.filterIsInstance<SongItem>()
-                NavigationTitle(
-                    title = section.title,
-                    label = section.label,
-                    onPlayAllClick =
-                        if (songs.isNotEmpty()) {
-                            {
-                                playerConnection.playQueue(
-                                    ListQueue(
-                                        title = section.title,
-                                        items = songs.map { it.toMediaMetadata().toMediaItem() },
-                                    ),
-                                )
-                            }
-                        } else {
-                            null
-                        },
-                )
-            }
-            item(key = "for_you_rail_$index", span = { GridItemSpan(maxLineSpan) }) {
-                LazyRow(
-                    contentPadding =
-                        WindowInsets.systemBars
-                            .only(WindowInsetsSides.Horizontal)
-                            .asPaddingValues(),
-                ) {
-                    items(
-                        items = section.items.distinctBy { it.id },
-                        key = { "for_you_${index}_${it.id}" },
-                    ) { item ->
-                        browseItem(item, fillMaxWidth = false, modifier = Modifier)
+            shelf("for_you_$index", section.title, section.label, section.items)
+        }
+
+        // The page's own sections. A genre page is several shelves — songs, albums,
+        // playlists — and drawn as one grid it put songs in as wide video frames with
+        // their titles across the pictures. A section of playlists alone stays a grid,
+        // as a mood's list of playlists always was.
+        browseResult?.items.orEmpty().forEachIndexed { index, section ->
+            val cards = section.items.distinctBy { it.id }
+            if (cards.isEmpty()) return@forEachIndexed
+            if (cards.all { it is PlaylistItem }) {
+                val heading = section.title ?: if (forYou.isNotEmpty()) playlistsTitle else null
+                if (heading != null) {
+                    item(key = "browse_grid_title_$index", span = { GridItemSpan(maxLineSpan) }) {
+                        NavigationTitle(title = heading)
                     }
                 }
-            }
-        }
-        if (forYou.isNotEmpty() && allItems.isNotEmpty()) {
-            item(key = "browse_grid_title", span = { GridItemSpan(maxLineSpan) }) {
-                NavigationTitle(title = stringResource(R.string.playlists))
+                items(items = cards, key = { "yt_browse_${index}_${it.id}" }) { item ->
+                    browseItem(item, fillMaxWidth = true, modifier = Modifier.animateItem())
+                }
+            } else {
+                shelf("browse_$index", section.title.orEmpty(), null, cards)
             }
         }
 
@@ -277,13 +377,6 @@ fun YouTubeBrowseScreen(
                     )
                 }
             }
-        }
-
-        items(
-            items = allItems.distinctBy { it.id },
-            key = { "yt_browse_${it.id}" },
-        ) { item ->
-            browseItem(item, fillMaxWidth = true, modifier = Modifier.animateItem())
         }
     }
 
