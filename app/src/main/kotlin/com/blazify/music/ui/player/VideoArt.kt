@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -424,7 +425,14 @@ fun VideoArt(
      */
     val songSpare = {
         val song = playerConnection.player
-        if (song.playbackState == Player.STATE_BUFFERING) 0L else song.bufferedPosition - song.currentPosition
+        when {
+            song.playbackState == Player.STATE_BUFFERING -> 0L
+            // Loaded to its last second, the song needs nothing more from the connection. Counted
+            // as short instead, every song's last 45 seconds stopped the picture dead: there is
+            // never 45 seconds in hand when fewer than 45 are left.
+            song.duration != C.TIME_UNSET && song.bufferedPosition >= song.duration - SONG_END_SLACK_MS -> Long.MAX_VALUE
+            else -> song.bufferedPosition - song.currentPosition
+        }
     }
 
     /**
@@ -675,6 +683,9 @@ private const val MAX_BANDS = 0.22f
  * and the picture lives on what is left over.
  */
 private const val SONG_SAFETY_MS = 45_000
+
+/** How near its end a song's buffer has to reach to count as the whole song. */
+private const val SONG_END_SLACK_MS = 1_000L
 
 /** How many stumbles the picture is allowed before the artwork simply stays. */
 private const val VIDEO_TRIES = 2
