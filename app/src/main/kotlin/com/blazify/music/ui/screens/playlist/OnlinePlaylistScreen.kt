@@ -16,7 +16,7 @@ import com.blazify.music.LocalDownloadUtil
 import androidx.media3.exoplayer.offline.Download
 import com.blazify.music.ui.component.BlazeLoader
 import com.blazify.music.ui.component.BlazeSnackbarHost
-import com.blazify.music.ui.component.JumpToPlayingButton
+import com.blazify.music.ui.component.OpenOnPlaying
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -371,7 +371,7 @@ fun OnlinePlaylistScreen(
         }
 
         // The header, hidden while searching, is the only item above the songs.
-        JumpToPlayingButton(
+        OpenOnPlaying(
             lazyListState,
             filteredSongs.indexOfFirst { it.second.id == mediaMetadata?.id }
                 .takeIf { it >= 0 }

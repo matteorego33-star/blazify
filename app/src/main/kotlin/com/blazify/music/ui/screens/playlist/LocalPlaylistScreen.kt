@@ -135,7 +135,7 @@ import com.blazify.music.playback.ExoDownloadService
 import com.blazify.music.playback.queues.ListQueue
 import com.blazify.music.ui.component.ActionPromptDialog
 import com.blazify.music.ui.component.BlazeSnackbarHost
-import com.blazify.music.ui.component.JumpToPlayingButton
+import com.blazify.music.ui.component.OpenOnPlaying
 import com.blazify.music.ui.component.DefaultDialog
 import com.blazify.music.ui.component.DraggableScrollbar
 import com.blazify.music.ui.component.EmptyPlaceholder
@@ -815,7 +815,7 @@ fun LocalPlaylistScreen(
             headerItems = 2,
         )
 
-        JumpToPlayingButton(lazyListState, jumpIndex)
+        OpenOnPlaying(lazyListState, jumpIndex)
 
         TopAppBar(
             title = {
