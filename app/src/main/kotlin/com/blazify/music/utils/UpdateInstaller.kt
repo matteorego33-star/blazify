@@ -90,6 +90,8 @@ object UpdateInstaller {
      * [onProgress] receives bytes so far and the total, which is null when the
      * server does not declare one.
      */
+    private const val MAX_RESUMES = 6
+
     suspend fun fetch(
         context: Context,
         url: String,
@@ -99,25 +101,59 @@ object UpdateInstaller {
         runCatching {
             val sink = openDownloadsSink(context, displayName)
             try {
-                val request = okhttp3.Request.Builder().url(url).build()
-                http.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) error("HTTP ${response.code}")
-                    val body = response.body ?: error("The server sent nothing")
-                    val total = body.contentLength().takeIf { it > 0 }
-                    sink.stream.use { out ->
-                        val buffer = ByteArray(64 * 1024)
-                        var done = 0L
-                        body.byteStream().use { input ->
-                            while (true) {
-                                val read = input.read(buffer)
-                                if (read == -1) break
-                                out.write(buffer, 0, read)
-                                done += read
-                                onProgress(done, total)
+                sink.stream.use { out ->
+                    val buffer = ByteArray(64 * 1024)
+                    var done = 0L
+                    var total: Long? = null
+                    var attempt = 0
+                    // A dropped connection picks up where it stopped, not from
+                    // nothing: a slow backup host or a weak mobile signal can
+                    // cut a 27 MB download several times over.
+                    while (true) {
+                        val request = okhttp3.Request.Builder().url(url).apply {
+                            if (done > 0) header("Range", "bytes=$done-")
+                        }.build()
+                        val finished = try {
+                            http.newCall(request).execute().use { response ->
+                                if (!response.isSuccessful) error("HTTP ${response.code}")
+                                val body = response.body ?: error("The server sent nothing")
+                                val resumed = response.code == 206
+                                if (total == null) {
+                                    total = body.contentLength().takeIf { it > 0 }
+                                        ?.let { if (resumed) it + done else it }
+                                }
+                                body.byteStream().use { input ->
+                                    // A server that ignores the range sends it all again;
+                                    // pass over what is already written.
+                                    if (!resumed && done > 0) {
+                                        var skip = done
+                                        while (skip > 0) {
+                                            val n = input.skip(skip)
+                                            if (n <= 0) error("The download restarted and could not catch up")
+                                            skip -= n
+                                        }
+                                    }
+                                    while (true) {
+                                        val read = input.read(buffer)
+                                        if (read == -1) break
+                                        out.write(buffer, 0, read)
+                                        done += read
+                                        onProgress(done, total)
+                                    }
+                                }
+                                total == null || done >= total!!
                             }
+                        } catch (e: java.io.IOException) {
+                            if (attempt >= MAX_RESUMES) throw e
+                            Timber.tag(TAG).w("Download dropped at $done bytes: ${e.message}")
+                            false
                         }
-                        out.flush()
+                        if (finished) break
+                        if (++attempt > MAX_RESUMES) error("The download kept stopping short")
+                        Timber.tag(TAG).i("Resuming at $done bytes (try $attempt)")
+                        kotlinx.coroutines.delay(2_000L * attempt)
                     }
+                    out.flush()
                 }
                 sink.publish()
             } catch (t: Throwable) {
