@@ -26,7 +26,7 @@ import urllib.request
 from pathlib import Path
 
 GITHUB = "https://api.github.com/repos/rajendra7169/blazify"
-GITLAB_PROJECT = os.environ.get("GITLAB_PROJECT", "rajendra7169/blazify")
+GITLAB_PROJECT = os.environ.get("GITLAB_PROJECT", "hackerraja7169/blazify")
 GITLAB = "https://gitlab.com/api/v4/projects/" + urllib.parse.quote(GITLAB_PROJECT, safe="")
 CODEBERG = "https://codeberg.org/api/v1/repos/" + os.environ.get("CODEBERG_REPO", "rajaindra7169/blazify")
 SITE = Path("~/Documents/GitHub/portfolio-site").expanduser()
