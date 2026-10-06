@@ -19,7 +19,7 @@ import urllib.request
 from pathlib import Path
 
 GITHUB = "https://api.github.com/repos/rajendra7169/blazify"
-CODEBERG = "https://codeberg.org/api/v1/repos/" + os.environ.get("CODEBERG_REPO", "rajendra7169/blazify")
+CODEBERG = "https://codeberg.org/api/v1/repos/" + os.environ.get("CODEBERG_REPO", "rajaindra7169/blazify")
 TOKEN = Path("~/.config/blazify-codeberg-token").expanduser().read_text().strip()
 
 
