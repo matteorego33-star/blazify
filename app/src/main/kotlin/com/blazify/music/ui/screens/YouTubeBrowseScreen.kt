@@ -311,13 +311,8 @@ fun YouTubeBrowseScreen(
         }
     }
 
-    // The shelves arrive after the grid and land above it, and a list keeps its place on what
-    // was first in view — so the page opened part-way down, at the grid, with the shelves out
-    // of sight above. Until somebody scrolls it themselves, the page stays at its top.
+    val ready by viewModel.ready.collectAsStateWithLifecycle()
     val gridState = rememberLazyGridState()
-    var touched by remember { mutableStateOf(false) }
-    LaunchedEffect(gridState.isScrollInProgress) { if (gridState.isScrollInProgress) touched = true }
-    LaunchedEffect(forYou) { if (!touched && forYou.isNotEmpty()) gridState.scrollToItem(0) }
 
     LazyVerticalGrid(
         state = gridState,
@@ -327,7 +322,7 @@ fun YouTubeBrowseScreen(
         // What YouTube Music puts together for this account in the mood, above
         // the editorial grid — the shelves the Home chip of the same mood
         // carries. See the view model for why the grid alone was not enough.
-        forYou.forEachIndexed { index, section ->
+        if (ready) forYou.forEachIndexed { index, section ->
             shelf("for_you_$index", section.title, section.label, section.items)
         }
 
@@ -335,7 +330,7 @@ fun YouTubeBrowseScreen(
         // playlists — and drawn as one grid it put songs in as wide video frames with
         // their titles across the pictures. A section of playlists alone stays a grid,
         // as a mood's list of playlists always was.
-        browseResult?.items.orEmpty().forEachIndexed { index, section ->
+        if (ready) browseResult?.items.orEmpty().forEachIndexed { index, section ->
             val cards = section.items.distinctBy { it.id }
             if (cards.isEmpty()) return@forEachIndexed
             if (cards.all { it is PlaylistItem }) {
@@ -353,7 +348,7 @@ fun YouTubeBrowseScreen(
             }
         }
 
-        if (browseResult == null) {
+        if (!ready) {
             items(8) {
                 ShimmerHost {
                     GridItemPlaceHolder(fillMaxWidth = true)

@@ -54,6 +54,19 @@ constructor(
      */
     val forYou = MutableStateFlow<List<HomePage.Section>>(emptyList())
 
+    /**
+     * True once both answers are in. The page waits for the pair, as the iPhone does: shown
+     * as each arrived, the grid came first and the shelves then landed on top of it a moment
+     * later, moving whatever was about to be tapped.
+     */
+    val ready = MutableStateFlow(false)
+    private var gridDone = false
+    private var shelvesDone = title == null
+
+    private fun settle() {
+        if (gridDone && shelvesDone) ready.value = true
+    }
+
     init {
         viewModelScope.launch {
             val hideExplicit = context.dataStore.get(HideExplicitKey, false)
@@ -69,6 +82,8 @@ constructor(
                 }.onFailure {
                     reportException(it)
                 }
+            gridDone = true
+            settle()
         }
         title?.let {
             loadForYou(it)
@@ -79,20 +94,25 @@ constructor(
 
     private fun loadForYou(moodTitle: String) {
         viewModelScope.launch {
-            val hideExplicit = context.dataStore.get(HideExplicitKey, false)
-            val wanted = chipName(moodTitle)
-            val chip = YouTube.home().getOrNull()?.chips
-                ?.firstOrNull { it.title.lowercase() == wanted }
-                ?: return@launch
-            val chipParams = chip.endpoint?.params ?: return@launch
-            YouTube.home(params = chipParams)
-                .onSuccess { page ->
-                    forYou.value = page.sections
-                        .map { section ->
-                            if (hideExplicit) section.copy(items = section.items.filter { !it.explicit }) else section
-                        }
-                        .filter { it.items.isNotEmpty() }
-                }.onFailure { reportException(it) }
+            try {
+                val hideExplicit = context.dataStore.get(HideExplicitKey, false)
+                val wanted = chipName(moodTitle)
+                val chip = YouTube.home().getOrNull()?.chips
+                    ?.firstOrNull { it.title.lowercase() == wanted }
+                    ?: return@launch
+                val chipParams = chip.endpoint?.params ?: return@launch
+                YouTube.home(params = chipParams)
+                    .onSuccess { page ->
+                        forYou.value = page.sections
+                            .map { section ->
+                                if (hideExplicit) section.copy(items = section.items.filter { !it.explicit }) else section
+                            }
+                            .filter { it.items.isNotEmpty() }
+                    }.onFailure { reportException(it) }
+            } finally {
+                shelvesDone = true
+                settle()
+            }
         }
     }
 
