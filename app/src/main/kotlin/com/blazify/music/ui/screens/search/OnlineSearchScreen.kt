@@ -6,6 +6,10 @@
 
 package com.blazify.music.ui.screens.search
 
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -19,7 +23,6 @@ import android.net.Uri
 import androidx.compose.runtime.remember
 import com.blazify.innertube.pages.MoodAndGenres
 import com.blazify.music.viewmodels.BROWSE_GENRES_MIN
-import com.blazify.music.viewmodels.BROWSE_MOODS
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -145,23 +148,25 @@ fun OnlineSearchScreen(
     // order is worked out here, from the same figures the model keeps.
     val genreScores by viewModel.genreScores.collectAsStateWithLifecycle()
     val genreTitles by viewModel.genreTitles.collectAsStateWithLifecycle()
-    val browseTiles =
+    // Laid out as on the iPhone: every mood under Browse, then the genres under
+    // their own heading — the listener's own first, with a couple beyond them,
+    // and the rest behind "All genres" rather than a page of languages nobody
+    // here has played.
+    val moodTiles =
+        remember(moods, genreTitles) { moods.filter { it.title !in genreTitles } }
+    val genreTiles =
         remember(moods, genreScores, genreTitles) {
-            if (genreTitles.isEmpty()) {
-                moods.take(BROWSE_MOODS)
-            } else {
-                val moodTiles = moods.filter { it.title !in genreTitles }.take(BROWSE_MOODS)
-                val genres =
-                    moods.withIndex()
-                        .filter { it.value.title in genreTitles }
-                        .sortedWith(
-                            compareByDescending<IndexedValue<MoodAndGenres.Item>> { genreScores[it.value.title] ?: 0.0 }
-                                .thenBy { it.index },
-                        ).map { it.value }
-                val own = genres.count { (genreScores[it.title] ?: 0.0) > 0 }
-                moodTiles + genres.take(maxOf(BROWSE_GENRES_MIN, own + 2))
-            }
+            moods.withIndex()
+                .filter { it.value.title in genreTitles }
+                .sortedWith(
+                    compareByDescending<IndexedValue<MoodAndGenres.Item>> { genreScores[it.value.title] ?: 0.0 }
+                        .thenBy { it.index },
+                ).map { it.value }
         }
+    var allGenres by rememberSaveable { mutableStateOf(false) }
+    val ownGenres = genreTiles.count { (genreScores[it.title] ?: 0.0) > 0 }
+    val genresShown =
+        if (allGenres) genreTiles.size else maxOf(BROWSE_GENRES_MIN, minOf(genreTiles.size, ownGenres + 2))
     val browseArt by viewModel.browseArt.collectAsStateWithLifecycle()
 
     val lazyListState = rememberLazyListState()
@@ -517,39 +522,65 @@ fun OnlineSearchScreen(
                     )
                 }
             }
-            if (browseTiles.isNotEmpty()) {
-                items(
-                    items = browseTiles.chunked(2),
-                    key = { row -> "browse_${row.first().title}" },
-                ) { row ->
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+            items(
+                items = moodTiles.chunked(2),
+                key = { row -> "browse_${row.first().title}" },
+            ) { row ->
+                BrowseTileRow(
+                    row = row,
+                    browseArt = browseArt,
+                    onOpen = { mood ->
+                        onDismiss()
+                        navController.navigate(
+                            "youtube_browse/${mood.endpoint.browseId}?params=${mood.endpoint.params}&title=${Uri.encode(mood.title)}",
+                        )
+                    },
+                    modifier = Modifier.animateItem(),
+                )
+            }
+            if (genreTiles.isNotEmpty()) {
+                item(key = "genres_heading") {
+                    Text(
+                        text = stringResource(R.string.genres),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier =
                             Modifier
                                 .animateItem()
-                                .fillMaxWidth()
-                                // Both tiles take the height of the taller one,
-                                // so a two-line title does not leave a ragged row.
-                                .height(IntrinsicSize.Min)
-                                .padding(horizontal = 16.dp, vertical = 6.dp),
-                    ) {
-                        row.forEach { mood ->
-                            BrowseTile(
-                                title = mood.title,
-                                stripeColor = mood.stripeColor,
-                                art = browseArt[BrowseArt.keyOf(mood.endpoint)].orEmpty(),
-                                onClick = {
-                                    onDismiss()
-                                    navController.navigate(
-                                        "youtube_browse/${mood.endpoint.browseId}?params=${mood.endpoint.params}&title=${Uri.encode(mood.title)}",
-                                    )
-                                },
-                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                .padding(start = 16.dp, end = 16.dp, top = 22.dp, bottom = 12.dp),
+                    )
+                }
+                items(
+                    items = genreTiles.take(genresShown).chunked(2),
+                    key = { row -> "genre_${row.first().title}" },
+                ) { row ->
+                    BrowseTileRow(
+                        row = row,
+                        browseArt = browseArt,
+                        onOpen = { mood ->
+                            onDismiss()
+                            navController.navigate(
+                                "youtube_browse/${mood.endpoint.browseId}?params=${mood.endpoint.params}&title=${Uri.encode(mood.title)}",
                             )
-                        }
-                        // A last odd tile keeps its own column rather than
-                        // stretching across the row.
-                        if (row.size == 1) Spacer(Modifier.weight(1f))
+                        },
+                        modifier = Modifier.animateItem(),
+                    )
+                }
+                if (genreTiles.size > BROWSE_GENRES_MIN) {
+                    item(key = "genres_toggle") {
+                        Text(
+                            text = stringResource(if (allGenres) R.string.fewer_genres else R.string.all_genres),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center,
+                            modifier =
+                                Modifier
+                                    .animateItem()
+                                    .fillMaxWidth()
+                                    .clickable { allGenres = !allGenres }
+                                    .padding(vertical = 14.dp),
+                        )
                     }
                 }
             }
@@ -890,6 +921,37 @@ fun RecentSearchesRail(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+    }
+}
+
+/** Two Browse tiles side by side, the same height, a lone last one keeping its column. */
+@Composable
+private fun BrowseTileRow(
+    row: List<MoodAndGenres.Item>,
+    browseArt: Map<String, List<String>>,
+    onOpen: (MoodAndGenres.Item) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                // Both tiles take the height of the taller one,
+                // so a two-line title does not leave a ragged row.
+                .height(IntrinsicSize.Min)
+                .padding(horizontal = 16.dp, vertical = 6.dp),
+    ) {
+        row.forEach { mood ->
+            BrowseTile(
+                title = mood.title,
+                stripeColor = mood.stripeColor,
+                art = browseArt[BrowseArt.keyOf(mood.endpoint)].orEmpty(),
+                onClick = { onOpen(mood) },
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+            )
+        }
+        if (row.size == 1) Spacer(Modifier.weight(1f))
     }
 }
 

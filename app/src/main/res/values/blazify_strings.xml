@@ -337,7 +337,8 @@
     <string name="view_on_github">View on GitHub</string>
 
     <!-- Know about the developer, in the account sheet -->
-    <string name="all_genres">All genres</string>
+        <string name="genres">Genres</string>
+<string name="all_genres">All genres</string>
     <string name="fewer_genres">Fewer genres</string>
     <string name="developer_heading">Know about the developer</string>
     <string name="developer_name" translatable="false">Rajendra Pandey</string>
