@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.blazify.music.R
 import com.blazify.music.ui.screens.settings.MarkdownText
 import com.blazify.music.utils.ReleaseInfo
@@ -76,6 +80,23 @@ fun UpdateDialog(
         }
         needsPermission = false
         UpdateInstaller.install(context, fetched)
+    }
+
+    // Back from the settings screen with the permission granted: carry on to
+    // the installer, rather than leave a dialog that only offers the settings
+    // again and no way to press Install.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            val ready = stage as? Stage.Ready
+            if (event == Lifecycle.Event.ON_RESUME && needsPermission && ready != null &&
+                UpdateInstaller.mayInstall(context)
+            ) {
+                startInstall(ready.fetched)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     AlertDialog(
