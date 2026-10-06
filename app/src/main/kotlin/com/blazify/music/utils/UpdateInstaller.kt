@@ -105,6 +105,7 @@ object UpdateInstaller {
         runCatching {
             require(urls.isNotEmpty()) { "No download address" }
             val sink = openDownloadsSink(context, displayName)
+            var savedAs = displayName
             try {
                 sink.stream.use { out ->
                     val buffer = ByteArray(64 * 1024)
@@ -175,15 +176,15 @@ object UpdateInstaller {
                     }
                     out.flush()
                 }
-                sink.publish()
+                savedAs = sink.publish()
             } catch (t: Throwable) {
                 sink.abandon()
                 throw t
             }
 
             val needsUninstall = !signedLikeInstalled(context, sink.uri)
-            Timber.tag(TAG).d("Fetched $displayName; uninstall first: $needsUninstall")
-            Fetched(sink.uri, displayName, needsUninstall)
+            Timber.tag(TAG).d("Fetched $savedAs; uninstall first: $needsUninstall")
+            Fetched(sink.uri, savedAs, needsUninstall)
         }.onFailure { Timber.tag(TAG).w(it, "Could not fetch the update") }
     }
 
@@ -279,7 +280,8 @@ object UpdateInstaller {
     private class Sink(
         val uri: Uri,
         val stream: OutputStream,
-        val publish: () -> Unit,
+        /** Makes the file visible; returns the name it ended up under. */
+        val publish: () -> String,
         val abandon: () -> Unit,
     )
 
@@ -299,12 +301,33 @@ object UpdateInstaller {
                 uri = uri,
                 stream = resolver.openOutputStream(uri) ?: error("Could not write to Downloads"),
                 publish = {
-                    resolver.update(
-                        uri,
-                        ContentValues().apply { put(MediaStore.Downloads.IS_PENDING, 0) },
-                        null,
-                        null,
-                    )
+                    // The name can be held by an entry whose file is gone (deleted by
+                    // something that did not tell the media store), and Android then
+                    // refuses it. Take the next free "Blazify (1).apk" rather than
+                    // throw away a finished download over its name.
+                    val base = displayName.substringBeforeLast('.')
+                    val ext = displayName.substringAfterLast('.', "")
+                    val names = sequenceOf(displayName) +
+                        (1..20).asSequence().map { "$base ($it)" + if (ext.isEmpty()) "" else ".$ext" }
+                    names.firstOrNull { name ->
+                        runCatching {
+                            resolver.update(
+                                uri,
+                                ContentValues().apply {
+                                    put(MediaStore.Downloads.DISPLAY_NAME, name)
+                                    put(MediaStore.Downloads.IS_PENDING, 0)
+                                },
+                                null,
+                                null,
+                            )
+                        }.onFailure { Timber.tag(TAG).w("Downloads would not take the name $name: ${it.message}") }
+                            .isSuccess
+                    } ?: error("The Downloads folder would not take the file under any name")
+                    // Android may still pick its own free name; report the one it kept.
+                    runCatching {
+                        resolver.query(uri, arrayOf(MediaStore.Downloads.DISPLAY_NAME), null, null, null)
+                            ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
+                    }.getOrNull() ?: displayName
                 },
                 abandon = { runCatching { resolver.delete(uri, null, null) } },
             )
@@ -320,7 +343,7 @@ object UpdateInstaller {
                     file,
                 ),
                 stream = file.outputStream(),
-                publish = {},
+                publish = { displayName },
                 abandon = { file.delete() },
             )
         }
