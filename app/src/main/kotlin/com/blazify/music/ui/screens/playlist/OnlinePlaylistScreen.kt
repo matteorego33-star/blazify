@@ -6,6 +6,10 @@
 
 package com.blazify.music.ui.screens.playlist
 
+import com.blazify.music.extensions.toMediaItem
+import com.blazify.music.playback.queues.ListQueue
+import com.blazify.music.playback.queues.YouTubeQueue
+import com.blazify.music.ui.component.CollectionActionRow
 import com.blazify.music.playback.downloadStateOf
 import com.blazify.music.playback.downloadAll
 import com.blazify.music.LocalDownloadUtil
@@ -627,183 +631,95 @@ private fun OnlinePlaylistHeader(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // Like Button - Smaller secondary button
-            Surface(
-                onClick = {
-                    if (dbPlaylist != null) {
-                        database.transaction {
-                            val currentPlaylist = dbPlaylist.playlist
-                            update(currentPlaylist, playlist)
-                            update(currentPlaylist.toggleLike())
-                        }
-                    } else {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            val playlistEntity =
-                                PlaylistEntity(
-                                    name = playlist.title,
-                                    browseId = playlist.id,
-                                    thumbnailUrl = playlist.thumbnail,
-                                    isEditable = playlist.isEditable,
-                                    remoteSongCount =
-                                        playlist.songCountText?.let {
-                                            Regex("""\d+""").find(it)?.value?.toIntOrNull()
-                                        },
-                                    playEndpointParams = playlist.playEndpoint?.params,
-                                    shuffleEndpointParams = playlist.shuffleEndpoint?.params,
-                                    radioEndpointParams = playlist.radioEndpoint?.params,
-                                ).toggleLike()
-                            val songMetadata = songs.map { it.toMediaMetadata() }
-                            database.withTransaction {
-                                insert(playlistEntity)
-                                songMetadata.onEach { insert(it) }
-                                val songIds = songMetadata.map { it.id to it.setVideoId }
-                                val createdPlaylist =
-                                    database.playlistBlocking(playlistEntity.id)
-                                        ?: throw IllegalStateException("Failed to create playlist")
-                                database.addSongsToPlaylist(createdPlaylist, songIds)
-                            }
-                        }
-                    }
-                },
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(48.dp),
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter =
-                            painterResource(
-                                if (dbPlaylist?.playlist?.bookmarkedAt != null) R.drawable.favorite else R.drawable.favorite_border,
-                            ),
-                        contentDescription = null,
-                        tint =
-                            if (dbPlaylist?.playlist?.bookmarkedAt != null) {
-                                MaterialTheme.colorScheme.error
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                        modifier = Modifier.size(24.dp),
-                    )
+        val context = LocalContext.current
+        val downloadUtil = LocalDownloadUtil.current
+        val downloads by downloadUtil.downloads.collectAsStateWithLifecycle()
+        CollectionActionRow(
+            liked = dbPlaylist?.playlist?.bookmarkedAt != null,
+            onLike = {
+            if (dbPlaylist != null) {
+                database.transaction {
+                    val currentPlaylist = dbPlaylist.playlist
+                    update(currentPlaylist, playlist)
+                    update(currentPlaylist.toggleLike())
                 }
-            }
-
-            // Play Button - Larger primary circular button
-            Surface(
-                onClick = {
-                    if (!isListenTogetherGuest && songs.isNotEmpty()) {
-                        playerConnection.playQueue(
-                            YouTubePlaylistQueue(
-                                playlistId = playlist.id,
-                                playlistTitle = playlist.title,
-                                initialSongs = songs,
-                                initialContinuation = continuation,
-                            ),
-                        )
-                    }
-                },
-                color = MaterialTheme.colorScheme.primary,
-                shape = CircleShape,
-                modifier = Modifier.size(72.dp),
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.play),
-                        contentDescription = stringResource(R.string.play),
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(32.dp),
-                    )
-                }
-            }
-
-            // Download the whole playlist, as the iPhone's playlist page does.
-            // It was only in the menu behind the dots, where nobody looks for it.
-            if (songs.isNotEmpty() && !isPodcastPlaylist) {
-                val context = LocalContext.current
-                val downloadUtil = LocalDownloadUtil.current
-                val downloads by downloadUtil.downloads.collectAsStateWithLifecycle()
-                val state = downloadStateOf(songs.map { it.id }, downloads)
-                Surface(
-                    onClick = {
-                        if (state == Download.STATE_STOPPED) {
-                            coroutineScope.launch(Dispatchers.IO) {
-                                downloadAll(context, database, songs.map { it.toMediaMetadata() }, downloads)
-                            }
-                        }
-                    },
-                    enabled = state == Download.STATE_STOPPED,
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.size(48.dp),
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        when (state) {
-                            Download.STATE_DOWNLOADING -> BlazeLoader(
-                                modifier = Modifier.size(22.dp),
-                                strokeWidth = 2.dp,
-                            )
-                            else -> Icon(
-                                painter = painterResource(
-                                    if (state == Download.STATE_COMPLETED) R.drawable.offline else R.drawable.download,
-                                ),
-                                contentDescription = stringResource(
-                                    if (state == Download.STATE_COMPLETED) R.string.offline else R.string.action_download,
-                                ),
-                                tint = if (state == Download.STATE_COMPLETED) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
+            } else {
+                coroutineScope.launch(Dispatchers.IO) {
+                    val playlistEntity =
+                        PlaylistEntity(
+                            name = playlist.title,
+                            browseId = playlist.id,
+                            thumbnailUrl = playlist.thumbnail,
+                            isEditable = playlist.isEditable,
+                            remoteSongCount =
+                                playlist.songCountText?.let {
+                                    Regex("""\d+""").find(it)?.value?.toIntOrNull()
                                 },
-                                modifier = Modifier.size(24.dp),
-                            )
-                        }
+                            playEndpointParams = playlist.playEndpoint?.params,
+                            shuffleEndpointParams = playlist.shuffleEndpoint?.params,
+                            radioEndpointParams = playlist.radioEndpoint?.params,
+                        ).toggleLike()
+                    val songMetadata = songs.map { it.toMediaMetadata() }
+                    database.withTransaction {
+                        insert(playlistEntity)
+                        songMetadata.onEach { insert(it) }
+                        val songIds = songMetadata.map { it.id to it.setVideoId }
+                        val createdPlaylist =
+                            database.playlistBlocking(playlistEntity.id)
+                                ?: throw IllegalStateException("Failed to create playlist")
+                        database.addSongsToPlaylist(createdPlaylist, songIds)
                     }
                 }
             }
-
-            // Menu Button - Smaller secondary button
-            Surface(
-                onClick = {
-                    menuState.show {
-                        YouTubePlaylistMenu(
-                            playlist = playlist,
-                            songs = songs,
-                            coroutineScope = coroutineScope,
-                            onDismiss = menuState::dismiss,
-                        )
-                    }
-                },
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(48.dp),
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.more_vert),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
+        },
+            // The whole playlist, as on the iPhone. It was only in the menu
+            // behind the dots, where nobody looks for it.
+            downloadState =
+                if (songs.isNotEmpty() && !isPodcastPlaylist) downloadStateOf(songs.map { it.id }, downloads) else null,
+            onDownload = {
+                coroutineScope.launch(Dispatchers.IO) {
+                    downloadAll(context, database, songs.map { it.toMediaMetadata() }, downloads)
+                }
+            },
+            onPlay = {
+                if (!isListenTogetherGuest && songs.isNotEmpty()) {
+                    playerConnection.playQueue(
+                        YouTubePlaylistQueue(
+                            playlistId = playlist.id,
+                            playlistTitle = playlist.title,
+                            initialSongs = songs,
+                            initialContinuation = continuation,
+                        ),
                     )
                 }
-            }
-        }
+            },
+            onShuffle =
+                if (songs.isEmpty()) {
+                    null
+                } else {
+                    {
+                        if (!isListenTogetherGuest) {
+                            val endpoint = playlist.shuffleEndpoint
+                            if (endpoint != null) {
+                                playerConnection.playQueue(YouTubeQueue(endpoint))
+                            } else {
+                                playerConnection.playQueue(
+                                    ListQueue(title = playlist.title, items = songs.shuffled().map { it.toMediaItem() }),
+                                )
+                            }
+                        }
+                    }
+                },
+            onMore = {
+                menuState.show {
+                    YouTubePlaylistMenu(
+                        playlist = playlist,
+                        songs = songs,
+                        coroutineScope = coroutineScope,
+                        onDismiss = menuState::dismiss,
+                    )
+                }
+            },
+        )
     }
 }

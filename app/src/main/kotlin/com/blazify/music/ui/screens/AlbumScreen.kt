@@ -6,6 +6,13 @@
 
 package com.blazify.music.ui.screens
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import com.blazify.music.playback.downloadAll
+import com.blazify.music.models.toMediaMetadata
+import com.blazify.music.extensions.toMediaItem
+import com.blazify.music.playback.queues.ListQueue
+import com.blazify.music.ui.component.CollectionActionRow
 import com.blazify.music.ui.component.BlazeLoader
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -286,110 +293,56 @@ fun AlbumScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Action Buttons Row
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        // Like Button - Smaller secondary button
-                        Surface(
-                            onClick = {
-                                database.query {
-                                    update(albumWithSongs.album.toggleLike())
-                                }
-                            },
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            modifier = Modifier.size(48.dp),
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Icon(
-                                    painter =
-                                        painterResource(
-                                            if (albumWithSongs.album.bookmarkedAt !=
-                                                null
-                                            ) {
-                                                R.drawable.favorite
-                                            } else {
-                                                R.drawable.favorite_border
-                                            },
+                    CollectionActionRow(
+                        liked = albumWithSongs.album.bookmarkedAt != null,
+                        onLike = {
+                            database.query {
+                                update(albumWithSongs.album.toggleLike())
+                            }
+                        },
+                        // The whole album in one tap, beside Play, as on the iPhone.
+                        downloadState = downloadState,
+                        onDownload = {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                downloadAll(
+                                    context,
+                                    database,
+                                    albumWithSongs.songs.map { it.toMediaMetadata() },
+                                    downloadUtil.downloads.value,
+                                )
+                            }
+                        },
+                        onPlay = {
+                            if (!isListenTogetherGuest) {
+                                playerConnection.service.getAutomix(playlistId)
+                                playerConnection.playQueue(
+                                    LocalAlbumRadio(albumWithSongs),
+                                )
+                            }
+                        },
+                        onShuffle = {
+                            if (!isListenTogetherGuest) {
+                                playerConnection.playQueue(
+                                    ListQueue(
+                                        title = albumWithSongs.album.title,
+                                        items = albumWithSongs.songs.shuffled().map { it.toMediaItem() },
+                                    ),
+                                )
+                            }
+                        },
+                        onMore = {
+                            menuState.show {
+                                AlbumMenu(
+                                    originalAlbum =
+                                        Album(
+                                            albumWithSongs.album,
+                                            albumWithSongs.artists,
                                         ),
-                                    contentDescription = null,
-                                    tint =
-                                        if (albumWithSongs.album.bookmarkedAt != null) {
-                                            MaterialTheme.colorScheme.error
-                                        } else {
-                                            MaterialTheme.colorScheme.onSurfaceVariant
-                                        },
-                                    modifier = Modifier.size(24.dp),
+                                    onDismiss = menuState::dismiss,
                                 )
                             }
-                        }
-
-                        // Play Button - Larger primary circular button
-                        Surface(
-                            onClick = {
-                                if (!isListenTogetherGuest) {
-                                    playerConnection.service.getAutomix(playlistId)
-                                    playerConnection.playQueue(
-                                        LocalAlbumRadio(albumWithSongs),
-                                    )
-                                }
-                            },
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape,
-                            modifier = Modifier.size(72.dp),
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier.fillMaxSize(),
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.play),
-                                    contentDescription = stringResource(R.string.play),
-                                    tint = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size(32.dp),
-                                )
-                            }
-                        }
-
-                        // Menu Button - Smaller secondary button
-                        Surface(
-                            onClick = {
-                                menuState.show {
-                                    AlbumMenu(
-                                        originalAlbum =
-                                            Album(
-                                                albumWithSongs.album,
-                                                albumWithSongs.artists,
-                                            ),
-                                        onDismiss = menuState::dismiss,
-                                    )
-                                }
-                            },
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            modifier = Modifier.size(48.dp),
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.more_vert),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                )
-                            }
-                        }
-                    }
+                        },
+                    )
                 }
             }
 
