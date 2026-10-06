@@ -103,6 +103,18 @@ class UpdaterSourcesTest {
     }
 
     @Test
+    fun `an APK listed on several hosts keeps them in order, best first`() = runBlocking {
+        network(mapOf(
+            home to (HttpStatusCode.OK to """
+                {"latest":{"version":"9.17.0","apks":[{"name":"Blazify.apk","size":27000000,
+                 "urls":["https://gitlab.test/Blazify.apk","https://codeberg.test/Blazify.apk"]}]}}
+            """.trimIndent()),
+        ))
+        val asset = Updater.latestFromAnySource(includeBetas = false).assets.single()
+        assertEquals(listOf("https://gitlab.test/Blazify.apk", "https://codeberg.test/Blazify.apk"), asset.allUrls)
+    }
+
+    @Test
     fun `an unencrypted download address in the website's file is refused`() {
         val failed = runCatching {
             Updater.parseManifest(org.json.JSONObject(

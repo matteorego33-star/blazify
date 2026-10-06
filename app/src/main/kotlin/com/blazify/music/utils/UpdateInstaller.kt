@@ -84,43 +84,62 @@ object UpdateInstaller {
         val needsUninstallFirst: Boolean,
     )
 
+    /** Tries on one address before moving to the next, for a dropped connection. */
+    private const val TRIES_PER_HOST = 3
+
     /**
      * Download a release asset into the shared Downloads folder.
      *
+     * [urls] are the same file in different places, tried in order: a host
+     * that refuses or keeps dropping hands over to the next, and the next
+     * carries on from the bytes already saved rather than starting again.
      * [onProgress] receives bytes so far and the total, which is null when the
      * server does not declare one.
      */
-    private const val MAX_RESUMES = 6
-
     suspend fun fetch(
         context: Context,
-        url: String,
+        urls: List<String>,
         displayName: String,
         onProgress: (downloaded: Long, total: Long?) -> Unit,
     ): Result<Fetched> = withContext(Dispatchers.IO) {
         runCatching {
+            require(urls.isNotEmpty()) { "No download address" }
             val sink = openDownloadsSink(context, displayName)
             try {
                 sink.stream.use { out ->
                     val buffer = ByteArray(64 * 1024)
                     var done = 0L
                     var total: Long? = null
-                    var attempt = 0
-                    // A dropped connection picks up where it stopped, not from
-                    // nothing: a slow backup host or a weak mobile signal can
-                    // cut a 27 MB download several times over.
+                    var host = 0
+                    var tries = 0
+                    var lastError: Throwable? = null
                     while (true) {
+                        if (tries >= TRIES_PER_HOST) {
+                            host++
+                            tries = 0
+                        }
+                        val url = urls.getOrNull(host) ?: throw (lastError ?: error("Every download address failed"))
+                        tries++
                         val request = okhttp3.Request.Builder().url(url).apply {
                             if (done > 0) header("Range", "bytes=$done-")
                         }.build()
                         val finished = try {
                             http.newCall(request).execute().use { response ->
-                                if (!response.isSuccessful) error("HTTP ${response.code}")
-                                val body = response.body ?: error("The server sent nothing")
+                                if (!response.isSuccessful) {
+                                    // A refusal will not change on asking again.
+                                    tries = TRIES_PER_HOST
+                                    throw java.io.IOException("HTTP ${response.code}")
+                                }
+                                val body = response.body ?: throw java.io.IOException("The server sent nothing")
                                 val resumed = response.code == 206
+                                val length = body.contentLength().takeIf { it > 0 }
+                                    ?.let { if (resumed) it + done else it }
                                 if (total == null) {
-                                    total = body.contentLength().takeIf { it > 0 }
-                                        ?.let { if (resumed) it + done else it }
+                                    total = length
+                                } else if (length != null && length != total) {
+                                    // Not the same file as the bytes already saved.
+                                    tries = TRIES_PER_HOST
+                                    throw java.io.IOException("$url has a different file ($length bytes, expected $total)")
                                 }
                                 body.byteStream().use { input ->
                                     // A server that ignores the range sends it all again;
@@ -129,7 +148,7 @@ object UpdateInstaller {
                                         var skip = done
                                         while (skip > 0) {
                                             val n = input.skip(skip)
-                                            if (n <= 0) error("The download restarted and could not catch up")
+                                            if (n <= 0) throw java.io.IOException("The download restarted and could not catch up")
                                             skip -= n
                                         }
                                     }
@@ -144,14 +163,15 @@ object UpdateInstaller {
                                 total == null || done >= total!!
                             }
                         } catch (e: java.io.IOException) {
-                            if (attempt >= MAX_RESUMES) throw e
-                            Timber.tag(TAG).w("Download dropped at $done bytes: ${e.message}")
+                            lastError = e
+                            Timber.tag(TAG).w("Download from ${url.substringAfter("://").substringBefore('/')} stopped at $done bytes: ${e.message}")
                             false
                         }
-                        if (finished) break
-                        if (++attempt > MAX_RESUMES) error("The download kept stopping short")
-                        Timber.tag(TAG).i("Resuming at $done bytes (try $attempt)")
-                        kotlinx.coroutines.delay(2_000L * attempt)
+                        if (finished) {
+                            Timber.tag(TAG).i("Downloaded $displayName from ${url.substringAfter("://").substringBefore('/')}")
+                            break
+                        }
+                        kotlinx.coroutines.delay(1_500L * tries)
                     }
                     out.flush()
                 }

@@ -188,7 +188,7 @@ fun UpdateDialog(
                                 stage = Stage.Downloading(0, asset.size.takeIf { it > 0 })
                                 UpdateInstaller.fetch(
                                     context = context,
-                                    url = asset.downloadUrl,
+                                    urls = asset.allUrls,
                                     displayName = asset.name,
                                     onProgress = { done, total ->
                                         stage = Stage.Downloading(done, total ?: asset.size.takeIf { it > 0 })

@@ -29,8 +29,12 @@ data class ReleaseAsset(
     val downloadUrl: String,
     val size: Long,
     val architecture: String,
-    val variant: String // "foss" or "gms"
-)
+    val variant: String, // "foss" or "gms"
+    /** The same file elsewhere, tried in order if [downloadUrl] fails. */
+    val mirrors: List<String> = emptyList(),
+) {
+    val allUrls: List<String> get() = listOf(downloadUrl) + mirrors
+}
 
 object Updater {
     internal var client = HttpClient()
@@ -102,12 +106,17 @@ object Updater {
         val assets = JSONArray()
         for (i in 0 until apks.length()) {
             val apk = apks.getJSONObject(i)
-            val url = apk.getString("url")
-            require(url.startsWith("https://")) { "Only https downloads are accepted" }
+            // "urls" lists the same file on several hosts, best first; "url" is one.
+            val urls = apk.optJSONArray("urls")
+                ?.let { list -> (0 until list.length()).map { list.getString(it) } }
+                ?: listOf(apk.getString("url"))
+            require(urls.isNotEmpty()) { "An APK with no address" }
+            require(urls.all { it.startsWith("https://") }) { "Only https downloads are accepted" }
             assets.put(
                 JSONObject()
-                    .put("name", apk.optString("name").ifBlank { url.substringAfterLast('/') })
-                    .put("browser_download_url", url)
+                    .put("name", apk.optString("name").ifBlank { urls.first().substringAfterLast('/') })
+                    .put("browser_download_url", urls.first())
+                    .put("mirrors", JSONArray(urls.drop(1)))
                     .put("size", apk.optLong("size", 0L)),
             )
         }
@@ -297,6 +306,9 @@ object Updater {
                 ReleaseAsset(
                     name = name,
                     downloadUrl = asset.getString("browser_download_url"),
+                    mirrors = asset.optJSONArray("mirrors")
+                        ?.let { list -> (0 until list.length()).map { list.getString(it) } }
+                        .orEmpty(),
                     size = asset.optLong("size", 0L),
                     architecture = arch,
                     variant = variant,
