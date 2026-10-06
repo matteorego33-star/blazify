@@ -25,6 +25,7 @@ import android.media.AudioDeviceInfo
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.audiofx.AudioEffect
+import com.blazify.music.constants.EnableBetterLyricsKey
 import com.blazify.music.constants.AddToPlaylistAtTopKey
 import com.blazify.music.playback.audio.VolumeNormalizationAudioProcessor
 import com.blazify.music.utils.safeDataStoreEdit
@@ -994,9 +995,14 @@ class MusicService :
         }
 
         // Warm the Better Lyrics JWT (solves the Turnstile challenge once in the
-        // background) so lyric fetches don't pay that cost on first use.
+        // background) so lyric fetches don't pay that cost on first use. Not at
+        // launch: only once a song is actually playing, and only with Better
+        // Lyrics switched on, so opening the app touches nothing it has not used.
         scope.launch {
-            runCatching { BetterLyricsClient.warmUp(this@MusicService) }
+            currentMediaMetadata.first { it != null }
+            if (dataStore.data.map { it[EnableBetterLyricsKey] ?: true }.first()) {
+                runCatching { BetterLyricsClient.warmUp(this@MusicService) }
+            }
         }
 
         // Lyrics preloading: fetch the CURRENT song's lyrics as soon as it starts
