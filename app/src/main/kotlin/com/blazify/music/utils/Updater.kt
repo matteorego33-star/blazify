@@ -33,7 +33,7 @@ data class ReleaseAsset(
 )
 
 object Updater {
-    private val client = HttpClient()
+    internal var client = HttpClient()
     var lastCheckTime = -1L
         private set
 
@@ -44,49 +44,141 @@ object Updater {
     private const val CHECK_INTERVAL_MILLIS = 2 * 60 * 60 * 1000L // 2 hours
 
     /**
-     * Where to ask about releases — and, more importantly, where that answer
-     * comes from.
+     * Where updates come from: two places, tried in order.
      *
-     * This used to be one address written into the application. Every copy ever
-     * installed asked that one place, which meant the day it stopped answering
-     * was the day every installed copy stopped hearing about new versions, with
-     * nothing anybody could do from this side. That is not a hypothetical: it
-     * happened, and the only way left to reach people was to edit the posts they
-     * had once found us through.
+     * First GitHub, as it always was — the releases page every build has been
+     * published to. Then, only if GitHub cannot answer for any reason (the
+     * account blocked, the site down, the network refusing it), a small file on
+     * our own website. That file decides where the backup is:
      *
-     * So the address is now looked up at a place we own outright, rather than
-     * being a fact about the application. Moving to another host becomes a
-     * one-line edit to a file on our own domain, and every installed copy
-     * follows within a couple of hours. The built-in value below is only what to
-     * believe when the lookup itself cannot be reached.
+     *  - `{"releases": "https://…"}` — another site that serves releases the
+     *    way GitHub does (Codeberg, a self-hosted Gitea…), or
+     *  - `{"latest": {"version": …, "notes": …, "apks": [{"name", "url"}…]}}` —
+     *    the newest version and links to its files, on any host at all.
      *
-     * It is worth being plain about what this trusts: whoever controls that
-     * domain decides where updates are fetched from. What it cannot do is
-     * replace Blazify with something else — Android refuses an update that is
-     * not signed with the same key, so a wrong answer here can at worst offer a
-     * download that will not install.
+     * So the address in the application never changes, and where it leads is a
+     * one-line edit to a file we own, followed by every installed copy within a
+     * couple of hours. That is the lesson of 2026-09-28, when GitHub suspended
+     * the account for four days and every installed copy lost its updates with
+     * nothing to be done from this side.
+     *
+     * What this trusts, plainly: whoever controls the website decides where the
+     * backup downloads come from. What it cannot do is replace Blazify with
+     * something else — Android refuses an update that is not signed with the
+     * same key, so a wrong answer can at worst offer a download that will not
+     * install. Only https addresses are accepted.
      */
-    private const val HOME = "https://rajendrapandey.info.np/blazify/home.json"
-    private const val BUILT_IN_RELEASES = "https://codeberg.org/api/v1/repos/rajendra7169/blazify"
+    internal var primaryApi = "https://api.github.com/repos/rajendra7169/blazify"
+    internal var backupHome = "https://rajendrapandey.info.np/blazify/home.json"
 
+    /** Which source the last answer came from, for the update screen to say. */
     @Volatile
-    private var releasesApi: String? = null
+    var lastSource: String = "GitHub"
+        private set
+
+    /** The backup's instructions, as the website's file gives them. */
+    private sealed interface Backup {
+        data class Api(val base: String) : Backup
+        data class Manifest(val release: ReleaseInfo) : Backup
+    }
+
+    private suspend fun backup(): Backup {
+        val home = JSONObject(fetch(backupHome))
+        home.optString("releases").takeIf { it.startsWith("https://") && it.length < 300 }?.let {
+            return Backup.Api(it.trimEnd('/'))
+        }
+        home.optJSONObject("latest")?.let { return Backup.Manifest(parseManifest(it)) }
+        error("The backup file names no releases")
+    }
 
     /**
-     * The release API to use, asked for once per run of the application.
-     *
-     * Quiet on failure by design: an unreachable pointer means carrying on with
-     * the address we shipped with, which is the behaviour this had before the
-     * lookup existed. Only an https address is accepted, so a hijacked or
-     * mistyped file cannot send the application somewhere unencrypted.
+     * A release described by hand in the website's file: the version, a few
+     * words about it, and where each APK is. Read with the same filename rules
+     * as a GitHub release, so the right build is offered whichever way it came.
      */
-    private suspend fun releasesApi(): String {
-        releasesApi?.let { return it }
-        val found = runCatching {
-            val said = JSONObject(client.get(HOME).bodyAsText()).optString("releases")
-            said.takeIf { it.startsWith("https://") && it.length < 300 }
-        }.getOrNull()
-        return (found ?: BUILT_IN_RELEASES).also { releasesApi = it }
+    internal fun parseManifest(latest: JSONObject): ReleaseInfo {
+        val version = latest.getString("version").removePrefix("v")
+        val apks = latest.getJSONArray("apks")
+        val assets = JSONArray()
+        for (i in 0 until apks.length()) {
+            val apk = apks.getJSONObject(i)
+            val url = apk.getString("url")
+            require(url.startsWith("https://")) { "Only https downloads are accepted" }
+            assets.put(
+                JSONObject()
+                    .put("name", apk.optString("name").ifBlank { url.substringAfterLast('/') })
+                    .put("browser_download_url", url)
+                    .put("size", apk.optLong("size", 0L)),
+            )
+        }
+        return ReleaseInfo(
+            tagName = "v$version",
+            versionName = version,
+            description = latest.optString("notes"),
+            releaseDate = latest.optString("date"),
+            assets = parseAssets(assets),
+            isPrerelease = latest.optBoolean("prerelease", false),
+        )
+    }
+
+    /** A request that fails on anything but a 2xx — a refusal is not an answer. */
+    private suspend fun fetch(url: String): String {
+        val response = client.get(url)
+        check(response.status.value in 200..299) { "${response.status.value} from $url" }
+        return response.bodyAsText()
+    }
+
+    /** The newest release from a GitHub-style API at [base]. */
+    private suspend fun latestFromApi(base: String, includeBetas: Boolean): ReleaseInfo =
+        if (includeBetas) {
+            val json = JSONArray(fetch("$base/releases?per_page=20"))
+            val releases =
+                (0 until json.length())
+                    .map { json.getJSONObject(it) }
+                    .filter { !it.optBoolean("draft", false) }
+                    .map(::parseRelease)
+            newestRelease(releases, includeBetas = true) ?: error("No releases published")
+        } else {
+            parseRelease(JSONObject(fetch("$base/releases/latest")))
+        }
+
+    /** GitHub first; the website's backup only if GitHub gave no usable answer. */
+    internal suspend fun latestFromAnySource(includeBetas: Boolean): ReleaseInfo {
+        val primary = runCatching { latestFromApi(primaryApi, includeBetas) }
+        primary.getOrNull()?.let {
+            lastSource = "GitHub"
+            return it
+        }
+        val fromBackup =
+            runCatching {
+                when (val b = backup()) {
+                    is Backup.Api ->
+                        latestFromApi(b.base, includeBetas)
+                            .also { lastSource = b.base.substringAfter("://").substringBefore('/') }
+                    is Backup.Manifest -> b.release.also { lastSource = "rajendrapandey.info.np" }
+                }
+            }
+        return fromBackup.getOrElse { backupError ->
+            throw IllegalStateException(
+                "No update source answered — GitHub: ${primary.exceptionOrNull()?.message}; " +
+                    "backup: ${backupError.message}",
+            )
+        }
+    }
+
+    /** Every release from a GitHub-style API at [base], newest first. */
+    private suspend fun allFromApi(base: String): List<ReleaseInfo> {
+        val releases = mutableListOf<ReleaseInfo>()
+        var page = 1
+        while (page <= 10) { // Limit to 10 pages
+            val json = JSONArray(fetch("$base/releases?page=$page&per_page=30"))
+            if (json.length() == 0) break
+            for (i in 0 until json.length()) {
+                releases.add(parseRelease(json.getJSONObject(i)))
+            }
+            page++
+        }
+        return releases
     }
 
     /**
@@ -205,7 +297,7 @@ object Updater {
                 ReleaseAsset(
                     name = name,
                     downloadUrl = asset.getString("browser_download_url"),
-                    size = asset.getLong("size"),
+                    size = asset.optLong("size", 0L),
                     architecture = arch,
                     variant = variant,
                 ),
@@ -245,8 +337,8 @@ object Updater {
             // what the About page compared against to decide whether to
             // show its badge, which is why the badge was always on.
             versionName = tag.removePrefix("v"),
-            description = json.getString("body"),
-            releaseDate = json.getString("published_at"),
+            description = json.optString("body"),
+            releaseDate = json.optString("published_at"),
             assets = parseAssets(json.getJSONArray("assets")),
             isPrerelease = json.optBoolean("prerelease", false),
         )
@@ -270,18 +362,7 @@ object Updater {
                     return@runCatching cachedReleaseInfo!!
                 }
 
-                val releaseInfo =
-                    if (includeBetas) {
-                        val json = JSONArray(client.get("${releasesApi()}/releases?per_page=20").bodyAsText())
-                        val releases =
-                            (0 until json.length())
-                                .map { json.getJSONObject(it) }
-                                .filter { !it.optBoolean("draft", false) }
-                                .map(::parseRelease)
-                        newestRelease(releases, includeBetas = true) ?: error("No releases published")
-                    } else {
-                        parseRelease(JSONObject(client.get("${releasesApi()}/releases/latest").bodyAsText()))
-                    }
+                val releaseInfo = latestFromAnySource(includeBetas)
 
                 cachedReleaseInfo = releaseInfo
                 cachedIncludesBetas = includeBetas
@@ -300,26 +381,14 @@ object Updater {
                     return@runCatching cachedAllReleases
                 }
 
-                val releases = mutableListOf<ReleaseInfo>()
-                var page = 1
-                var hasMore = true
-
-                while (hasMore && page <= 10) { // Limit to 10 pages
-                    val response = client.get("${releasesApi()}/releases?page=$page&per_page=30")
-                        .bodyAsText()
-                    val json = JSONArray(response)
-
-                    if (json.length() == 0) {
-                        hasMore = false
-                        break
-                    }
-
-                    for (i in 0 until json.length()) {
-                        releases.add(parseRelease(json.getJSONObject(i)))
-                    }
-
-                    page++
-                }
+                // GitHub first; if it cannot answer, whatever the website's file
+                // points to — a release site's list, or the one release it names.
+                val releases =
+                    runCatching { allFromApi(primaryApi) }.getOrNull()
+                        ?: when (val b = backup()) {
+                            is Backup.Api -> allFromApi(b.base)
+                            is Backup.Manifest -> listOf(b.release)
+                        }
 
                 cachedAllReleases = releases
                 releases
