@@ -41,6 +41,18 @@ constructor(
     /** The mood tile's name, when this page was opened from one. */
     private val title = savedStateHandle.get<String>("title")
 
+    /** The tile's name, for the heading while YouTube's answer is still coming. */
+    val pageTitle: String? = title
+
+    /**
+     * Whether this page will open on shelves of its own — a mood with a Home chip — or on a
+     * grid of albums and playlists, as a genre and a mood with no chip do. Known before
+     * anything arrives, so the placeholder can be drawn in the shape that is coming.
+     */
+    val expectShelves: Boolean =
+        title != null && !GenreTaste.isGenre(title) &&
+            (knownChips?.any { it.title.lowercase() == chipName(title) } ?: true)
+
     val result = MutableStateFlow<BrowseResult?>(null)
 
     /**
@@ -97,7 +109,10 @@ constructor(
             try {
                 val hideExplicit = context.dataStore.get(HideExplicitKey, false)
                 val wanted = chipName(moodTitle)
-                val chip = YouTube.home().getOrNull()?.chips
+                // The chips are the same all session; asked for once, kept, so every mood page
+                // after the first is one request to YouTube instead of two in a row.
+                val chips = knownChips ?: YouTube.home().getOrNull()?.chips?.also { knownChips = it }
+                val chip = chips
                     ?.firstOrNull { it.title.lowercase() == wanted }
                     ?: return@launch
                 val chipParams = chip.endpoint?.params ?: return@launch
@@ -123,4 +138,13 @@ constructor(
             "energy boosters" -> "energize"
             else -> moodTitle.lowercase()
         }
+
+    companion object {
+        @Volatile
+        private var knownChips: List<HomePage.Chip>? = null
+
+        fun rememberChips(chips: List<HomePage.Chip>) {
+            if (chips.isNotEmpty()) knownChips = chips
+        }
+    }
 }

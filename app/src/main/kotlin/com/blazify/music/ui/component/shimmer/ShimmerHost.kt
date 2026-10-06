@@ -84,11 +84,13 @@ val ShimmerTheme =
             repeatMode = RepeatMode.Restart,
         ),
         rotation = 18f,
+        // The blocks stay plainly visible between sweeps. At 5% they were all but gone on a
+        // black page, and every loading screen read as a black screen instead of as loading.
         shaderColors =
         listOf(
-            Color.Unspecified.copy(alpha = 0.05f),
-            Color.Unspecified.copy(alpha = 0.38f),
-            Color.Unspecified.copy(alpha = 0.05f),
+            Color.Unspecified.copy(alpha = 0.55f),
+            Color.Unspecified.copy(alpha = 1f),
+            Color.Unspecified.copy(alpha = 0.55f),
         ),
         shaderColorStops = listOf(0f, 0.5f, 1f),
     )

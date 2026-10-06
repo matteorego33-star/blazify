@@ -6,6 +6,8 @@
 
 package com.blazify.music.ui.screens
 
+import com.blazify.music.ui.component.shimmer.CardGridPlaceholder
+import com.blazify.music.ui.component.shimmer.ShelvesPlaceholder
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.runtime.setValue
@@ -349,10 +351,8 @@ fun YouTubeBrowseScreen(
         }
 
         if (!ready) {
-            items(8) {
-                ShimmerHost {
-                    GridItemPlaceHolder(fillMaxWidth = true)
-                }
+            item(key = "loading", span = { GridItemSpan(maxLineSpan) }) {
+                if (viewModel.expectShelves) ShelvesPlaceholder() else CardGridPlaceholder()
             }
         } else if (allItems.isEmpty() && forYou.isEmpty()) {
             // An answer that holds nothing says so, rather than leaving a page
@@ -376,7 +376,8 @@ fun YouTubeBrowseScreen(
     }
 
     TopAppBar(
-        title = { Text(browseResult?.title.orEmpty()) },
+        // The tile's own name at once; YouTube's, if it gives one, when it comes.
+        title = { Text(browseResult?.title ?: viewModel.pageTitle.orEmpty()) },
         navigationIcon = {
             IconButton(
                 onClick = navController::navigateUp,

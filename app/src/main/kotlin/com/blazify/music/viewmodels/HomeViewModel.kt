@@ -593,6 +593,9 @@ class HomeViewModel @Inject constructor(
 
             launch(Dispatchers.IO) {
                 YouTube.home().onSuccess { page ->
+                    // Mood pages pick their placeholder by these; known from here, the first
+                    // one opened is drawn in the right shape too.
+                    page.chips?.let { YouTubeBrowseViewModel.rememberChips(it) }
                     homePage.value = page.copy(
                         sections = page.sections.mapNotNull { section ->
                             val filtered = section.items
