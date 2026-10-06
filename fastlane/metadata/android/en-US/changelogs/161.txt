@@ -1,0 +1,3 @@
+New: the Video Art player, Spotify playlist import, SponsorBlock skipping, live radio in Listen together, blocking an artist, ListenBrainz scrobbling, sharing a playlist as a link or QR code, and 15 more languages.
+
+Fixed: songs keep playing through a short loss of connection, search is about three times quicker, songs on the phone play straight off the phone, and every player design works sideways.
