@@ -6,6 +6,10 @@
 
 package com.blazify.music.ui.screens.playlist
 
+import com.blazify.music.playback.downloadStateOf
+import com.blazify.music.playback.downloadAll
+import com.blazify.music.LocalDownloadUtil
+import androidx.media3.exoplayer.offline.Download
 import com.blazify.music.ui.component.BlazeLoader
 import com.blazify.music.ui.component.BlazeSnackbarHost
 import com.blazify.music.ui.component.JumpToPlayingButton
@@ -722,6 +726,54 @@ private fun OnlinePlaylistHeader(
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(32.dp),
                     )
+                }
+            }
+
+            // Download the whole playlist, as the iPhone's playlist page does.
+            // It was only in the menu behind the dots, where nobody looks for it.
+            if (songs.isNotEmpty() && !isPodcastPlaylist) {
+                val context = LocalContext.current
+                val downloadUtil = LocalDownloadUtil.current
+                val downloads by downloadUtil.downloads.collectAsStateWithLifecycle()
+                val state = downloadStateOf(songs.map { it.id }, downloads)
+                Surface(
+                    onClick = {
+                        if (state == Download.STATE_STOPPED) {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                downloadAll(context, database, songs.map { it.toMediaMetadata() }, downloads)
+                            }
+                        }
+                    },
+                    enabled = state == Download.STATE_STOPPED,
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        when (state) {
+                            Download.STATE_DOWNLOADING -> BlazeLoader(
+                                modifier = Modifier.size(22.dp),
+                                strokeWidth = 2.dp,
+                            )
+                            else -> Icon(
+                                painter = painterResource(
+                                    if (state == Download.STATE_COMPLETED) R.drawable.offline else R.drawable.download,
+                                ),
+                                contentDescription = stringResource(
+                                    if (state == Download.STATE_COMPLETED) R.string.offline else R.string.action_download,
+                                ),
+                                tint = if (state == Download.STATE_COMPLETED) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
                 }
             }
 
