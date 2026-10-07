@@ -436,6 +436,14 @@ class HomeViewModel @Inject constructor(
         dailyDiscover.value = items.toList().distinctBy { it.recommendation.id }.shuffled()
     }
 
+    /**
+     * Songs played a lot a month ago and little since; for a library younger than that, two
+     * weeks ago, so a new listener's Home is not left with a shelf of one.
+     */
+    private suspend fun forgottenSongs(): List<Song> =
+        database.forgottenFavorites().first().takeIf { it.size >= 8 }
+            ?: database.forgottenFavorites(days = 14).first()
+
     private suspend fun getQuickPicks() {
         val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
         val hiddenSongIds = context.dataStore.get(HiddenSongIdsKey, emptySet())
@@ -443,7 +451,7 @@ class HomeViewModel @Inject constructor(
         when (quickPicksEnum.first()) {
             QuickPicks.QUICK_PICKS -> {
                 val relatedSongs = database.quickPicks().first().filterVideoSongs(hideVideoSongs)
-                val forgotten = database.forgottenFavorites().first().filterVideoSongs(hideVideoSongs)
+                val forgotten = forgottenSongs().filterVideoSongs(hideVideoSongs)
 
                 // Songs YouTube finds similar to the last song played — a song,
                 // not a podcast, or the suggestions follow the talk instead.
@@ -580,7 +588,7 @@ class HomeViewModel @Inject constructor(
             launch(Dispatchers.IO) { getQuickPicks() }
 
             launch(Dispatchers.IO) {
-                forgottenFavorites.value = database.forgottenFavorites().first()
+                forgottenFavorites.value = forgottenSongs()
                     .filterVideoSongs(hideVideoSongs).filterNot { it.id in hiddenSongIds }.filterBlockedArtists(blockedArtists).shuffled().take(20)
             }
 

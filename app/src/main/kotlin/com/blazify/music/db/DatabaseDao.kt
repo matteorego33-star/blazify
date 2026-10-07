@@ -618,27 +618,23 @@ interface DatabaseDao {
     @Query(
         """
         SELECT song.*
-        FROM (SELECT n.songId      AS eid,
-                     SUM(playTime) AS oldPlayTime,
-                     newPlayTime
+        FROM (SELECT songId AS eid,
+                     SUM(CASE WHEN timestamp < (:now - 86400000 * :days) THEN playTime ELSE 0 END) AS oldPlayTime,
+                     SUM(CASE WHEN timestamp >= (:now - 86400000 * :days) THEN playTime ELSE 0 END) AS newPlayTime
               FROM event
-                       JOIN
-                   (SELECT songId, SUM(playTime) AS newPlayTime
-                    FROM event
-                    WHERE timestamp > (:now - 86400000 * 30 * 1)
-                    GROUP BY songId
-                    ORDER BY newPlayTime) as n
-                   ON event.songId = n.songId
-              WHERE timestamp < (:now - 86400000 * 30 * 1)
-              GROUP BY n.songId
-              ORDER BY oldPlayTime) AS t
+              GROUP BY songId) AS t
                  JOIN song on song.id = t.eid
-        WHERE 0.2 * t.oldPlayTime > t.newPlayTime
+        WHERE t.oldPlayTime > 0
+          AND 0.2 * t.oldPlayTime > t.newPlayTime
           AND (song.isEpisode = 0 OR song.isEpisode IS NULL) AND song.duration < 1800
+        ORDER BY t.oldPlayTime DESC
         LIMIT 100
     """
     )
-    fun forgottenFavorites(now: Long = System.currentTimeMillis()): Flow<List<Song>>
+    // Songs played a lot before the last [days] days and little or not at all since. It used to
+    // join only songs also played within those days, so a song truly left behind — the whole
+    // point of the shelf — could never be on it, and the shelf held one song or none.
+    fun forgottenFavorites(now: Long = System.currentTimeMillis(), days: Int = 30): Flow<List<Song>>
 
     @Transaction
     @Query(
