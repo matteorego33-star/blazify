@@ -3118,6 +3118,21 @@ object YouTube {
         val videoId: String?,
     ) : IllegalStateException("No queue for ${videoId ?: "this item"}")
 
+    /**
+     * A tab of the player's side panel, found by what it is rather than where it is: the
+     * related songs' page id starts MPTR, the lyrics' MPLY. YouTube put a Comments tab in
+     * third place in October 2026 and the related songs, read from that place, were gone —
+     * Quick picks and every song's related list with them.
+     */
+    private fun watchTab(response: NextResponse, idPrefix: String) =
+        response.contents.singleColumnMusicWatchNextResultsRenderer
+            ?.tabbedRenderer
+            ?.watchNextTabbedResultsRenderer
+            ?.tabs
+            ?.firstNotNullOfOrNull { tab ->
+                tab.tabRenderer.endpoint?.browseEndpoint?.takeIf { it.browseId.startsWith(idPrefix) }
+            }
+
     suspend fun next(
         endpoint: WatchEndpoint,
         continuation: String? = null,
@@ -3188,25 +3203,9 @@ object YouTube {
                             title = title,
                             items = songs + result.items,
                             lyricsEndpoint =
-                                response.contents.singleColumnMusicWatchNextResultsRenderer
-                                    ?.tabbedRenderer
-                                    ?.watchNextTabbedResultsRenderer
-                                    ?.tabs
-                                    ?.getOrNull(
-                                        1,
-                                    )?.tabRenderer
-                                    ?.endpoint
-                                    ?.browseEndpoint,
+                                watchTab(response, "MPLY"),
                             relatedEndpoint =
-                                response.contents.singleColumnMusicWatchNextResultsRenderer
-                                    ?.tabbedRenderer
-                                    ?.watchNextTabbedResultsRenderer
-                                    ?.tabs
-                                    ?.getOrNull(
-                                        2,
-                                    )?.tabRenderer
-                                    ?.endpoint
-                                    ?.browseEndpoint,
+                                watchTab(response, "MPTR"),
                             currentIndex = currentIndex,
                             endpoint = watchPlaylistEndpoint,
                         )
@@ -3217,25 +3216,9 @@ object YouTube {
                 items = songs,
                 currentIndex = currentIndex,
                 lyricsEndpoint =
-                    response.contents.singleColumnMusicWatchNextResultsRenderer
-                        ?.tabbedRenderer
-                        ?.watchNextTabbedResultsRenderer
-                        ?.tabs
-                        ?.getOrNull(
-                            1,
-                        )?.tabRenderer
-                        ?.endpoint
-                        ?.browseEndpoint,
+                    watchTab(response, "MPLY"),
                 relatedEndpoint =
-                    response.contents.singleColumnMusicWatchNextResultsRenderer
-                        ?.tabbedRenderer
-                        ?.watchNextTabbedResultsRenderer
-                        ?.tabs
-                        ?.getOrNull(
-                            2,
-                        )?.tabRenderer
-                        ?.endpoint
-                        ?.browseEndpoint,
+                    watchTab(response, "MPTR"),
                 continuation = playlistPanelRenderer.continuations?.getContinuation(),
                 endpoint = endpoint,
             )
