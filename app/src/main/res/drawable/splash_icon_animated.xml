@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The launch icon Android shows while Blazify starts, drawn from the traced logo and told as a
      short story: the play button settles, the flame grows round it, the headband rises over and the
-     ear cups drop in. 900 ms; Android cuts it short if the app is ready first, and MainActivity
+     ear cups drop in. 750 ms; Android cuts it short if the app is ready first, and MainActivity
      then glides it into the logo in Home's header. -->
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt">
@@ -29,52 +29,52 @@
     <target android:name="play">
         <aapt:attr name="android:animation">
             <set>
-                <objectAnimator android:propertyName="scaleX" android:valueFrom="2.2" android:valueTo="1" android:startOffset="0" android:duration="320" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator android:propertyName="scaleY" android:valueFrom="2.2" android:valueTo="1" android:startOffset="0" android:duration="320" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator android:propertyName="scaleX" android:valueFrom="2.2" android:valueTo="1" android:startOffset="0" android:duration="267" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator android:propertyName="scaleY" android:valueFrom="2.2" android:valueTo="1" android:startOffset="0" android:duration="267" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
         </aapt:attr>
     </target>
     <target android:name="flame">
         <aapt:attr name="android:animation">
             <set>
-                <objectAnimator android:propertyName="scaleX" android:valueFrom="0" android:valueTo="1" android:startOffset="90" android:duration="380" android:valueType="floatType" android:interpolator="@android:anim/overshoot_interpolator"/>
-                <objectAnimator android:propertyName="scaleY" android:valueFrom="0" android:valueTo="1" android:startOffset="90" android:duration="380" android:valueType="floatType" android:interpolator="@android:anim/overshoot_interpolator"/>
+                <objectAnimator android:propertyName="scaleX" android:valueFrom="0" android:valueTo="1" android:startOffset="75" android:duration="317" android:valueType="floatType" android:interpolator="@android:anim/overshoot_interpolator"/>
+                <objectAnimator android:propertyName="scaleY" android:valueFrom="0" android:valueTo="1" android:startOffset="75" android:duration="317" android:valueType="floatType" android:interpolator="@android:anim/overshoot_interpolator"/>
             </set>
         </aapt:attr>
     </target>
     <target android:name="band">
         <aapt:attr name="android:animation">
             <set>
-                <objectAnimator android:propertyName="scaleX" android:valueFrom="0.2" android:valueTo="1" android:startOffset="330" android:duration="330" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator android:propertyName="scaleY" android:valueFrom="0.6" android:valueTo="1" android:startOffset="330" android:duration="330" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator android:propertyName="scaleX" android:valueFrom="0.2" android:valueTo="1" android:startOffset="275" android:duration="275" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator android:propertyName="scaleY" android:valueFrom="0.6" android:valueTo="1" android:startOffset="275" android:duration="275" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
         </aapt:attr>
     </target>
     <target android:name="bandPath">
         <aapt:attr name="android:animation">
             <set>
-                <objectAnimator android:propertyName="fillAlpha" android:valueFrom="0" android:valueTo="1" android:startOffset="330" android:duration="220" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator android:propertyName="fillAlpha" android:valueFrom="0" android:valueTo="1" android:startOffset="275" android:duration="183" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
         </aapt:attr>
     </target>
     <target android:name="cups">
         <aapt:attr name="android:animation">
             <set>
-                <objectAnimator android:propertyName="translateY" android:valueFrom="-70" android:valueTo="0" android:startOffset="520" android:duration="330" android:valueType="floatType" android:interpolator="@android:anim/overshoot_interpolator"/>
+                <objectAnimator android:propertyName="translateY" android:valueFrom="-70" android:valueTo="0" android:startOffset="433" android:duration="275" android:valueType="floatType" android:interpolator="@android:anim/overshoot_interpolator"/>
             </set>
         </aapt:attr>
     </target>
     <target android:name="cupL">
         <aapt:attr name="android:animation">
             <set>
-                <objectAnimator android:propertyName="fillAlpha" android:valueFrom="0" android:valueTo="1" android:startOffset="520" android:duration="200" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator android:propertyName="fillAlpha" android:valueFrom="0" android:valueTo="1" android:startOffset="433" android:duration="167" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
         </aapt:attr>
     </target>
     <target android:name="cupR">
         <aapt:attr name="android:animation">
             <set>
-                <objectAnimator android:propertyName="fillAlpha" android:valueFrom="0" android:valueTo="1" android:startOffset="520" android:duration="200" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator android:propertyName="fillAlpha" android:valueFrom="0" android:valueTo="1" android:startOffset="433" android:duration="167" android:valueType="floatType" android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
         </aapt:attr>
     </target>

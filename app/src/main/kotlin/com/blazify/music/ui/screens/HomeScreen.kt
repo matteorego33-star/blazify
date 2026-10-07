@@ -6,6 +6,7 @@
 
 package com.blazify.music.ui.screens
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.withFrameNanos
 import android.net.Uri
 import com.blazify.music.utils.GenreTaste
@@ -1190,17 +1191,20 @@ fun HomeScreen(
     // Your own shelves come off the phone in well under a second; YouTube's take as long
     // as the network does and always sit lower on the page. Home opens on the first.
     val localReady = firstLoadDone || (quickPicks != null && keepListening != null)
-    LaunchedEffect(localReady) {
-        if (localReady) {
-            // Two frames with the shelves on screen, then the launch logo may glide in.
-            withFrameNanos { }
-            withFrameNanos { }
-            com.blazify.music.utils.LaunchSignal.homeSettled.value = true
-        }
+    LaunchedEffect(Unit) {
+        // Two frames of Home drawn — header, card and skeleton — and the launch logo may glide
+        // in. It waits for nothing Home is still fetching.
+        withFrameNanos { }
+        withFrameNanos { }
+        com.blazify.music.utils.LaunchSignal.homeSettled.value = true
     }
+    // The shelves are built once the launch logo has landed. Building them is the heaviest
+    // moment of a cold start, a frame of nearly half a second; done while the logo was in
+    // flight, it froze the logo mid-air. The data loads meanwhile, so nothing waits longer.
+    val launchLanded by com.blazify.music.utils.LaunchSignal.headerLogoShown.collectAsState()
     val stableSections =
-        remember(homeSections, localReady, shownOrder) {
-            if (!localReady) {
+        remember(homeSections, localReady, launchLanded, shownOrder) {
+            if (!localReady || !launchLanded) {
                 emptyList()
             } else {
                 val byId = homeSections.associateBy { it.id }
@@ -2674,7 +2678,7 @@ fun HomeScreen(
                 }
 
                 // Only show shimmer during initial loading, not for pagination
-                if (!localReady || (isLoading && homePage?.sections.isNullOrEmpty())) {
+                if (!localReady || !launchLanded || (isLoading && homePage?.sections.isNullOrEmpty())) {
                     item(key = "loading_shimmer") {
                         ShimmerHost(
                         ) {

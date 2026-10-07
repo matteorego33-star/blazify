@@ -466,6 +466,16 @@ class HomeViewModel @Inject constructor(
                     ?.song
                 val ytSimilarSongs = mutableListOf<Song>()
 
+                // What the phone already knows, at once: Home opens on these, and YouTube's
+                // similar songs are blended in below when they come. Waiting for them first held
+                // the whole of Home back by the length of two network calls.
+                quickPicks.value = mixQuickPicks(
+                    related = relatedSongs,
+                    similar = emptyList(),
+                    forgotten = forgotten,
+                    id = { it.id },
+                ).filterNot { it.id in hiddenSongIds }.filterBlockedArtists(blockedArtists)
+
                 if (recentSong != null) {
                     val endpoint = YouTube.next(WatchEndpoint(videoId = recentSong.id)).getOrNull()?.relatedEndpoint
                     if (endpoint != null) {
@@ -482,7 +492,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
 
-                quickPicks.value = mixQuickPicks(
+                if (ytSimilarSongs.isNotEmpty()) quickPicks.value = mixQuickPicks(
                     related = relatedSongs,
                     similar = ytSimilarSongs,
                     forgotten = forgotten,

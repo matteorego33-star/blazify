@@ -145,7 +145,7 @@ fun BlazeHomeHeader(
                 val logoShown by com.blazify.music.utils.LaunchSignal.headerLogoShown.collectAsState()
                 val logoAlpha by androidx.compose.animation.core.animateFloatAsState(
                     targetValue = if (logoShown) 1f else 0f,
-                    animationSpec = androidx.compose.animation.core.tween(220),
+                    animationSpec = androidx.compose.animation.core.tween(160),
                     label = "headerLogo",
                 )
                 Image(

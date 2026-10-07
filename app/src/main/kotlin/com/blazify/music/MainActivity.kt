@@ -434,8 +434,8 @@ class MainActivity : ComponentActivity() {
             LaunchSignal.headerLogoShown.value = false
             lifecycleScope.launch {
                 // Wait for Home to settle (never long), so the glide has the frames to itself.
-                withTimeoutOrNull(900) { LaunchSignal.homeSettled.first { it } }
-                val hold = (storyEnds - System.currentTimeMillis()).coerceIn(0L, 330L)
+                withTimeoutOrNull(400) { LaunchSignal.homeSettled.first { it } }
+                val hold = (storyEnds - System.currentTimeMillis()).coerceIn(0L, 150L)
                 glide(view, icon, hold)
             }
         }
@@ -458,7 +458,7 @@ class MainActivity : ComponentActivity() {
         val scale = toWidth / drawnWidth
 
         val ease = android.view.animation.PathInterpolator(0.33f, 0f, 0.15f, 1f)
-        val travel = 560L
+        val travel = 420L
         icon.animate()
             .setStartDelay(hold)
             .setDuration(travel)
@@ -472,12 +472,12 @@ class MainActivity : ComponentActivity() {
                 // Landed exactly on the header's logo: it fades in as this one fades out,
                 // so the orange turns into the header's own colour in place.
                 LaunchSignal.headerLogoShown.value = true
-                icon.animate().alpha(0f).setStartDelay(0).setDuration(220).withEndAction { view.remove() }.start()
+                icon.animate().alpha(0f).setStartDelay(0).setDuration(160).withEndAction { view.remove() }.start()
             }
             .start()
         android.animation.ValueAnimator.ofInt(255, 0).apply {
-            startDelay = hold + 80
-            duration = 420
+            startDelay = hold + 40
+            duration = 320
             interpolator = ease
             addUpdateListener { view.setBackgroundColor(android.graphics.Color.argb(it.animatedValue as Int, 0, 0, 0)) }
             start()
@@ -491,7 +491,20 @@ class MainActivity : ComponentActivity() {
         // to the normal theme now that we're about to draw the real UI.
         setTheme(R.style.Theme_Blazify)
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) glideLaunchLogoIntoHeader()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Hidden from the first frame, not from when the hand-over begins: Home is drawn
+            // under the launch screen before then, and its logo showed through as a second one.
+            if (savedInstanceState == null) {
+                LaunchSignal.headerLogoShown.value = false
+                // Android does not show its launch screen on every start; then nothing hands
+                // over, and the header's logo must not stay hidden.
+                lifecycleScope.launch {
+                    kotlinx.coroutines.delay(2500)
+                    LaunchSignal.headerLogoShown.value = true
+                }
+            }
+            glideLaunchLogoIntoHeader()
+        }
         // Tell the service before onStart starts it, so it doesn't load the old queue for a link
         // that is about to replace it.
         if (savedInstanceState == null && isPlayLink(intent)) {
