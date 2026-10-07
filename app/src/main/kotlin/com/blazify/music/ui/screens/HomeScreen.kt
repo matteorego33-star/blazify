@@ -676,12 +676,16 @@ fun HomeScreen(
     val episodesForLater by viewModel.episodesForLater.collectAsStateWithLifecycle()
 
     val isLoading: Boolean by viewModel.isLoading.collectAsStateWithLifecycle()
+    val firstLoadDone by viewModel.firstLoadDone.collectAsStateWithLifecycle()
     val isMoodAndGenresLoading = isLoading && explorePage?.moodAndGenres == null
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val isRandomizing by viewModel.isRandomizing.collectAsStateWithLifecycle()
     val pullRefreshState = rememberPullToRefreshState()
 
-    val quickPicksLazyGridState = rememberLazyGridState()
+    // A fresh place for every new list. A grid keeps its place on the song that was first
+    // when its list changes, and in a reshuffled list that song can sit in the last column,
+    // so the row opened scrolled to its end with one song showing.
+    val quickPicksLazyGridState = remember(quickPicks) { LazyGridState() }
     val forgottenFavoritesLazyGridState = rememberLazyGridState()
 
     val accountName by viewModel.accountName.collectAsStateWithLifecycle()
@@ -1176,9 +1180,27 @@ fun HomeScreen(
             }
         }
 
-    LaunchedEffect(quickPicks) {
-        quickPicksLazyGridState.scrollToItem(0)
-    }
+    // Home appears once, whole, and then stays put. Shelves used to show as each one
+    // loaded, so a later one slotted in above those already on screen and pushed them
+    // down — twice, on every cold start. Until the first batch is in, the skeleton
+    // shows; after that, a shelf that arrives late joins at the foot, below what is
+    // being read, until the next refresh or chip sorts everything afresh.
+    val shownOrder = remember(randomSeed, selectedChip) { ArrayList<String>() }
+    // Your own shelves come off the phone in well under a second; YouTube's take as long
+    // as the network does and always sit lower on the page. Home opens on the first.
+    val localReady = firstLoadDone || (quickPicks != null && keepListening != null)
+    val stableSections =
+        remember(homeSections, localReady, shownOrder) {
+            if (!localReady) {
+                emptyList()
+            } else {
+                val byId = homeSections.associateBy { it.id }
+                shownOrder.retainAll(byId.keys)
+                homeSections.forEach { if (it.id !in shownOrder) shownOrder.add(it.id) }
+                shownOrder.mapNotNull { byId[it] }
+            }
+        }
+
 
     LaunchedEffect(forgottenFavorites) {
         forgottenFavoritesLazyGridState.scrollToItem(0)
@@ -1307,33 +1329,39 @@ fun HomeScreen(
                     )
                 }
 
-                item {
-                    ChipsRow(
-                        chips = homePage?.chips?.map { it to it.title } ?: emptyList(),
-                        currentValue = selectedChip,
-                        onValueUpdate = {
-                            viewModel.toggleChip(it)
-                        },
-                    )
-                }
-
-                if (isLoading && homePage?.chips.isNullOrEmpty()) {
-                    item(key = "chips_shimmer") {
-                        ShimmerHost(showGradient = false) {
-                            LazyRow(
-                                contentPadding =
-                                    WindowInsets.systemBars
-                                        .only(WindowInsetsSides.Horizontal)
-                                        .asPaddingValues(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            ) {
-                                items(5) {
-                                    TextPlaceholder(
-                                        height = 30.dp,
-                                        shape = RoundedCornerShape(16.dp),
-                                        modifier = Modifier.width(72.dp),
-                                    )
+                // One slot for the mood chips, always the same height: a placeholder until
+                // YouTube's answer brings them, the chips after. Arriving into a slot that is
+                // already there, they move nothing below them.
+                item(key = "home_chips") {
+                    Box(
+                        contentAlignment = Alignment.CenterStart,
+                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                    ) {
+                        if (!homePage?.chips.isNullOrEmpty()) {
+                            ChipsRow(
+                                chips = homePage?.chips?.map { it to it.title } ?: emptyList(),
+                                currentValue = selectedChip,
+                                onValueUpdate = {
+                                    viewModel.toggleChip(it)
+                                },
+                            )
+                        } else if (isLoading || !firstLoadDone) {
+                            ShimmerHost(showGradient = false) {
+                                LazyRow(
+                                    contentPadding =
+                                        WindowInsets.systemBars
+                                            .only(WindowInsetsSides.Horizontal)
+                                            .asPaddingValues(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                ) {
+                                    items(5) {
+                                        TextPlaceholder(
+                                            height = 30.dp,
+                                            shape = RoundedCornerShape(16.dp),
+                                            modifier = Modifier.width(72.dp),
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -1562,7 +1590,7 @@ fun HomeScreen(
                     }
                 }
 
-                homeSections.forEach { section ->
+                stableSections.forEach { section ->
                     when (section) {
                         HomeSection.SpeedDial -> {
                             speedDialItems.takeIf { it.isNotEmpty() }?.let { items ->
@@ -2637,7 +2665,7 @@ fun HomeScreen(
                 }
 
                 // Only show shimmer during initial loading, not for pagination
-                if (isLoading && homePage?.sections.isNullOrEmpty()) {
+                if (!localReady || (isLoading && homePage?.sections.isNullOrEmpty())) {
                     item(key = "loading_shimmer") {
                         ShimmerHost(
                         ) {
