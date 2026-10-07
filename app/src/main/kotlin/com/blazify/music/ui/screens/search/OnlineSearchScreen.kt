@@ -201,10 +201,7 @@ fun OnlineSearchScreen(
             .union(WindowInsets.ime)
             .only(WindowInsetsSides.Bottom)
             .asPaddingValues(),
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background),
+        modifier = Modifier.fillMaxSize(),
     ) {
         // Show parsed URL item at the top if present
         if (viewState.isUrlQuery && viewState.parsedUrlItem != null) {

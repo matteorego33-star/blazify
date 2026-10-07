@@ -333,7 +333,9 @@ fun SearchScreen(
                     ),
             )
         },
-        containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.background,
+        // The app's own background is already this colour underneath; painting it
+        // again here cost the slower phones a full-screen fill every frame.
+        containerColor = Color.Transparent,
     ) { paddingValues ->
         Box(
             modifier =
