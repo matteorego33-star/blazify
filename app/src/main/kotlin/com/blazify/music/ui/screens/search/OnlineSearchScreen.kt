@@ -17,6 +17,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGri
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.transformations
+import coil3.transform.RoundedCornersTransformation
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
@@ -80,6 +83,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -986,12 +991,26 @@ private fun BrowseTile(
     ) {
         // Up to three covers fanned like a hand of cards, the first in front and leaning
         // off the corner, the others spread behind it. Drawn back to front.
+        val context = LocalContext.current
+        val corner = with(LocalDensity.current) { 6.dp.toPx() }
         art.take(FAN.size).withIndex().reversed().forEach { (index, cover) ->
             val place = FAN[index]
+            // A cover's corners are rounded once, as it loads, rather than cut out of the
+            // tilted picture on every frame, which on slower phones cost more than all the
+            // rest of the page. The placeholder is still cut live until the cover arrives.
+            var rounded by remember(cover) { mutableStateOf(false) }
+            val request =
+                remember(cover, corner) {
+                    ImageRequest.Builder(context)
+                        .data(cover)
+                        .transformations(RoundedCornersTransformation(corner))
+                        .build()
+                }
             AsyncImage(
-                model = cover,
+                model = request,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
+                onSuccess = { rounded = true },
                 modifier =
                     Modifier
                         .align(Alignment.BottomEnd)
@@ -1010,7 +1029,7 @@ private fun BrowseTile(
                                 cornerRadius = CornerRadius(6.dp.toPx()),
                             )
                         }
-                        .clip(RoundedCornerShape(6.dp)),
+                        .then(if (rounded) Modifier else Modifier.clip(RoundedCornerShape(6.dp))),
             )
         }
         Text(
