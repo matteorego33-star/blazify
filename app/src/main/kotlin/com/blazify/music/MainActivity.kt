@@ -424,12 +424,14 @@ class MainActivity : ComponentActivity() {
         splashScreen.setOnExitAnimationListener { view ->
             val icon = view.iconView
             if (icon == null || icon.width == 0) {
+                LaunchSignal.headerLogoShown.value = true
                 view.remove()
                 return@setOnExitAnimationListener
             }
             val start = view.iconAnimationStart?.toEpochMilli()
             val length = view.iconAnimationDuration?.toMillis() ?: 0L
             val storyEnds = if (start != null) start + length else 0L
+            LaunchSignal.headerLogoShown.value = false
             lifecycleScope.launch {
                 // Wait for Home to settle (never long), so the glide has the frames to itself.
                 withTimeoutOrNull(900) { LaunchSignal.homeSettled.first { it } }
@@ -442,45 +444,43 @@ class MainActivity : ComponentActivity() {
     @androidx.annotation.RequiresApi(Build.VERSION_CODES.S)
     private fun glide(view: android.window.SplashScreenView, icon: android.view.View, hold: Long) {
         val density = resources.displayMetrics.density
-        run {
+        val target = LaunchSignal.headerLogo.value
+        // On screen, not in its own frame: the icon sits inside a frame of its own.
+        val at = IntArray(2).also(icon::getLocationInWindow)
+        val iconCenterX = at[0] + icon.width / 2f
+        val iconCenterY = at[1] + icon.height / 2f
+        // The drawn logo is 0.64 of the icon box, and the traced artwork 685/1024 of that.
+        val drawnWidth = icon.width * 0.64f * 685f / 1024f
+        // In the header's image the logo is 0.669 of its width, its middle 0.466 down.
+        val toX = target?.let { it.left + it.width() * 0.5f } ?: (view.width / 2f - 61f * density)
+        val toY = target?.let { it.top + it.height() * 0.466f } ?: (73f * density)
+        val toWidth = target?.let { it.width() * 0.669f } ?: (28f * density)
+        val scale = toWidth / drawnWidth
 
-            // Where the header's logo sits: left of the centred wordmark, under the status bar.
-            // Measured on screen: the icon sits inside a frame of its own, so its x and y alone
-            // are not where it is.
-            val at = IntArray(2).also(icon::getLocationOnScreen)
-            val origin = IntArray(2).also(view::getLocationOnScreen)
-            val iconCenterX = at[0] - origin[0] + icon.width / 2f
-            val iconCenterY = at[1] - origin[1] + icon.height / 2f
-            val targetX = view.width / 2f - 61f * density
-            val targetY = 73f * density
-            // The drawn logo is 0.64 of the icon's 288 dp box, about 0.43 of its width once
-            // the box's own margin is counted; the header's is about 32 dp across.
-            val scale = (32f * density) / (icon.width * 0.43f)
-
-            val ease = android.view.animation.PathInterpolator(0.4f, 0f, 0.2f, 1f)
-            icon.animate()
-                .setStartDelay(hold)
-                .setDuration(520)
-                .setInterpolator(ease)
-                .translationX(targetX - iconCenterX)
-                .translationY(targetY - iconCenterY)
-                .scaleX(scale)
-                .scaleY(scale)
-                .withEndAction { view.remove() }
-                .start()
-            android.animation.ValueAnimator.ofInt(255, 0).apply {
-                startDelay = hold + 120
-                duration = 380
-                interpolator = ease
-                addUpdateListener { view.setBackgroundColor(android.graphics.Color.argb(it.animatedValue as Int, 0, 0, 0)) }
-                start()
+        val ease = android.view.animation.PathInterpolator(0.33f, 0f, 0.15f, 1f)
+        val travel = 560L
+        icon.animate()
+            .setStartDelay(hold)
+            .setDuration(travel)
+            .setInterpolator(ease)
+            .translationX(toX - iconCenterX)
+            // The traced logo sits a touch above the icon's middle; this lines the two up.
+            .translationY(toY - iconCenterY)
+            .scaleX(scale)
+            .scaleY(scale)
+            .withEndAction {
+                // Landed exactly on the header's logo: it fades in as this one fades out,
+                // so the orange turns into the header's own colour in place.
+                LaunchSignal.headerLogoShown.value = true
+                icon.animate().alpha(0f).setStartDelay(0).setDuration(220).withEndAction { view.remove() }.start()
             }
-            // Its own animator: a second animate() on the icon would retime the glide.
-            android.animation.ObjectAnimator.ofFloat(icon, android.view.View.ALPHA, 1f, 0f).apply {
-                startDelay = hold + 440
-                duration = 100
-                start()
-            }
+            .start()
+        android.animation.ValueAnimator.ofInt(255, 0).apply {
+            startDelay = hold + 80
+            duration = 420
+            interpolator = ease
+            addUpdateListener { view.setBackgroundColor(android.graphics.Color.argb(it.animatedValue as Int, 0, 0, 0)) }
+            start()
         }
     }
 

@@ -5,6 +5,8 @@
 
 package com.blazify.music.ui.component
 
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
@@ -138,12 +140,27 @@ fun BlazeHomeHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f),
             ) {
+                // The launch logo lands here: this one reports where it is, keeps out of sight
+                // while that one is on its way, and fades in as it arrives.
+                val logoShown by com.blazify.music.utils.LaunchSignal.headerLogoShown.collectAsState()
+                val logoAlpha by androidx.compose.animation.core.animateFloatAsState(
+                    targetValue = if (logoShown) 1f else 0f,
+                    animationSpec = androidx.compose.animation.core.tween(220),
+                    label = "headerLogo",
+                )
                 Image(
                     painter = painterResource(
                         if (isDark) R.drawable.blaze_logo_white else R.drawable.blaze_logo,
                     ),
                     contentDescription = null,
-                    modifier = Modifier.size(42.dp),
+                    modifier = Modifier
+                        .size(42.dp)
+                        .graphicsLayer { alpha = logoAlpha }
+                        .onGloballyPositioned { at ->
+                            val r = at.boundsInWindow()
+                            com.blazify.music.utils.LaunchSignal.headerLogo.value =
+                                android.graphics.RectF(r.left, r.top, r.right, r.bottom)
+                        },
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
