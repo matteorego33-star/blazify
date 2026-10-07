@@ -2,41 +2,69 @@
  * Blazify Project (C) 2026
  * Licensed under GPL-3.0 | See NOTICE for contributors
  *
- * Blazify's loading animation: four rounded equaliser bars rising and falling
- * in a wave, filled with the theme's gradient — the music meter the app is
- * about, rather than the bouncing dots every app has. One component, so every
- * place that waits (lyrics, downloads, menus, the player) shows the same thing.
+ * Blazify's loading animation: the logo telling a short story, over and over.
+ * A play button settles into place, the flame grows around it, the headband
+ * sweeps over and the ear cups come down and bounce, sound rolls out of them
+ * and music notes drift up, and then it all eases back into the play button.
+ * Something is always about to happen, so a wait is watched rather than
+ * counted. One component, so every place that waits shows the same thing.
  * The signature is drop-in compatible with CircularProgressIndicator so
  * existing call sites keep working.
  */
 
 package com.blazify.music.ui.component
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
 import kotlin.math.sin
 
-/** How high each bar reaches at the top of its swing, so the four never move as one block. */
-private val BarReach = floatArrayOf(0.85f, 1f, 0.7f, 0.92f)
+/** The logo's parts, parsed once for the whole app. */
+private object LogoPaths {
+    private fun parse(d: String) = PathParser().parsePathString(d).toPath()
+
+    val band by lazy { parse(BlazeLogoShapes.BAND) }
+    val cupLeft by lazy { parse(BlazeLogoShapes.CUP_LEFT) }
+    val cupRight by lazy { parse(BlazeLogoShapes.CUP_RIGHT) }
+    val flame by lazy { parse(BlazeLogoShapes.FLAME + BlazeLogoShapes.PLAY).apply { fillType = PathFillType.EvenOdd } }
+    val play by lazy { parse(BlazeLogoShapes.PLAY) }
+    val sweep by lazy { parse(BlazeLogoShapes.BAND_SWEEP) }
+    val noteSingle by lazy { parse(BlazeLogoShapes.NOTE_SINGLE) }
+    val notePair by lazy { parse(BlazeLogoShapes.NOTE_PAIR) }
+    val rippleLeft by lazy { parse("M150 545 a110 110 0 0 0 0 150") }
+    val rippleRight by lazy { parse("M874 545 a110 110 0 0 1 0 150") }
+}
+
+/** The story's length; the life on top of it runs on its own shorter rhythms. */
+private const val STORY_SECONDS = 4f
 
 @Composable
 fun BlazeLoader(
@@ -47,43 +75,178 @@ fun BlazeLoader(
     trackColor: Color = Color.Unspecified,
     strokeCap: StrokeCap = StrokeCap.Round,
 ) {
-    val cs = MaterialTheme.colorScheme
-    val top = if (color.isSpecified) color else cs.primary
-    val bottom = if (color.isSpecified) color.copy(alpha = 0.7f) else cs.tertiary
+    val base = if (color.isSpecified) color else MaterialTheme.colorScheme.primary
+    val palette = remember(base) { LoaderPalette(base) }
+    val bandLine = remember { Path() }
 
-    val transition = rememberInfiniteTransition(label = "blazeLoader")
-    val t by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(durationMillis = 1100, easing = LinearEasing)),
-        label = "phase",
-    )
+    // Seconds since this loader appeared, read every frame. A single clock, so the
+    // story and the life on top of it can never drift apart or stutter at a seam.
+    val seconds by produceState(0f) {
+        val start = withFrameNanos { it }
+        while (true) withFrameNanos { value = (it - start) / 1_000_000_000f }
+    }
 
-    // Fills whatever size the caller gives; sensible default otherwise.
-    Canvas(modifier = modifier.size(40.dp)) {
-        val w = size.width
-        val h = size.height
-        val bars = 4
-        // Bars a little wider than the gaps between them, centred in the box.
-        val barW = w / (bars * 1.75f)
-        val gap = barW * 0.75f
-        val total = bars * barW + (bars - 1) * gap
-        val left = (w - total) / 2f
-        val floor = h * 0.86f
-        val tallest = h * 0.72f
-        val shortest = h * 0.18f
-        val brush = Brush.verticalGradient(listOf(top, bottom), startY = floor - tallest, endY = floor)
-
-        for (i in 0 until bars) {
-            // A wave running left to right: each bar a quarter-step behind the one before.
-            val swing = (sin((t - i * 0.18f) * 2f * PI).toFloat() + 1f) / 2f
-            val barH = shortest + (tallest * BarReach[i] - shortest) * swing
-            drawRoundRect(
-                brush = brush,
-                topLeft = Offset(left + i * (barW + gap), floor - barH),
-                size = Size(barW, barH),
-                cornerRadius = CornerRadius(barW / 2f, barW / 2f),
-            )
+    Canvas(modifier = modifier.size(44.dp)) {
+        val side = size.minDimension
+        val k = side / BlazeLogoShapes.VIEW_SIZE
+        withTransform({
+            translate((size.width - side) / 2f, (size.height - side) / 2f)
+            scale(k, k, pivot = Offset.Zero)
+            translate(-BlazeLogoShapes.VIEW_LEFT, -BlazeLogoShapes.VIEW_TOP)
+        }) {
+            drawStory(seconds, palette, bandLine)
         }
     }
 }
+
+private class LoaderPalette(base: Color) {
+    val top = base
+    val bottom = lerp(base, Color(0xFFFF4D1A), 0.35f)
+    val cups = lerp(base, Color.White, 0.25f)
+    val cream = lerp(base, Color.White, 0.88f)
+    val notes = lerp(base, Color.White, 0.55f)
+    val glow = base
+}
+
+private fun DrawScope.drawStory(t: Float, c: LoaderPalette, bandLine: Path) {
+    val u = (t % STORY_SECONDS) / STORY_SECONDS
+    val logoBrush = Brush.verticalGradient(listOf(c.top, c.bottom), startY = 180f, endY = 780f)
+
+    // A warm glow gathering behind the logo while it is whole.
+    val glow = envelope(u, 0.08f, 0.45f, 0.78f, 1f)
+    if (glow > 0f) {
+        val r = 300f * (0.5f + 0.5f * glow)
+        drawCircle(
+            brush = Brush.radialGradient(
+                listOf(c.glow.copy(alpha = 0.42f * glow), Color.Transparent),
+                center = Offset(512f, 560f),
+                radius = r,
+            ),
+            radius = r,
+            center = Offset(512f, 560f),
+        )
+    }
+
+    // Sound rolling out of the ear cups, and music notes rising off the flame,
+    // while the logo is whole.
+    val alive = envelope(u, 0.48f, 0.56f, 0.76f, 0.88f)
+    if (alive > 0f) {
+        drawRipples(t, alive, c)
+        drawNotes(t, alive, c)
+    }
+
+    // The headband sweeps in along its own line, holds, then lets go from where it began.
+    val reveal = ease(ramp(u, 0.20f, 0.46f))
+    val erase = ease(ramp(u, 0.78f, 0.96f))
+    if (reveal > erase) {
+        val measure = PathMeasure().apply { setPath(LogoPaths.sweep, false) }
+        bandLine.reset()
+        measure.getSegment(erase * measure.length, reveal * measure.length, bandLine, true)
+        drawContext.canvas.saveLayer(Rect(0f, 0f, 1024f, 1024f), Paint())
+        drawPath(LogoPaths.band, logoBrush)
+        drawPath(bandLine, Color.White, style = Stroke(width = 200f, cap = StrokeCap.Round), blendMode = BlendMode.DstIn)
+        drawContext.canvas.restore()
+    }
+
+    // The ear cups float down into place, then bounce, one after the other.
+    val cups = envelope(u, 0.34f, 0.50f, 0.78f, 0.92f)
+    if (cups > 0f) {
+        drawCup(LogoPaths.cupLeft, t, 0f, cups, c.cups)
+        drawCup(LogoPaths.cupRight, t, CUP_BOUNCE_SECONDS / 2f, cups, c.cups)
+    }
+
+    // The flame grows around the play button and keeps swaying.
+    val flame = envelope(u, 0.08f, 0.30f, 0.80f, 0.96f)
+    if (flame > 0f) {
+        val b = LogoPaths.flame.getBounds()
+        val pivot = Offset(b.center.x, b.top + b.height * 0.85f)
+        val sway = sin(t * 2f * PI.toFloat() / 3.2f)
+        withTransform({
+            scale(flame, flame, pivot)
+            rotate(2.2f * sway, pivot)
+            scale(1f - 0.012f * sway, 1f + 0.015f * sway, pivot)
+        }) {
+            drawPath(LogoPaths.flame, logoBrush, alpha = flame)
+        }
+    }
+
+    // The play button: large and warm at the start, settled and pale inside the flame.
+    val settled = envelope(u, 0.06f, 0.26f, 0.80f, 1f)
+    val pale = envelope(u, 0.08f, 0.26f, 0.80f, 0.98f)
+    val playBounds = LogoPaths.play.getBounds()
+    scale(2.2f - 1.2f * settled, playBounds.center) {
+        drawPath(LogoPaths.play, lerp(c.top, c.cream, pale))
+    }
+}
+
+/** One full hop and landing of an ear cup. */
+private const val CUP_BOUNCE_SECONDS = 0.9f
+
+private fun DrawScope.drawCup(path: Path, t: Float, offset: Float, shown: Float, color: Color) {
+    val b = path.getBounds()
+    val foot = Offset(b.center.x, b.bottom)
+    // A small hop, then a soft squash as it lands.
+    val p = ((t + offset) % CUP_BOUNCE_SECONDS) / CUP_BOUNCE_SECONDS
+    var lift = 0f
+    var squash = 0f
+    if (p < 0.55f) lift = sin(PI.toFloat() * p / 0.55f) else squash = sin(PI.toFloat() * (p - 0.55f) / 0.45f)
+    val hop = 16f * lift * shown
+    withTransform({
+        translate(0f, -40f * (1f - shown) - hop)
+        scale(0.6f + 0.4f * shown, 0.6f + 0.4f * shown, Offset(b.center.x, b.top))
+        scale(1f + 0.05f * squash, 1f - 0.07f * squash, foot)
+    }) {
+        drawPath(path, color, alpha = shown)
+    }
+}
+
+private fun DrawScope.drawRipples(t: Float, alive: Float, c: LoaderPalette) {
+    for (start in floatArrayOf(0f, 0.8f)) {
+        val k = ((t + start) % 1.6f) / 1.6f
+        val out = 70f * easeOut(k)
+        val a = 0.9f * (1f - k) * alive
+        val stroke = Stroke(width = 20f, cap = StrokeCap.Round)
+        translate(-out, 0f) { drawPath(LogoPaths.rippleLeft, c.top, alpha = a, style = stroke) }
+        translate(out, 0f) { drawPath(LogoPaths.rippleRight, c.top, alpha = a, style = stroke) }
+    }
+}
+
+private fun DrawScope.drawNotes(t: Float, alive: Float, c: LoaderPalette) {
+    // Where each note leaves the flame, which note it is, and which way it drifts.
+    val notes = listOf(
+        Triple(Offset(470f, 300f), LogoPaths.noteSingle, -1f),
+        Triple(Offset(548f, 286f), LogoPaths.notePair, 1f),
+        Triple(Offset(512f, 262f), LogoPaths.noteSingle, -1f),
+    )
+    notes.forEachIndexed { i, (from, shape, side) ->
+        val k = ((t + 2.2f - i * 0.73f) % 2.2f) / 2.2f
+        val a = (if (k < 0.2f) k / 0.2f else 1f - (k - 0.2f) / 0.8f) * alive
+        if (a <= 0f) return@forEachIndexed
+        // Up and out, then back across: a gentle S as it rises.
+        val first = ease(ramp(k, 0f, 0.5f))
+        val second = ease(ramp(k, 0.5f, 1f))
+        val x = side * (14f * first - 20f * second)
+        val y = -70f * first - 80f * second
+        val turn = side * (6f * first - 10f * second)
+        val size = 0.7f + 0.3f * first - 0.1f * second
+        withTransform({
+            translate(from.x + x, from.y + y)
+            rotate(turn, Offset.Zero)
+            scale(size, size, Offset.Zero)
+        }) {
+            drawPath(shape, c.notes, alpha = a)
+        }
+    }
+}
+
+/** 0 before [a], 1 after [b], straight in between. */
+private fun ramp(u: Float, a: Float, b: Float) = ((u - a) / (b - a)).coerceIn(0f, 1f)
+
+/** Slow in, slow out. */
+private fun ease(x: Float) = if (x < 0.5f) 4f * x * x * x else 1f - (-2f * x + 2f).let { it * it * it } / 2f
+
+private fun easeOut(x: Float) = 1f - (1f - x).let { it * it * it }
+
+/** Eases up from 0 to 1 between [inStart] and [inEnd], holds, then eases back to 0 by [outEnd]. */
+private fun envelope(u: Float, inStart: Float, inEnd: Float, outStart: Float, outEnd: Float) =
+    ease(ramp(u, inStart, inEnd)) * (1f - ease(ramp(u, outStart, outEnd)))
