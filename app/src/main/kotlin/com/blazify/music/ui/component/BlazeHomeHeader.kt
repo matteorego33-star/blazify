@@ -224,14 +224,12 @@ fun BlazeHomeHeader(
                 }
             artColors = extracted
         }
-        val themeStart = MaterialTheme.colorScheme.primary
-        val cardColors =
-            if (artColors.size >= 2) {
-                artColors
-            } else {
-                listOf(themeStart, lerp(themeStart, Color.Black, if (isDark) 0.30f else 0.20f))
-            }
-        val cardStart = cardColors.first()
+        // Only the artwork's colour is borrowed, not the player's whole gradient: that
+        // one runs down to black to melt into a full screen, and on this card its dark
+        // end melted into the page instead. The card keeps its own shape, its colour
+        // and the same colour a little darker, so both ends stay lit.
+        val cardStart = artColors.firstOrNull() ?: MaterialTheme.colorScheme.primary
+        val cardColors = listOf(cardStart, lerp(cardStart, Color.Black, if (isDark) 0.30f else 0.20f))
         val cardEnd = cardColors.last()
         val onCard = if (cardStart.luminance() > 0.6f) Color.Black else Color.White
         // The buttons' fill: the card's colour where they sit, darkened (or lightened
