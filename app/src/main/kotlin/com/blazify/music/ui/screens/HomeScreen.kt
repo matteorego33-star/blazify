@@ -6,6 +6,7 @@
 
 package com.blazify.music.ui.screens
 
+import androidx.compose.runtime.withFrameNanos
 import android.net.Uri
 import com.blazify.music.utils.GenreTaste
 import com.blazify.music.ui.component.BlazeLoader
@@ -1189,6 +1190,14 @@ fun HomeScreen(
     // Your own shelves come off the phone in well under a second; YouTube's take as long
     // as the network does and always sit lower on the page. Home opens on the first.
     val localReady = firstLoadDone || (quickPicks != null && keepListening != null)
+    LaunchedEffect(localReady) {
+        if (localReady) {
+            // Two frames with the shelves on screen, then the launch logo may glide in.
+            withFrameNanos { }
+            withFrameNanos { }
+            com.blazify.music.utils.LaunchSignal.homeSettled.value = true
+        }
+    }
     val stableSections =
         remember(homeSections, localReady, shownOrder) {
             if (!localReady) {

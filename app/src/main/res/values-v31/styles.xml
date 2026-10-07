@@ -10,4 +10,13 @@
         <item name="android:windowDisablePreview">true</item>
         <item name="android:windowAnimationStyle">@null</item>
     </style>
+
+    <!-- Android 12+: the system launch screen plays the logo's story while the app loads,
+         instead of a still icon; MainActivity glides it into Home's header when Home is ready. -->
+    <style name="Theme.Blazify.Splash" parent="Theme.Blazify">
+        <item name="android:windowBackground">#000000</item>
+        <item name="android:windowSplashScreenBackground">#000000</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_animated</item>
+        <item name="android:windowSplashScreenAnimationDuration">900</item>
+    </style>
 </resources>

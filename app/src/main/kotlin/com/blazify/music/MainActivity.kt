@@ -6,6 +6,8 @@
 
 package com.blazify.music
 
+import com.blazify.music.utils.LaunchSignal
+import kotlinx.coroutines.withTimeoutOrNull
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ForegroundServiceStartNotAllowedException
@@ -411,6 +413,77 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Android's launch screen plays the logo's story while the app loads. When Home is
+     * drawn, the logo is given the rest of its moment (never more than a third of a second),
+     * then glides up and shrinks into the logo in Home's header while the black clears.
+     * Launch reads as one movement, and it never adds a wait of its own.
+     */
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.S)
+    private fun glideLaunchLogoIntoHeader() {
+        splashScreen.setOnExitAnimationListener { view ->
+            val icon = view.iconView
+            if (icon == null || icon.width == 0) {
+                view.remove()
+                return@setOnExitAnimationListener
+            }
+            val start = view.iconAnimationStart?.toEpochMilli()
+            val length = view.iconAnimationDuration?.toMillis() ?: 0L
+            val storyEnds = if (start != null) start + length else 0L
+            lifecycleScope.launch {
+                // Wait for Home to settle (never long), so the glide has the frames to itself.
+                withTimeoutOrNull(900) { LaunchSignal.homeSettled.first { it } }
+                val hold = (storyEnds - System.currentTimeMillis()).coerceIn(0L, 330L)
+                glide(view, icon, hold)
+            }
+        }
+    }
+
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.S)
+    private fun glide(view: android.window.SplashScreenView, icon: android.view.View, hold: Long) {
+        val density = resources.displayMetrics.density
+        run {
+
+            // Where the header's logo sits: left of the centred wordmark, under the status bar.
+            // Measured on screen: the icon sits inside a frame of its own, so its x and y alone
+            // are not where it is.
+            val at = IntArray(2).also(icon::getLocationOnScreen)
+            val origin = IntArray(2).also(view::getLocationOnScreen)
+            val iconCenterX = at[0] - origin[0] + icon.width / 2f
+            val iconCenterY = at[1] - origin[1] + icon.height / 2f
+            val targetX = view.width / 2f - 61f * density
+            val targetY = 73f * density
+            // The drawn logo is 0.64 of the icon's 288 dp box, about 0.43 of its width once
+            // the box's own margin is counted; the header's is about 32 dp across.
+            val scale = (32f * density) / (icon.width * 0.43f)
+
+            val ease = android.view.animation.PathInterpolator(0.4f, 0f, 0.2f, 1f)
+            icon.animate()
+                .setStartDelay(hold)
+                .setDuration(520)
+                .setInterpolator(ease)
+                .translationX(targetX - iconCenterX)
+                .translationY(targetY - iconCenterY)
+                .scaleX(scale)
+                .scaleY(scale)
+                .withEndAction { view.remove() }
+                .start()
+            android.animation.ValueAnimator.ofInt(255, 0).apply {
+                startDelay = hold + 120
+                duration = 380
+                interpolator = ease
+                addUpdateListener { view.setBackgroundColor(android.graphics.Color.argb(it.animatedValue as Int, 0, 0, 0)) }
+                start()
+            }
+            // Its own animator: a second animate() on the icon would retime the glide.
+            android.animation.ObjectAnimator.ofFloat(icon, android.view.View.ALPHA, 1f, 0f).apply {
+                startDelay = hold + 440
+                duration = 100
+                start()
+            }
+        }
+    }
+
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -418,6 +491,7 @@ class MainActivity : ComponentActivity() {
         // to the normal theme now that we're about to draw the real UI.
         setTheme(R.style.Theme_Blazify)
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) glideLaunchLogoIntoHeader()
         // Tell the service before onStart starts it, so it doesn't load the old queue for a link
         // that is about to replace it.
         if (savedInstanceState == null && isPlayLink(intent)) {
