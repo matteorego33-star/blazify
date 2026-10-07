@@ -6,6 +6,8 @@
 
 package com.blazify.music
 
+import com.blazify.music.ui.component.ArtPlaceholderDrawable
+import coil3.asImage
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -386,6 +388,10 @@ class App :
             .apply {
                 crossfade(true)
                 allowHardware(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                // Every cover, while it loads and when there is none: the logo in black and white.
+                placeholder { ArtPlaceholderDrawable(this@App).asImage() }
+                error { ArtPlaceholderDrawable(this@App).asImage() }
+                fallback { ArtPlaceholderDrawable(this@App).asImage() }
                 // Downloaded songs keep their covers on the phone, for use offline and online.
                 components { add(OfflineCovers.Serve(this@App)) }
                 // Memory cache for fast image loading (prevents network requests on recomposition)
