@@ -97,6 +97,7 @@ import com.blazify.music.ui.component.Material3MenuGroup
 import com.blazify.music.ui.component.Material3MenuItemData
 import com.blazify.music.ui.component.NewAction
 import com.blazify.music.ui.component.NewActionGrid
+import com.blazify.music.ui.component.NewActionRow
 import com.blazify.music.ui.component.SongListItem
 import com.blazify.music.ui.component.TextFieldDialog
 import com.blazify.music.ui.utils.ShowMediaInfo
@@ -570,7 +571,7 @@ fun SongMenu(
             ),
     ) {
         item {
-            NewActionGrid(
+            NewActionRow(
                 actions =
                     listOfNotNull(
                         NewAction(
@@ -597,6 +598,55 @@ fun SongMenu(
                             text = stringResource(R.string.add_to_playlist),
                             onClick = { showChoosePlaylistDialog = true },
                         ),
+                        if (isLocal) null else
+                        // Download where the full player has it: among the first tiles,
+                        // not at the foot of a long list.
+                        when (download?.state) {
+                            Download.STATE_COMPLETED -> NewAction(
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.offline),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(28.dp),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                    )
+                                },
+                                text = stringResource(R.string.remove_download),
+                                onClick = {
+                                    DownloadService.sendRemoveDownload(context, ExoDownloadService::class.java, song.id, false)
+                                },
+                            )
+                            Download.STATE_QUEUED, Download.STATE_DOWNLOADING -> NewAction(
+                                icon = { BlazeLoader(modifier = Modifier.size(28.dp)) },
+                                text = stringResource(R.string.downloading),
+                                onClick = {
+                                    DownloadService.sendRemoveDownload(context, ExoDownloadService::class.java, song.id, false)
+                                },
+                            )
+                            else -> NewAction(
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.download),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(28.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                },
+                                text = stringResource(R.string.action_download),
+                                onClick = {
+                                    DownloadService.sendAddDownload(
+                                        context,
+                                        ExoDownloadService::class.java,
+                                        DownloadRequest
+                                            .Builder(song.id, song.id.toUri())
+                                            .setCustomCacheKey(song.id)
+                                            .setData(song.song.title.toByteArray())
+                                            .build(),
+                                        false,
+                                    )
+                                },
+                            )
+                        },
                         // Sharing a file only this phone has is not a thing that
                         // can work, so the third place goes to something that does
                         // rather than being left as a hole in the row.
@@ -637,7 +687,6 @@ fun SongMenu(
                         ),
                     ),
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
-                columns = if (isGuest) 2 else 3,
             )
         }
         item {
@@ -1002,88 +1051,6 @@ fun SongMenu(
                             )
                         }
                     },
-            )
-        }
-
-        item { Spacer(modifier = Modifier.height(12.dp)) }
-
-        if (!isLocal) item {
-            Material3MenuGroup(
-                items =
-                    listOf(
-                        when (download?.state) {
-                            Download.STATE_COMPLETED -> {
-                                Material3MenuItemData(
-                                    title = {
-                                        Text(
-                                            text = stringResource(R.string.remove_download),
-                                        )
-                                    },
-                                    icon = {
-                                        Icon(
-                                            painter = painterResource(R.drawable.offline),
-                                            contentDescription = null,
-                                        )
-                                    },
-                                    onClick = {
-                                        DownloadService.sendRemoveDownload(
-                                            context,
-                                            ExoDownloadService::class.java,
-                                            song.id,
-                                            false,
-                                        )
-                                    },
-                                )
-                            }
-
-                            Download.STATE_QUEUED, Download.STATE_DOWNLOADING -> {
-                                Material3MenuItemData(
-                                    title = { Text(text = stringResource(R.string.downloading)) },
-                                    icon = {
-                                        BlazeLoader(
-                                            modifier = Modifier.size(24.dp),
-                                            strokeWidth = 2.dp,
-                                        )
-                                    },
-                                    onClick = {
-                                        DownloadService.sendRemoveDownload(
-                                            context,
-                                            ExoDownloadService::class.java,
-                                            song.id,
-                                            false,
-                                        )
-                                    },
-                                )
-                            }
-
-                            else -> {
-                                Material3MenuItemData(
-                                    title = { Text(text = stringResource(R.string.action_download)) },
-                                    description = { Text(text = stringResource(R.string.download_desc)) },
-                                    icon = {
-                                        Icon(
-                                            painter = painterResource(R.drawable.download),
-                                            contentDescription = null,
-                                        )
-                                    },
-                                    onClick = {
-                                        val downloadRequest =
-                                            DownloadRequest
-                                                .Builder(song.id, song.id.toUri())
-                                                .setCustomCacheKey(song.id)
-                                                .setData(song.song.title.toByteArray())
-                                                .build()
-                                        DownloadService.sendAddDownload(
-                                            context,
-                                            ExoDownloadService::class.java,
-                                            downloadRequest,
-                                            false,
-                                        )
-                                    },
-                                )
-                            }
-                        },
-                    ),
             )
         }
 

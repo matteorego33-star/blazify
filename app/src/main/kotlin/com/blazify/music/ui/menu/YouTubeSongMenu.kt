@@ -85,6 +85,7 @@ import com.blazify.music.ui.component.Material3MenuGroup
 import com.blazify.music.ui.component.Material3MenuItemData
 import com.blazify.music.ui.component.NewAction
 import com.blazify.music.ui.component.NewActionGrid
+import com.blazify.music.ui.component.NewActionRow
 import com.blazify.music.ui.utils.ShowMediaInfo
 import com.blazify.music.ui.utils.resize
 import com.blazify.music.utils.joinByBullet
@@ -296,7 +297,7 @@ fun YouTubeSongMenu(
         ),
     ) {
         item {
-            NewActionGrid(
+            NewActionRow(
                 actions = listOfNotNull(
                     if (!isGuest) {
                         NewAction(
@@ -329,6 +330,57 @@ fun YouTubeSongMenu(
                             showChoosePlaylistDialog = true
                         }
                     ),
+                    // Download where the full player has it: among the first tiles,
+                    // not at the foot of a long list.
+                    when (download?.state) {
+                        Download.STATE_COMPLETED -> NewAction(
+                            icon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.offline),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(28.dp),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            },
+                            text = stringResource(R.string.remove_download),
+                            onClick = {
+                                DownloadService.sendRemoveDownload(context, ExoDownloadService::class.java, song.id, false)
+                            },
+                        )
+                        Download.STATE_QUEUED, Download.STATE_DOWNLOADING -> NewAction(
+                            icon = { BlazeLoader(modifier = Modifier.size(28.dp)) },
+                            text = stringResource(R.string.downloading),
+                            onClick = {
+                                DownloadService.sendRemoveDownload(context, ExoDownloadService::class.java, song.id, false)
+                            },
+                        )
+                        else -> NewAction(
+                            icon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.download),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(28.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            },
+                            text = stringResource(R.string.action_download),
+                            onClick = {
+                                database.transaction {
+                                    insert(song.toMediaMetadata())
+                                }
+                                DownloadService.sendAddDownload(
+                                    context,
+                                    ExoDownloadService::class.java,
+                                    DownloadRequest
+                                        .Builder(song.id, song.id.toUri())
+                                        .setCustomCacheKey(song.id)
+                                        .setData(song.title.toByteArray())
+                                        .build(),
+                                    false,
+                                )
+                            },
+                        )
+                    },
                     NewAction(
                         icon = {
                             Icon(
@@ -350,7 +402,6 @@ fun YouTubeSongMenu(
                         }
                     )
                 ),
-                columns = if (isGuest) 2 else 3,
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
             )
         }
@@ -612,87 +663,6 @@ fun YouTubeSongMenu(
                         )
                     )
                 }
-            )
-        }
-
-        item { Spacer(modifier = Modifier.height(12.dp)) }
-
-        item {
-            Material3MenuGroup(
-                items = listOf(
-                    when (download?.state) {
-                        Download.STATE_COMPLETED -> {
-                            Material3MenuItemData(
-                                title = {
-                                    Text(
-                                        text = stringResource(R.string.remove_download)
-                                    )
-                                },
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(R.drawable.offline),
-                                        contentDescription = null
-                                    )
-                                },
-                                onClick = {
-                                    DownloadService.sendRemoveDownload(
-                                        context,
-                                        ExoDownloadService::class.java,
-                                        song.id,
-                                        false,
-                                    )
-                                }
-                            )
-                        }
-                        Download.STATE_QUEUED, Download.STATE_DOWNLOADING -> {
-                            Material3MenuItemData(
-                                title = { Text(text = stringResource(R.string.downloading)) },
-                                icon = {
-                                    BlazeLoader(
-                                        modifier = Modifier.size(24.dp),
-                                        strokeWidth = 2.dp
-                                    )
-                                },
-                                onClick = {
-                                    DownloadService.sendRemoveDownload(
-                                        context,
-                                        ExoDownloadService::class.java,
-                                        song.id,
-                                        false,
-                                    )
-                                }
-                            )
-                        }
-                        else -> {
-                            Material3MenuItemData(
-                                title = { Text(text = stringResource(R.string.action_download)) },
-                                description = { Text(text = stringResource(R.string.download_desc)) },
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(R.drawable.download),
-                                        contentDescription = null,
-                                    )
-                                },
-                                onClick = {
-                                    database.transaction {
-                                        insert(song.toMediaMetadata())
-                                    }
-                                    val downloadRequest = DownloadRequest
-                                        .Builder(song.id, song.id.toUri())
-                                        .setCustomCacheKey(song.id)
-                                        .setData(song.title.toByteArray())
-                                        .build()
-                                    DownloadService.sendAddDownload(
-                                        context,
-                                        ExoDownloadService::class.java,
-                                        downloadRequest,
-                                        false,
-                                    )
-                                }
-                            )
-                        }
-                    }
-                )
             )
         }
 
