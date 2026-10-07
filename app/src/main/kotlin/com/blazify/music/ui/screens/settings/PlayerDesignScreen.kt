@@ -514,7 +514,7 @@ private fun PreviewTitle(meta: MediaMetadata?, color: Color, shadow: Boolean = f
     val sh = if (shadow) Shadow(Color.Black.copy(alpha = 0.75f), Offset(0f, 2f), 6f) else null
     Text(
         meta?.title ?: "Song title",
-        fontSize = 13.sp,
+        fontSize = 13.sp, lineHeight = 16.2.sp,
         fontWeight = FontWeight.Bold,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -524,7 +524,7 @@ private fun PreviewTitle(meta: MediaMetadata?, color: Color, shadow: Boolean = f
     Spacer(Modifier.height(3.dp))
     Text(
         meta?.artists?.joinToString { it.name }?.takeIf { it.isNotBlank() } ?: "Artist",
-        fontSize = 10.sp,
+        fontSize = 10.sp, lineHeight = 12.5.sp,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         color = color.copy(alpha = 0.75f),
@@ -654,8 +654,8 @@ private fun PreviewSlider(pc: PlayerConnection?, activeColor: Color, inactiveCol
         }
     }
     Row(Modifier.fillMaxWidth().padding(top = 3.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(makeTimeString((frac * dur).toLong()), fontSize = 9.sp, color = textColor.copy(alpha = 0.8f))
-        Text(if (dur > 0) makeTimeString(dur) else "0:00", fontSize = 9.sp, color = textColor.copy(alpha = 0.8f))
+        Text(makeTimeString((frac * dur).toLong()), fontSize = 9.sp, lineHeight = 11.2.sp, color = textColor.copy(alpha = 0.8f))
+        Text(if (dur > 0) makeTimeString(dur) else "0:00", fontSize = 9.sp, lineHeight = 11.2.sp, color = textColor.copy(alpha = 0.8f))
     }
 }
 
@@ -717,9 +717,9 @@ private fun PreviewTitleActions(pc: PlayerConnection?, textColor: Color) {
 private fun PreviewHeader(meta: MediaMetadata?, textColor: Color) {
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 30.dp)) {
-            Text(stringResource(R.string.now_playing), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = textColor)
+            Text(stringResource(R.string.now_playing), fontSize = 12.sp, lineHeight = 15.sp, fontWeight = FontWeight.Bold, color = textColor)
             meta?.album?.title?.takeIf { it.isNotBlank() }?.let {
-                Text(it, fontSize = 9.sp, color = textColor.copy(alpha = 0.75f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(it, fontSize = 9.sp, lineHeight = 11.2.sp, color = textColor.copy(alpha = 0.75f), maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -807,11 +807,11 @@ private fun PreviewRingLyrics(pc: PlayerConnection?, textColor: Color) {
         }
     if (lines == null) return
     Column(Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(lines.first, fontSize = 9.sp, color = textColor.copy(alpha = 0.45f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(lines.first, fontSize = 9.sp, lineHeight = 11.2.sp, color = textColor.copy(alpha = 0.45f), maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.height(2.dp))
-        Text(lines.second, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = cs.primary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(lines.second, fontSize = 10.sp, lineHeight = 12.5.sp, fontWeight = FontWeight.Bold, color = cs.primary, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.height(2.dp))
-        Text(lines.third, fontSize = 9.sp, color = textColor.copy(alpha = 0.45f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(lines.third, fontSize = 9.sp, lineHeight = 11.2.sp, color = textColor.copy(alpha = 0.45f), maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -1037,7 +1037,7 @@ private fun FullArtPreview(meta: MediaMetadata?, pc: PlayerConnection?) {
         ) {
             Text(
                 text = stringResource(R.string.now_playing),
-                fontSize = 12.sp,
+                fontSize = 12.sp, lineHeight = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 style = LocalTextStyle.current.copy(shadow = fullArtShadow),
@@ -1045,7 +1045,7 @@ private fun FullArtPreview(meta: MediaMetadata?, pc: PlayerConnection?) {
             meta?.album?.title?.takeIf { it.isNotBlank() }?.let {
                 Text(
                     it,
-                    fontSize = 9.sp,
+                    fontSize = 9.sp, lineHeight = 11.2.sp,
                     color = Color.White.copy(alpha = 0.8f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
