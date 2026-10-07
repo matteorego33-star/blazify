@@ -8,6 +8,8 @@
 
 package com.blazify.music.ui.player
 
+import com.blazify.music.ui.utils.ScrollsFor
+import com.blazify.music.ui.utils.titleMarquee
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -17,7 +19,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -774,15 +775,17 @@ private fun NewMiniPlayerSongInfo(
         verticalArrangement = Arrangement.Center,
     ) {
         mediaMetadata?.let { metadata ->
-            Text(
-                text = metadata.title,
-                color = onSurfaceColor,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Clip,
-                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 3000, repeatDelayMillis = 3000, velocity = 30.dp),
-            )
+            ScrollsFor(metadata.title) {
+                            Text(
+                                text = metadata.title,
+                                color = onSurfaceColor,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Clip,
+                                modifier = Modifier.titleMarquee(),
+                            )
+            }
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -793,14 +796,16 @@ private fun NewMiniPlayerSongInfo(
                     Spacer(Modifier.width(6.dp))
                 }
                  if (metadata.artists.any { it.name.isNotBlank() }) {
-                     Text(
-                         text = metadata.artists.joinToArtistString(" ${stringResource(R.string.and)} ") { it.name },
-                         color = onSurfaceColor.copy(alpha = 0.7f),
-                        fontSize = 12.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Clip,
-                        modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 3000, repeatDelayMillis = 3000, velocity = 30.dp),
-                    )
+                     ScrollsFor(metadata.artists.joinToArtistString(" ${stringResource(R.string.and)} ") { it.name }) {
+                                              Text(
+                                                  text = metadata.artists.joinToArtistString(" ${stringResource(R.string.and)} ") { it.name },
+                                                  color = onSurfaceColor.copy(alpha = 0.7f),
+                                                 fontSize = 12.sp,
+                                                 maxLines = 1,
+                                                 overflow = TextOverflow.Clip,
+                                                 modifier = Modifier.titleMarquee(),
+                                             )
+                     }
                 }
             }
 
@@ -1146,7 +1151,7 @@ private fun LegacyMiniMediaInfo(
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.basicMarquee(),
+                modifier = Modifier.titleMarquee(),
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {

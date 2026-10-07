@@ -6,6 +6,8 @@
 
 package com.blazify.music.ui.player
 
+import com.blazify.music.ui.utils.ScrollsFor
+import com.blazify.music.ui.utils.titleMarquee
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import com.blazify.music.ui.component.PlayerBottomButton
@@ -40,7 +42,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -1171,38 +1172,40 @@ fun BottomSheetPlayer(
                         transitionSpec = { fadeIn() togetherWith fadeOut() },
                         label = "",
                     ) { title ->
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            color = TextBackgroundColor,
-                            modifier =
-                                Modifier
-                                    .basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 3000, repeatDelayMillis = 3000, velocity = 30.dp)
-                                    .combinedClickable(
-                                        enabled = true,
-                                        indication = null,
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        onClick = {
-                                            val albumId = mediaMetadata.album?.id
-                                                ?: currentSong?.album?.id
-                                                ?: currentSong?.song?.albumId
-                                            if (albumId != null) {
-                                                navController.navigate("album/$albumId")
-                                                state.collapseSoft()
-                                            }
-                                        },
-                                        onLongClick = {
-                                            val clip = ClipData.newPlainText(copiedTitleStr, title)
-                                            clipboardManager.setPrimaryClip(clip)
-                                            Toast
-                                                .makeText(context, copiedTitleStr, Toast.LENGTH_SHORT)
-                                                .show()
-                                        },
-                                    ),
-                        )
+                        ScrollsFor(title) {
+                                                    Text(
+                                                        text = title,
+                                                        style = MaterialTheme.typography.titleLarge,
+                                                        fontWeight = FontWeight.Bold,
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis,
+                                                        color = TextBackgroundColor,
+                                                        modifier =
+                                                            Modifier
+                                                                .titleMarquee()
+                                                                .combinedClickable(
+                                                                    enabled = true,
+                                                                    indication = null,
+                                                                    interactionSource = remember { MutableInteractionSource() },
+                                                                    onClick = {
+                                                                        val albumId = mediaMetadata.album?.id
+                                                                            ?: currentSong?.album?.id
+                                                                            ?: currentSong?.song?.albumId
+                                                                        if (albumId != null) {
+                                                                            navController.navigate("album/$albumId")
+                                                                            state.collapseSoft()
+                                                                        }
+                                                                    },
+                                                                    onLongClick = {
+                                                                        val clip = ClipData.newPlainText(copiedTitleStr, title)
+                                                                        clipboardManager.setPrimaryClip(clip)
+                                                                        Toast
+                                                                            .makeText(context, copiedTitleStr, Toast.LENGTH_SHORT)
+                                                                            .show()
+                                                                    },
+                                                                ),
+                                                    )
+                        }
                     }
 
                     Row(
@@ -1229,7 +1232,7 @@ fun BottomSheetPlayer(
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 3000, repeatDelayMillis = 3000, velocity = 30.dp)
+                                        .titleMarquee()
                                         .padding(end = 12.dp),
                             ) {
                                 var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
@@ -2000,14 +2003,16 @@ fun BottomSheetPlayer(
                             Spacer(Modifier.width(12.dp))
                         }
                         Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                            Text(
-                                text = mediaMetadata?.title.orEmpty(),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                color = TextBackgroundColor,
-                                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 3000, repeatDelayMillis = 3000, velocity = 30.dp),
-                            )
+                            ScrollsFor(mediaMetadata?.title.orEmpty()) {
+                                                            Text(
+                                                                text = mediaMetadata?.title.orEmpty(),
+                                                                style = MaterialTheme.typography.titleLarge,
+                                                                fontWeight = FontWeight.Bold,
+                                                                maxLines = 1,
+                                                                color = TextBackgroundColor,
+                                                                modifier = Modifier.titleMarquee(),
+                                                            )
+                            }
                             Text(
                                 text = mediaMetadata?.artists?.joinToString { it.name }.orEmpty(),
                                 style = MaterialTheme.typography.titleSmall,
@@ -2193,7 +2198,7 @@ fun BottomSheetPlayer(
                                     style = MaterialTheme.typography.titleMedium,
                                     color = TextBackgroundColor.copy(alpha = 0.8f),
                                     maxLines = 1,
-                                    modifier = Modifier.basicMarquee(),
+                                    modifier = Modifier.titleMarquee(),
                                 )
                             }
                         }
@@ -2262,7 +2267,7 @@ fun BottomSheetPlayer(
                                     style = MaterialTheme.typography.titleMedium,
                                     color = TextBackgroundColor.copy(alpha = 0.8f),
                                     maxLines = 1,
-                                    modifier = Modifier.basicMarquee(),
+                                    modifier = Modifier.titleMarquee(),
                                 )
                             }
                         }
@@ -3111,7 +3116,7 @@ private fun RingPlayerLayout(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = textColor.copy(alpha = 0.7f),
-                        modifier = Modifier.basicMarquee(),
+                        modifier = Modifier.titleMarquee(),
                     )
                 }
             }
@@ -3185,7 +3190,7 @@ private fun RingPlayerLayout(
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     color = textColor,
-                    modifier = Modifier.basicMarquee(),
+                    modifier = Modifier.titleMarquee(),
                 )
                 val artistText = mediaMetadata?.artists?.joinToString { it.name }.orEmpty()
                 if (artistText.isNotBlank()) {
@@ -3194,7 +3199,7 @@ private fun RingPlayerLayout(
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 1,
                         color = textColor.copy(alpha = 0.7f),
-                        modifier = Modifier.basicMarquee(),
+                        modifier = Modifier.titleMarquee(),
                     )
                 }
             }
@@ -3559,7 +3564,7 @@ private fun FullArtPortrait(
                     style = headerStyle,
                     color = headerColor.copy(alpha = 0.8f),
                     maxLines = 1,
-                    modifier = Modifier.basicMarquee(),
+                    modifier = Modifier.titleMarquee(),
                 )
             }
         }

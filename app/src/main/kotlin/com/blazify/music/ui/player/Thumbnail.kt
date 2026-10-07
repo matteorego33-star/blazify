@@ -6,12 +6,12 @@
 
 package com.blazify.music.ui.player
 
+import com.blazify.music.ui.utils.titleMarquee
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
@@ -451,7 +451,7 @@ private fun ThumbnailHeader(
                     style = MaterialTheme.typography.titleMedium,
                     color = textColor.copy(alpha = 0.8f),
                     maxLines = 1,
-                    modifier = Modifier.basicMarquee()
+                    modifier = Modifier.titleMarquee()
                 )
             }
         }

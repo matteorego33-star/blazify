@@ -6,10 +6,10 @@
 
 package com.blazify.music.ui.menu
 
+import com.blazify.music.ui.utils.titleMarquee
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -196,7 +196,7 @@ fun YouTubeSongMenu(
         headlineContent = {
             Text(
                 text = song.title,
-                modifier = Modifier.basicMarquee(),
+                modifier = Modifier.titleMarquee(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
