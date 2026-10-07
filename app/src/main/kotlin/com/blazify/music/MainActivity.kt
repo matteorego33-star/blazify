@@ -187,7 +187,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import com.blazify.music.utils.StarPrompt
 import com.blazify.music.constants.OnboardingCompletedKey
 import com.blazify.music.ui.component.BlazeSnackbarHost
-import com.blazify.music.ui.component.BlazeSplash
 import com.blazify.music.ui.screens.OnboardingScreen
 import com.blazify.music.ui.component.AccountSettingsDialog
 import com.blazify.music.ui.component.AppNavigationBar
@@ -493,43 +492,21 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            // Startup is staged so the splash never animates against a busy UI
-            // thread. Composing the app alongside it starved the animation to
-            // ~9fps, which read as stuttering because wall-clock tweens jump
-            // rather than slow down when frames are dropped. Instead: animate the
-            // splash alone, then compose the app behind it while it is still
-            // fully opaque, so the startup jank happens out of sight.
-            var splashVisible by rememberSaveable { mutableStateOf(true) }
-            var appComposed by rememberSaveable { mutableStateOf(false) }
-
-            if (appComposed) {
-                BlazifyApp(
-                    latestVersionName = latestVersionName,
-                    onLatestVersionNameChange = { latestVersionName = it },
-                    playerConnection = playerConnectionSnapshot,
-                    database = database,
-                    downloadUtil = downloadUtil,
-                    syncUtils = syncUtils,
-                )
-            }
-
-            BlazeSplash(
-                visible = splashVisible,
-                onIntroFinished = { appComposed = true },
+            // No splash of our own: Android's launch screen (the logo on black)
+            // covers the real loading, and the app opens straight onto Home.
+            BlazifyApp(
+                latestVersionName = latestVersionName,
+                onLatestVersionNameChange = { latestVersionName = it },
+                playerConnection = playerConnectionSnapshot,
+                database = database,
+                downloadUtil = downloadUtil,
+                syncUtils = syncUtils,
             )
-
-            LaunchedEffect(appComposed) {
-                if (!appComposed) return@LaunchedEffect
-                // Wait for the app to actually put frames up before uncovering it;
-                // a fixed delay would either cut in early or idle for no reason.
-                repeat(3) { withFrameNanos { } }
-                splashVisible = false
-            }
 
             // First run: introduce what the app does before dropping into it.
             val (onboardingCompleted, setOnboardingCompleted) =
                 rememberPreference(OnboardingCompletedKey, defaultValue = false)
-            if (!onboardingCompleted && !splashVisible) {
+            if (!onboardingCompleted) {
                 OnboardingScreen(onFinish = { setOnboardingCompleted(true) })
             }
         }
