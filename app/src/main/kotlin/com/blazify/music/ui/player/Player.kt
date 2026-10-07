@@ -801,10 +801,18 @@ fun BottomSheetPlayer(
     // Position update - only for local playback
     // When casting, we use castPosition directly to avoid sync issues
     // Use isPlaying instead of playbackState to ensure continuous updates during playback
-    LaunchedEffect(isPlaying, isCasting) {
+    val collapsed = state.isCollapsed
+    LaunchedEffect(isPlaying, isCasting, collapsed) {
         if (!isCasting && isPlaying) {
+            // Restarted on opening and closing the player, so the seek bar is right at once
+            // rather than after the rest of a half-second wait.
+            if (sliderPosition == null) position = playerConnection.player.currentPosition
             while (isActive) {
-                delay(100) // Update more frequently for smoother progress bar
+                // A tenth of a second while the player is open, for the seek bar and the lyrics.
+                // Folded into the mini player, half a second: its ring moves less than a pixel a
+                // step either way, and each step repaints the whole screen behind it — at ten a
+                // second that was most of what keeping Blazify open while it played cost.
+                delay(if (collapsed) 500 else 100)
                 if (sliderPosition == null) { // Only update if user isn't dragging
                     position = playerConnection.player.currentPosition
                     // Don't clobber a valid (metadata-derived) duration with 0/UNSET mid-resolve.
