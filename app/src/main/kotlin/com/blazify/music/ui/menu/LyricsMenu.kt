@@ -77,6 +77,7 @@ import com.blazify.music.ui.component.DefaultDialog
 import com.blazify.music.ui.component.ListDialog
 import com.blazify.music.ui.component.Material3MenuGroup
 import com.blazify.music.ui.component.Material3MenuItemData
+import com.blazify.music.lyrics.LyricsSync
 import com.blazify.music.ui.component.NewAction
 import com.blazify.music.ui.component.NewActionGrid
 import com.blazify.music.ui.component.TextFieldDialog
@@ -146,6 +147,30 @@ fun LyricsMenu(
                         ),
                     )
                 }
+            },
+        )
+    }
+
+    var showSyncDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    val currentLyrics = lyricsProvider()?.lyrics
+    // Only for lyrics that have no times yet: synced ones would lose their word-by-word timing
+    // to a line-by-line one, and their small slips are what the offset below is for.
+    val canSync =
+        currentLyrics != null &&
+            currentLyrics != LyricsEntity.LYRICS_NOT_FOUND &&
+            !lyricsTextLooksSynced(currentLyrics) &&
+            LyricsSync.linesToSync(currentLyrics).isNotEmpty()
+
+    if (showSyncDialog && currentLyrics != null) {
+        SyncLyricsDialog(
+            songId = mediaMetadataProvider().id,
+            songTitle = mediaMetadataProvider().title,
+            lyrics = currentLyrics,
+            onDismiss = {
+                showSyncDialog = false
+                onDismiss()
             },
         )
     }
@@ -495,6 +520,23 @@ fun LyricsMenu(
         item {
             Material3MenuGroup(
                 items = buildList {
+                    // Time the lyrics by hand, tapping along as the song plays. A row of its own:
+                    // as a fifth tile above, the tiles grew too narrow for their names.
+                    if (canSync) {
+                        add(
+                            Material3MenuItemData(
+                                title = { Text(stringResource(R.string.sync_lyrics_title)) },
+                                description = { Text(stringResource(R.string.sync_lyrics_menu_desc)) },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.sync),
+                                        contentDescription = null,
+                                    )
+                                },
+                                onClick = { showSyncDialog = true },
+                            ),
+                        )
+                    }
                     // Add translation toggle option if API key is configured
                     if (hasApiKey) {
                         add(

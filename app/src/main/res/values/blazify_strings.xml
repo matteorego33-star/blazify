@@ -1428,4 +1428,18 @@
         <item quantity="one">%1$s, one song, shared with you.</item>
         <item quantity="other">%1$s, %2$d songs, shared with you.</item>
     </plurals>
+
+    <!-- Sync your own lyrics -->
+    <string name="sync_lyrics_title">Sync the lyrics</string>
+    <string name="sync_lyrics_menu_desc">Tap along as the song plays to time each line</string>
+    <string name="sync_lyrics_hint">Tap as each line begins</string>
+    <string name="sync_lyrics_tap">Tap</string>
+    <string name="sync_lyrics_restart">Start over</string>
+    <string name="sync_lyrics_progress">%1$d of %2$d lines</string>
+    <string name="sync_lyrics_done">Every line has its time. Save to keep them.</string>
+    <string name="sync_lyrics_saved">Lyrics synced</string>
+    <string name="sync_lyrics_other_song">Play this song to sync its lyrics</string>
+    <string name="sync_lyrics_leave">Leave without saving?</string>
+    <string name="sync_lyrics_leave_desc">The times you tapped will be lost.</string>
+    <string name="sync_lyrics_leave_confirm">Leave</string>
 </resources>
