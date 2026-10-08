@@ -23,6 +23,7 @@ import android.widget.Toast
 import android.os.IBinder
 import android.view.View
 import android.view.WindowManager
+import android.view.Choreographer
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -126,6 +127,7 @@ import androidx.core.view.WindowCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -342,6 +344,25 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        // On a cold start the service is started once Home's first frame is up. Building the
+        // player and its session takes the main thread for a good while, and done here it came
+        // before the first frame and held the launch screen; the player was ready no sooner,
+        // since the connection to it only ever arrives after that frame anyway.
+        if (!MusicService.isRunning && !firstFrameDrawn) {
+            Choreographer.getInstance().postFrameCallback {
+                window.decorView.post {
+                    firstFrameDrawn = true
+                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) startAndBindService()
+                }
+            }
+        } else {
+            startAndBindService()
+        }
+    }
+
+    private var firstFrameDrawn = false
+
+    private fun startAndBindService() {
         // Start the playback service explicitly once so it can outlive binding.
         // Re-issuing startForegroundService() while an existing service instance is already
         // running can trigger "did not then call startForeground" on some Android 9 devices
