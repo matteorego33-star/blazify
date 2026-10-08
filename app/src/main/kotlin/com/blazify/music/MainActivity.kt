@@ -414,21 +414,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * The launch screen leaves the moment Home has drawn its first frame, with a short fade.
-     *
-     * It used to hand its logo over to Home's header: wait for Home to settle, hold, glide
-     * up into place, and only then let Home build its shelves so the glide had the frames
-     * to itself. On a mid-range phone that was about three seconds of logo before anything
-     * could be read, where other players open in one.
-     */
-    @androidx.annotation.RequiresApi(Build.VERSION_CODES.S)
-    private fun leaveLaunchScreenAtOnce() {
-        splashScreen.setOnExitAnimationListener { view ->
-            view.animate().alpha(0f).setDuration(150).withEndAction { view.remove() }.start()
-        }
-    }
-
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -436,11 +421,9 @@ class MainActivity : ComponentActivity() {
         // to the normal theme now that we're about to draw the real UI.
         setTheme(R.style.Theme_Blazify)
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // Hidden from the first frame, not from when the hand-over begins: Home is drawn
-            // under the launch screen before then, and its logo showed through as a second one.
-            leaveLaunchScreenAtOnce()
-        }
+        // Android takes its launch screen away by itself the moment the first frame is drawn.
+        // Asked to animate that ourselves, it waited for the app's own thread — busy building
+        // the screen — and stood in place for seconds; left to Android it goes at once.
         // Tell the service before onStart starts it, so it doesn't load the old queue for a link
         // that is about to replace it.
         if (savedInstanceState == null && isPlayLink(intent)) {
