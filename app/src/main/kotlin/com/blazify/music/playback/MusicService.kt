@@ -2951,6 +2951,23 @@ class MusicService :
             repeatCurrentSong(0)
         }
         refreshSponsorSegments(mediaItem)
+        // Moved to another song while stopped on an error — offline, say. The player stays in its
+        // error until it is told to prepare again, so a Next pressed then changed the title and
+        // played nothing, even when the song it moved to was on the phone.
+        if (reason != Player.MEDIA_ITEM_TRANSITION_REASON_AUTO &&
+            reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
+            player.playbackState == Player.STATE_IDLE &&
+            player.playerError != null
+        ) {
+            scope.launch {
+                if (pausedDueToNetworkError) {
+                    // We paused it for the outage; choosing a song means wanting to hear it.
+                    pausedDueToNetworkError = false
+                    player.playWhenReady = true
+                }
+                player.prepare()
+            }
+        }
         // The track that was playing before this transition only gets marked as
         // "fully cached" if it advanced AUTOmatically (i.e. it actually finished),
         // never on a manual skip/seek. lastTransitionedMediaId must be read BEFORE
