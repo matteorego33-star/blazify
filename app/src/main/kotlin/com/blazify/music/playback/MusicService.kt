@@ -235,6 +235,9 @@ import com.blazify.music.widget.BlazifyWidgetManager
 import com.blazify.music.widget.MusicWidgetReceiver
 import com.blazify.music.widget.PlaylistWidgetReceiver
 import com.blazify.music.ui.utils.resize
+import coil3.SingletonImageLoader
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
 import kotlin.coroutines.coroutineContext
@@ -1070,6 +1073,14 @@ class MusicService :
                         }
                     }
                 }
+            }
+
+        // The covers of the songs either side, on the phone before they are needed — see prefetchArt.
+        currentMediaMetadata
+            .distinctUntilChangedBy { it?.id }
+            .collectLatest(scope) {
+                delay(ART_PREFETCH_DELAY_MS)
+                prefetchArt()
             }
 
         // Have the next song's address ready before it is needed — see warmNextStream.
@@ -3348,6 +3359,8 @@ class MusicService :
     ) {
         if (reason == Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) {
             queueChangedSinceSave = true
+            // A queue that arrives after its first song, or changes, has new covers ahead.
+            scope.launch { prefetchArt() }
         }
     }
 
@@ -4403,6 +4416,49 @@ class MusicService :
         songUrlCache[nextId] =
             playback.streamUrl to System.currentTimeMillis() + (playback.streamExpiresInSeconds * 1000L)
         Timber.tag(TAG).d("Warmed next stream: $nextId via ${playback.streamClient}")
+    }
+
+    /**
+     * Fetches the covers of the next two songs and the one before onto the phone.
+     *
+     * A cover was asked for only when its song came on, so pressing Next showed the empty
+     * placeholder for a second or more while the picture came over the network. Fetched while
+     * the song before it plays, it is read off the phone the moment it is wanted. Each cover is
+     * asked for at every size the player, the mini player and the queue show it at, since each
+     * size is its own address; they are kept on disk only, so this holds no memory.
+     */
+    private fun prefetchArt() {
+        val timeline = player.currentTimeline
+        if (timeline.isEmpty) return
+        val current = player.currentMediaItemIndex
+        val repeatMode = if (player.repeatMode == Player.REPEAT_MODE_ONE) Player.REPEAT_MODE_OFF else player.repeatMode
+        val shuffle = player.shuffleModeEnabled
+        val around = mutableListOf<Int>()
+        var index = current
+        repeat(2) {
+            index = timeline.getNextWindowIndex(index, repeatMode, shuffle)
+            if (index != C.INDEX_UNSET && index != current) around += index
+        }
+        timeline.getPreviousWindowIndex(current, repeatMode, shuffle).takeIf { it != C.INDEX_UNSET }?.let(around::add)
+
+        val loader = SingletonImageLoader.get(this)
+        around.distinct().forEach { at ->
+            val item = player.getMediaItemAt(at)
+            val thumbnail = item.metadata?.thumbnailUrl
+            listOfNotNull(
+                thumbnail,
+                thumbnail?.resize(120, 120),
+                thumbnail?.resize(144, 144),
+                item.mediaMetadata.artworkUri?.toString(),
+            ).distinct().forEach { url ->
+                loader.enqueue(
+                    ImageRequest.Builder(this)
+                        .data(url)
+                        .memoryCachePolicy(CachePolicy.DISABLED)
+                        .build(),
+                )
+            }
+        }
     }
 
     /**
@@ -5782,6 +5838,9 @@ class MusicService :
         const val NOTIFICATION_ID = 888
         const val ERROR_CODE_NO_STREAM = 1000001
         const val CHUNK_LENGTH = 512 * 1024L
+
+        /** A moment for a song that has just come on to start before its neighbours' covers are fetched. */
+        const val ART_PREFETCH_DELAY_MS = 1_500L
         const val PERSISTENT_QUEUE_FILE = "persistent_queue.data"
         const val PERSISTENT_AUTOMIX_FILE = "persistent_automix.data"
         const val PERSISTENT_PLAYER_STATE_FILE = "persistent_player_state.data"
