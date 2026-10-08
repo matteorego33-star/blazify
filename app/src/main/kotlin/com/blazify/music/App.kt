@@ -49,6 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -145,16 +146,14 @@ class App :
             // as soon as settings settle (don't gate it behind visitorData — that's the bigger cold
             // cost). Best-effort; on failure the WebView is created lazily on first play.
             launch(Dispatchers.IO) {
-                delay(1500)
+                afterLaunch()
                 runCatching { CipherDeobfuscator.prewarm() }
             }
 
             // Warm the PoToken/BotGuard generator (the ~2-5s cold cost) once a session (visitorData) is
             // available; gate only this half on it. Best-effort and delayed so it never competes with startup.
             launch(Dispatchers.IO) {
-                // Short: on a cold start the first tap can land inside a second, and a
-                // warm-up that begins after it has already lost the race it exists to win.
-                delay(800)
+                afterLaunch()
                 var waitedMs = 0
                 while (YouTube.visitorData == null && waitedMs < 12_000) {
                     delay(500)
@@ -415,6 +414,19 @@ class App :
                     networkCachePolicy(CachePolicy.ENABLED)
                 }
             }.build()
+    }
+
+    /**
+     * Waits until the launch has finished: Home on screen, then a moment's quiet after it.
+     *
+     * Both warm-ups build a WebView, which can only be made on the main thread, and each
+     * froze it for most of a second. Started inside the launch they held the launch screen
+     * up for three seconds on a mid-range phone while other players were already open. A
+     * song asked for sooner still gets its WebView, made at that moment instead.
+     */
+    private suspend fun afterLaunch() {
+        withTimeoutOrNull(6_000) { com.blazify.music.utils.LaunchSignal.homeSettled.first { it } }
+        delay(1_500)
     }
 
     companion object {
