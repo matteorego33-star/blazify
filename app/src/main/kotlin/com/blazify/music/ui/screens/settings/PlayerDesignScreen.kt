@@ -12,6 +12,7 @@
 package com.blazify.music.ui.screens.settings
 
 import androidx.compose.foundation.Canvas
+import com.blazify.music.utils.loadedBitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -445,7 +446,7 @@ private fun rememberPreviewGradient(meta: MediaMetadata?, bgStyle: PlayerBackgro
                 .allowHardware(false)
                 .build()
             val result = runCatching { context.imageLoader.execute(request) }.getOrNull()
-            val bitmap = result?.image?.toBitmap()
+            val bitmap = result.loadedBitmap()
             if (bitmap != null) {
                 val palette = withContext(Dispatchers.Default) {
                     Palette.from(bitmap).maximumColorCount(8).resizeBitmapArea(100 * 100).generate()

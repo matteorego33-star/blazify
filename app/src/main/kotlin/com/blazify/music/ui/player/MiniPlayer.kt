@@ -9,6 +9,7 @@
 package com.blazify.music.ui.player
 
 import com.blazify.music.ui.utils.ScrollsFor
+import com.blazify.music.utils.loadedBitmap
 import com.blazify.music.ui.utils.titleMarquee
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
@@ -291,7 +292,7 @@ private fun NewMiniPlayer(
                         .allowHardware(false)
                         .build()
                     val result = runCatching { context.imageLoader.execute(request) }.getOrNull()
-                    val bitmap = result?.image?.toBitmap()
+                    val bitmap = result.loadedBitmap()
                     if (bitmap != null) {
                         val palette = withContext(Dispatchers.Default) {
                             Palette.from(bitmap)

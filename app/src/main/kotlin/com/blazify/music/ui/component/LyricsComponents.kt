@@ -7,6 +7,7 @@
 package com.blazify.music.ui.component
 
 import android.content.Context
+import com.blazify.music.utils.loadedBitmap
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -523,7 +524,7 @@ internal fun LyricsColorPickerDialog(
             withContext(Dispatchers.IO) {
                 try {
                     val res = ImageLoader(context).execute(ImageRequest.Builder(context).data(thumbnailUrl).allowHardware(false).build())
-                    val bmp = res.image?.toBitmap()
+                    val bmp = res.loadedBitmap()
                     if (bmp != null) {
                         val swatches = Palette.from(bmp).generate().swatches.sortedByDescending { it.population }
                         pal.clear()

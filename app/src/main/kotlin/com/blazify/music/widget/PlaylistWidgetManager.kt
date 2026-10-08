@@ -7,6 +7,7 @@
 package com.blazify.music.widget
 
 import android.app.PendingIntent
+import com.blazify.music.utils.loadedBitmap
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -530,7 +531,7 @@ class PlaylistWidgetManager @Inject constructor(
                 .allowHardware(false)
                 .crossfade(false)
                 .build()
-            imageLoader.execute(request).image?.toBitmap()
+            imageLoader.execute(request).loadedBitmap()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

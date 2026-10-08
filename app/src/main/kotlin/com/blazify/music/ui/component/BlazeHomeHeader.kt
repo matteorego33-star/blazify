@@ -6,6 +6,7 @@
 package com.blazify.music.ui.component
 
 import androidx.compose.ui.layout.boundsInWindow
+import com.blazify.music.utils.loadedBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -214,7 +215,7 @@ fun BlazeHomeHeader(
                             .size(100, 100)
                             .allowHardware(false)
                             .build()
-                    val bitmap = runCatching { context.imageLoader.execute(request) }.getOrNull()?.image?.toBitmap()
+                    val bitmap = runCatching { context.imageLoader.execute(request) }.getOrNull().loadedBitmap()
                         ?: return@withContext emptyList()
                     val palette =
                         withContext(Dispatchers.Default) {

@@ -7,6 +7,7 @@
 package com.blazify.music.ui.component
 
 import android.annotation.SuppressLint
+import com.blazify.music.utils.loadedBitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -191,7 +192,7 @@ fun LyricsImageCard(
                     val loader = ImageLoader(context)
                     val req = ImageRequest.Builder(context).data(mediaMetadata.thumbnailUrl).allowHardware(false).build()
                     val result = loader.execute(req)
-                    val bmp = result.image?.toBitmap()
+                    val bmp = result.loadedBitmap()
                     if (bmp != null) {
                         val palette = Palette.from(bmp).generate()
                         val vibrant = palette.getVibrantColor(defaultBgColor.toArgb())

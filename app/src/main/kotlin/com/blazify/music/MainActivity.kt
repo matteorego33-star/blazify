@@ -7,6 +7,7 @@
 package com.blazify.music
 
 import com.blazify.music.utils.LaunchSignal
+import com.blazify.music.utils.loadedBitmap
 import kotlinx.coroutines.withTimeoutOrNull
 import android.Manifest
 import android.annotation.SuppressLint
@@ -773,7 +774,7 @@ class MainActivity : ComponentActivity() {
                                             .crossfade(false)
                                             .build(),
                                     )
-                                val extractedColor = result.image?.toBitmap()?.extractThemeColor() ?: selectedThemeColor
+                                val extractedColor = result.loadedBitmap()?.extractThemeColor() ?: selectedThemeColor
                                 themeColorCache[song.thumbnailUrl] = extractedColor
                                 withFrameNanos { }
                                 themeColor = extractedColor

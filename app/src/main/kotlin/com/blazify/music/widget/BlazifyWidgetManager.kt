@@ -6,6 +6,7 @@
 package com.blazify.music.widget
 
 import android.app.PendingIntent
+import com.blazify.music.utils.loadedBitmap
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -211,7 +212,7 @@ class BlazifyWidgetManager @Inject constructor(
                     .crossfade(300)
                     .build()
                 val result = imageLoader.execute(request)
-                result.image?.toBitmap()
+                result.loadedBitmap()
             } catch (e: Exception) {
                 null
             }

@@ -7,6 +7,7 @@
 package com.blazify.music.ui.player
 
 import com.blazify.music.ui.utils.ScrollsFor
+import com.blazify.music.utils.loadedBitmap
 import com.blazify.music.ui.utils.titleMarquee
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -561,7 +562,7 @@ fun BottomSheetPlayer(
 
                     val result = runCatching { context.imageLoader.execute(request) }.getOrNull()
                     if (result != null) {
-                        val bitmap = result.image?.toBitmap()
+                        val bitmap = result.loadedBitmap()
                         if (bitmap != null) {
                             val palette =
                                 withContext(Dispatchers.Default) {

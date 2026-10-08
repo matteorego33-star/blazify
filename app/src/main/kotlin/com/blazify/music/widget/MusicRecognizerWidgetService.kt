@@ -6,6 +6,7 @@
 package com.blazify.music.widget
 
 import android.app.NotificationChannel
+import com.blazify.music.utils.loadedBitmap
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
@@ -260,7 +261,7 @@ class MusicRecognizerWidgetService : Service() {
                     .size(200, 200)
                     .allowHardware(false)
                     .build()
-                val bitmap = imageLoader.execute(request).image?.toBitmap() ?: return@withContext null
+                val bitmap = imageLoader.execute(request).loadedBitmap() ?: return@withContext null
                 val rounded = getRoundedCornerBitmap(bitmap, 24f)
                 val file = File(cacheDir, ALBUM_ART_CACHE_FILE)
                 FileOutputStream(file).use { rounded.compress(Bitmap.CompressFormat.PNG, 90, it) }
