@@ -91,6 +91,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -249,6 +250,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -1717,6 +1719,15 @@ class MainActivity : ComponentActivity() {
 
     // Launcher shortcut "Shuffle": plays Liked songs shuffled straight away, the same
     // way the playlist widget starts a playlist.
+    /**
+     * The player, waiting for it if it is not connected yet. A link that opens the app arrives
+     * before the player has started, and played on a missing player the song was lost.
+     */
+    private suspend fun awaitPlayerConnection(): PlayerConnection? =
+        playerConnection ?: withTimeoutOrNull(15_000) {
+            snapshotFlow { playerConnectionSnapshot }.filterNotNull().first()
+        }
+
     private fun handleShuffleShortcutIntent(intent: Intent) {
         if (intent.action != ACTION_SHUFFLE_LIKED) return
         intent.action = null
@@ -1874,7 +1885,7 @@ class MainActivity : ComponentActivity() {
                                     null
                                 }?.firstOrNull()
                         withContext(Dispatchers.Main) {
-                            playerConnection?.playQueue(
+                            awaitPlayerConnection()?.playQueue(
                                 YouTubeQueue(
                                     WatchEndpoint(videoId = first?.id ?: videoId, playlistId = playlistId),
                                     first?.toMediaMetadata(),
@@ -1889,7 +1900,7 @@ class MainActivity : ComponentActivity() {
                             .onSuccess { queue ->
                                 val firstItem = queue.firstOrNull()
                                 withContext(Dispatchers.Main) {
-                                    playerConnection?.playQueue(
+                                    awaitPlayerConnection()?.playQueue(
                                         YouTubeQueue(
                                             WatchEndpoint(videoId = firstItem?.id, playlistId = playlistId),
                                             firstItem?.toMediaMetadata(),
