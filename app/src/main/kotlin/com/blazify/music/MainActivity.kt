@@ -415,73 +415,17 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Android's launch screen plays the logo's story while the app loads. When Home is
-     * drawn, the logo is given the rest of its moment (never more than a third of a second),
-     * then glides up and shrinks into the logo in Home's header while the black clears.
-     * Launch reads as one movement, and it never adds a wait of its own.
+     * The launch screen leaves the moment Home has drawn its first frame, with a short fade.
+     *
+     * It used to hand its logo over to Home's header: wait for Home to settle, hold, glide
+     * up into place, and only then let Home build its shelves so the glide had the frames
+     * to itself. On a mid-range phone that was about three seconds of logo before anything
+     * could be read, where other players open in one.
      */
     @androidx.annotation.RequiresApi(Build.VERSION_CODES.S)
-    private fun glideLaunchLogoIntoHeader() {
+    private fun leaveLaunchScreenAtOnce() {
         splashScreen.setOnExitAnimationListener { view ->
-            val icon = view.iconView
-            if (icon == null || icon.width == 0) {
-                LaunchSignal.headerLogoShown.value = true
-                view.remove()
-                return@setOnExitAnimationListener
-            }
-            val start = view.iconAnimationStart?.toEpochMilli()
-            val length = view.iconAnimationDuration?.toMillis() ?: 0L
-            val storyEnds = if (start != null) start + length else 0L
-            LaunchSignal.headerLogoShown.value = false
-            lifecycleScope.launch {
-                // Wait for Home to settle (never long), so the glide has the frames to itself.
-                withTimeoutOrNull(400) { LaunchSignal.homeSettled.first { it } }
-                val hold = (storyEnds - System.currentTimeMillis()).coerceIn(0L, 150L)
-                glide(view, icon, hold)
-            }
-        }
-    }
-
-    @androidx.annotation.RequiresApi(Build.VERSION_CODES.S)
-    private fun glide(view: android.window.SplashScreenView, icon: android.view.View, hold: Long) {
-        val density = resources.displayMetrics.density
-        val target = LaunchSignal.headerLogo.value
-        // On screen, not in its own frame: the icon sits inside a frame of its own.
-        val at = IntArray(2).also(icon::getLocationInWindow)
-        val iconCenterX = at[0] + icon.width / 2f
-        val iconCenterY = at[1] + icon.height / 2f
-        // The drawn logo is 0.64 of the icon box, and the traced artwork 685/1024 of that.
-        val drawnWidth = icon.width * 0.64f * 685f / 1024f
-        // In the header's image the logo is 0.669 of its width, its middle 0.466 down.
-        val toX = target?.let { it.left + it.width() * 0.5f } ?: (view.width / 2f - 61f * density)
-        val toY = target?.let { it.top + it.height() * 0.466f } ?: (73f * density)
-        val toWidth = target?.let { it.width() * 0.669f } ?: (28f * density)
-        val scale = toWidth / drawnWidth
-
-        val ease = android.view.animation.PathInterpolator(0.33f, 0f, 0.15f, 1f)
-        val travel = 420L
-        icon.animate()
-            .setStartDelay(hold)
-            .setDuration(travel)
-            .setInterpolator(ease)
-            .translationX(toX - iconCenterX)
-            // The traced logo sits a touch above the icon's middle; this lines the two up.
-            .translationY(toY - iconCenterY)
-            .scaleX(scale)
-            .scaleY(scale)
-            .withEndAction {
-                // Landed exactly on the header's logo: it fades in as this one fades out,
-                // so the orange turns into the header's own colour in place.
-                LaunchSignal.headerLogoShown.value = true
-                icon.animate().alpha(0f).setStartDelay(0).setDuration(160).withEndAction { view.remove() }.start()
-            }
-            .start()
-        android.animation.ValueAnimator.ofInt(255, 0).apply {
-            startDelay = hold + 40
-            duration = 320
-            interpolator = ease
-            addUpdateListener { view.setBackgroundColor(android.graphics.Color.argb(it.animatedValue as Int, 0, 0, 0)) }
-            start()
+            view.animate().alpha(0f).setDuration(150).withEndAction { view.remove() }.start()
         }
     }
 
@@ -495,16 +439,7 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // Hidden from the first frame, not from when the hand-over begins: Home is drawn
             // under the launch screen before then, and its logo showed through as a second one.
-            if (savedInstanceState == null) {
-                LaunchSignal.headerLogoShown.value = false
-                // Android does not show its launch screen on every start; then nothing hands
-                // over, and the header's logo must not stay hidden.
-                lifecycleScope.launch {
-                    kotlinx.coroutines.delay(2500)
-                    LaunchSignal.headerLogoShown.value = true
-                }
-            }
-            glideLaunchLogoIntoHeader()
+            leaveLaunchScreenAtOnce()
         }
         // Tell the service before onStart starts it, so it doesn't load the old queue for a link
         // that is about to replace it.
