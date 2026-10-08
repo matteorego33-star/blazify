@@ -42,6 +42,7 @@ import com.blazify.music.utils.dataStore
 import com.blazify.innertube.models.looksLikeArtistName
 import com.blazify.music.db.MusicDatabase
 import com.blazify.music.utils.safeDataStoreEdit
+import com.blazify.music.utils.settingsSnapshot
 import com.blazify.music.utils.reportException
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -123,6 +124,13 @@ class App :
         // Plant logging BEFORE cipher init so the synchronous config-store load
         // (bundled asset + cached overlay) is captured, not just the async remote refresh.
         Timber.plant(Timber.DebugTree())
+
+        // Read the settings straight away and keep the copy current, so the first screen is
+        // built with them rather than with defaults and then built again.
+        applicationScope.launch(Dispatchers.IO) {
+            runCatching { dataStore.data.collect { settingsSnapshot = it } }
+                .onFailure { Timber.w(it, "Settings could not be read ahead") }
+        }
 
         // Initialize cipher deobfuscator for WEB_REMIX streaming
         CipherDeobfuscator.initialize(this)

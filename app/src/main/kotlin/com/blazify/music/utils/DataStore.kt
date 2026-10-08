@@ -50,6 +50,15 @@ val Context.dataStore: DataStore<Preferences>
     }
 
 /**
+ * The settings as last read. A screen starts from these rather than from each setting's
+ * default, so its first frame is already the right one: started from defaults, the whole
+ * app was built once with them and then again with the real settings a moment later.
+ * The app keeps this current for as long as it runs; it is null only before the first read.
+ */
+@Volatile
+var settingsSnapshot: Preferences? = null
+
+/**
  * Safe DataStore write that ensures the parent directory exists before every edit.
  * Catches and reports IOException instead of crashing the coroutine scope.
  * Returns true if the write succeeded, false if it failed.
@@ -106,7 +115,7 @@ fun <T> rememberPreference(
             context.dataStore.data
                 .map { it[key] ?: defaultValue }
                 .distinctUntilChanged()
-        }.collectAsStateWithLifecycle(defaultValue)
+        }.collectAsStateWithLifecycle(settingsSnapshot?.get(key) ?: defaultValue)
 
     return remember {
         object : MutableState<T> {
@@ -140,7 +149,7 @@ inline fun <reified T : Enum<T>> rememberEnumPreference(
             context.dataStore.data
                 .map { it[key].toEnum(defaultValue = defaultValue) }
                 .distinctUntilChanged()
-        }.collectAsStateWithLifecycle(defaultValue)
+        }.collectAsStateWithLifecycle(settingsSnapshot?.get(key).toEnum(defaultValue = defaultValue))
 
     return remember {
         object : MutableState<T> {
