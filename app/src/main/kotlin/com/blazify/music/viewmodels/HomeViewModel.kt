@@ -465,6 +465,10 @@ class HomeViewModel @Inject constructor(
                     .firstOrNull { !it.song.song.isEpisode && it.song.song.duration < 1800 }
                     ?.song
                 val ytSimilarSongs = mutableListOf<Song>()
+                // One shuffle for both arrangements below. Each used to draw its own, so when
+                // YouTube's songs arrived the rows already on screen swapped places a few seconds
+                // after Home opened. With the same draw the first rows stay where they appeared.
+                val seed = kotlin.random.Random.nextLong()
 
                 // What the phone already knows, at once: Home opens on these, and YouTube's
                 // similar songs are blended in below when they come. Waiting for them first held
@@ -474,6 +478,7 @@ class HomeViewModel @Inject constructor(
                     similar = emptyList(),
                     forgotten = forgotten,
                     id = { it.id },
+                    random = kotlin.random.Random(seed),
                 ).filterNot { it.id in hiddenSongIds }.filterBlockedArtists(blockedArtists)
 
                 if (recentSong != null) {
@@ -497,6 +502,7 @@ class HomeViewModel @Inject constructor(
                     similar = ytSimilarSongs,
                     forgotten = forgotten,
                     id = { it.id },
+                    random = kotlin.random.Random(seed),
                 ).filterNot { it.id in hiddenSongIds }.filterBlockedArtists(blockedArtists)
             }
             QuickPicks.LAST_LISTEN -> {

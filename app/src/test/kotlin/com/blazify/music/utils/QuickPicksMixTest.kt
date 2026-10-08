@@ -73,4 +73,13 @@ class QuickPicksMixTest {
     fun `a refresh reorders the shelf but offers the same songs`() {
         assertEquals(mix(seed = 1).toSet(), mix(seed = 2).toSet())
     }
+
+    @Test
+    fun `YouTube's songs arriving later leave the first rows where they were`() {
+        // Home shows the phone's own picks at once, then mixes YouTube's in with the same seed.
+        val first = mix(similar = emptyList(), seed = 7)
+        val later = mix(seed = 7)
+
+        assertEquals(first.take(5), later.take(5))
+    }
 }
