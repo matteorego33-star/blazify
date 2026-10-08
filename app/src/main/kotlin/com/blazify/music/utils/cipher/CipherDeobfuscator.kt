@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.SystemClock
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -23,8 +24,26 @@ object CipherDeobfuscator {
         private set
 
     fun initialize(context: Context) {
-        Timber.tag(TAG).d("CipherDeobfuscator initializing...")
         appContext = context.applicationContext
+        // Reading the config tables means parsing several JSON files, too slow for the moment
+        // the app opens, when the screen is still waiting to be drawn. Nothing on screen needs
+        // them, only deciphering does, so they load on their own thread and every way into the
+        // cipher waits for them first.
+        Thread({
+            try {
+                loadTables()
+            } catch (e: Exception) {
+                Timber.tag(TAG).e(e, "Config tables failed to load")
+            } finally {
+                tablesLoaded.complete(Unit)
+            }
+        }, "player-configs").start()
+    }
+
+    private val tablesLoaded = CompletableDeferred<Unit>()
+
+    private fun loadTables() {
+        Timber.tag(TAG).d("CipherDeobfuscator initializing...")
         // Load the player-config table (bundled asset + last-good cached remote overlay) so
         // configs exist before any lookup, then kick a non-blocking TTL-gated refresh against
         // the remote config file. Order is load-bearing: synchronous load first, async refresh after.
@@ -155,6 +174,7 @@ object CipherDeobfuscator {
      * deciphered by another produces a URL the CDN 403s.
      */
     suspend fun signatureTimestamp(): Int? {
+        tablesLoaded.await()
         Timber.tag(TAG).d("Resolving cipher player signatureTimestamp...")
         val (playerJs, hash) = PlayerJsFetcher.getPlayerJs(forceRefresh = false) ?: run {
             Timber.tag(TAG).w("signatureTimestamp: could not fetch player JS")
@@ -183,6 +203,7 @@ object CipherDeobfuscator {
      * failure the WebView is simply created lazily on first use.
      */
     suspend fun prewarm() {
+        tablesLoaded.await()
         Timber.tag(TAG).d("Prewarming cipher WebView...")
         deobfuscateMutex.withLock {
             try {
@@ -206,6 +227,7 @@ object CipherDeobfuscator {
      * Returns the full URL with deobfuscated signature, or null if failed.
      */
     suspend fun deobfuscateStreamUrl(signatureCipher: String, videoId: String): String? = deobfuscateMutex.withLock {
+        tablesLoaded.await()
         try {
             deobfuscateInternal(signatureCipher, videoId, isRetry = false)
                 ?.also { rendererRecoveryPolicy.onSuccess() }
@@ -244,7 +266,10 @@ object CipherDeobfuscator {
      * rebuilds the WebView from the corrected config, recovering playback without an app restart.
      * Returns whether the config table changed.
      */
-    suspend fun onStreamRejected(): Boolean = PlayerConfigStore.refreshAfterStreamRejection()
+    suspend fun onStreamRejected(): Boolean {
+        tablesLoaded.await()
+        return PlayerConfigStore.refreshAfterStreamRejection()
+    }
 
     private suspend fun deobfuscateInternal(signatureCipher: String, videoId: String, isRetry: Boolean): String? {
         Timber.tag(TAG).d("deobfuscateInternal: videoId=$videoId, isRetry=$isRetry")
@@ -297,6 +322,7 @@ object CipherDeobfuscator {
      * and for privately owned tracks (uploaded songs).
      */
     suspend fun transformNParamInUrl(url: String): String = deobfuscateMutex.withLock {
+        tablesLoaded.await()
         // Hold the same mutex as deobfuscateStreamUrl/prewarm: the shared CipherWebView has
         // single-shot continuation slots, so sig deciphering, n-transform, and warm-up must never
         // touch it concurrently (concurrent calls would clobber each other's WebView state).
@@ -326,6 +352,7 @@ object CipherDeobfuscator {
      * of them with a 403 while it is left as it came.
      */
     suspend fun transformNParamInPath(url: String): String = deobfuscateMutex.withLock {
+        tablesLoaded.await()
         try {
             val match = Regex("/n/([^/]+)").find(url)
             if (match == null) {
