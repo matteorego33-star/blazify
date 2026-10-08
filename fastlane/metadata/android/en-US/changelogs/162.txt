@@ -1,0 +1,3 @@
+New: Blazify's own loading and launch animation, redone Browse with moods and genres in your order, one button row for playlists and albums with download in one tap, and updates that still arrive when GitHub is down.
+
+Fixed: Quick picks, Daily discover and radio find related songs again, Search scrolls smoothly, Next shows the new cover at once, and a crash with no connection.
