@@ -134,7 +134,9 @@ class App :
 
         // Initialize cipher deobfuscator for WEB_REMIX streaming
         CipherDeobfuscator.initialize(this)
-        YTPlayerUtils.initialize(this)
+        // Off the main thread: the first touch of the player utilities builds the YouTube client,
+        // which the screen does not need to be drawn.
+        applicationScope.launch(Dispatchers.IO) { YTPlayerUtils.initialize(this@App) }
 
         applicationScope.launch(Dispatchers.IO) { removeNonArtists() }
 
