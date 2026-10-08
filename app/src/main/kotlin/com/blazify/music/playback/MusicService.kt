@@ -63,9 +63,12 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.HttpDataSource
+import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.ResolvingDataSource
 import androidx.media3.datasource.cache.Cache
 import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.ContentMetadata
+import androidx.media3.datasource.cache.ContentMetadataMutations
 import androidx.media3.datasource.cache.CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.DefaultRenderersFactory
@@ -137,6 +140,7 @@ import com.blazify.music.discord.DiscordTemplateRenderer
 import com.blazify.music.discord.PresenceStatus
 import com.blazify.music.constants.EnableLastFMScrobblingKey
 import com.blazify.music.constants.EnableSongCacheKey
+import com.blazify.music.constants.MaxSongCacheSizeKey
 import com.blazify.music.constants.HideExplicitKey
 import com.blazify.music.constants.HideVideoSongsKey
 import com.blazify.music.constants.HiddenSongIdsKey
@@ -260,6 +264,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
@@ -877,6 +883,8 @@ class MusicService :
         scope.launch {
             connectivityObserver.networkStatus.collect { isConnected ->
                 isNetworkConnected.value = isConnected
+                // Back on a connection: the songs ahead may be saved now, if it is Wi-Fi.
+                if (isConnected) restartSaveAhead()
                 if (isConnected && waitingForNetworkConnection.value) {
                     triggerRetry()
                 }
@@ -1088,6 +1096,8 @@ class MusicService :
                     runCatching { warmNextStream() }
                         .onFailure { Timber.tag(TAG).w(it, "Could not warm the next stream") }
                 }
+                // And on Wi-Fi, the next few songs themselves — see saveUpcomingSongs.
+                restartSaveAhead()
             }
 
         dataStore.data
@@ -3203,6 +3213,7 @@ class MusicService :
 
         if (playbackState == Player.STATE_READY) {
             consecutivePlaybackErr = 0
+            offlineJumps = 0
             retryCount = 0
             waitingForNetworkConnection.value = false
             retryJob?.cancel()
@@ -3348,6 +3359,8 @@ class MusicService :
     ) {
         if (reason == Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) {
             queueChangedSinceSave = true
+            // A queue that arrives after its first song, or changes, has new songs ahead.
+            restartSaveAhead()
         }
     }
 
@@ -3623,6 +3636,9 @@ class MusicService :
         // in the queue and its place in itself, and waits. This is checked before anything that
         // counts a failure against it, or a walk through a tunnel would cost you the song.
         if (!hasUsableNetwork() || isNetworkRelatedError(error)) {
+            // With no connection at all, music on the phone can still play: carry on with that
+            // instead of standing still until the connection returns.
+            if (!hasUsableNetwork() && playNextOnPhone()) return
             Timber.tag(TAG).d("Nothing to play from: waiting for the connection to come back")
             waitOnNetworkError()
             return
@@ -4357,7 +4373,11 @@ class MusicService :
                 player.getMediaItemAt(index).let { it.metadata?.id ?: it.mediaId }
             }
         } ?: return
+        warmStream(nextId)
+    }
 
+    /** Looks up [nextId]'s address and file details ahead of time — see [warmNextStream]. */
+    private suspend fun warmStream(nextId: String) {
         // Already answered: a live address, a download, or a song held in the cache.
         if (songUrlCache[nextId]?.takeIf { it.second > System.currentTimeMillis() } != null) return
         if (downloadCache.isCached(nextId, 0, 1)) return
@@ -4403,6 +4423,229 @@ class MusicService :
         songUrlCache[nextId] =
             playback.streamUrl to System.currentTimeMillis() + (playback.streamExpiresInSeconds * 1000L)
         Timber.tag(TAG).d("Warmed next stream: $nextId via ${playback.streamClient}")
+    }
+
+    /**
+     * Saves the next few songs in the queue to the phone while on Wi-Fi.
+     *
+     * The player holds minutes of music in memory, which carries a lift or a bad room but not
+     * the walk out of the door: leave the Wi-Fi for the metro and the music stops when those
+     * minutes run out. Songs already saved here keep it going, one after another, with no
+     * connection at all.
+     *
+     * Only on a connection that costs nothing, and never at the expense of what is playing: it
+     * waits until the playing song has plenty in hand, steps back whenever the player is
+     * waiting for its own song, and goes a piece at a time. The audio goes into the song cache
+     * under the song's own key, through the player's own pipeline, so when the song comes up
+     * the player finds it already there. A song that is skipped costs only space in a cache
+     * whose size the listener set, and nothing from a data plan.
+     */
+    private suspend fun saveUpcomingSongs() {
+        if (!dataStore.get(EnableSongCacheKey, true)) return
+        if (dataStore.get(MaxSongCacheSizeKey, 1024) == 0) return
+        if (connectivityManager.isActiveNetworkMetered) return
+
+        val upcoming = withContext(Dispatchers.Main) { upcomingSongIds(SAVE_AHEAD_SONGS) }
+        if (upcoming.isEmpty()) return
+
+        val source = createDataSourceFactory()
+        val buffer = ByteArray(SAVE_AHEAD_BUFFER_BYTES)
+        for (id in upcoming) {
+            if (LocalMusic.isLocal(id) || id in liveBroadcasts.value) continue
+            // Part of it is here already, from an earlier play, perhaps in another format. Adding
+            // to that could mix two files under one name, so it is left to the player as before.
+            if (id !in savingAhead && playerCache.isCached(id, 0, 1)) continue
+            savingAhead += id
+            waitUntilPlayerHasEnough()
+            warmStream(id)
+            if (id in liveBroadcasts.value) continue
+
+            // From the stream's own details: a song never played has no library row yet. YouTube
+            // leaves the size out now and then; the server still says it, answering the first piece.
+            val contentLength = database.formatOnce(id)?.contentLength ?: sizeFromFirstPiece(source, id, buffer) ?: continue
+            if (downloadCache.isCached(id, 0, contentLength) || playerCache.isCached(id, 0, contentLength)) continue
+
+            var position = 0L
+            while (position < contentLength) {
+                currentCoroutineContext().ensureActive()
+                if (connectivityManager.isActiveNetworkMetered) return
+                waitUntilPlayerHasEnough()
+                val length = minOf(CHUNK_LENGTH, contentLength - position)
+                if (!playerCache.isCached(id, position, length)) {
+                    val piece = source.createDataSource()
+                    try {
+                        piece.open(
+                            DataSpec
+                                .Builder()
+                                .setUri(id)
+                                .setKey(id)
+                                .setPosition(position)
+                                .setLength(length)
+                                .build(),
+                        )
+                        var received = 0L
+                        while (true) {
+                            currentCoroutineContext().ensureActive()
+                            val read = piece.read(buffer, 0, buffer.size)
+                            if (read == C.RESULT_END_OF_INPUT) break
+                            received += read
+                        }
+                        // A piece that comes up short is a song whose file is not what its
+                        // details say; leave it for the player rather than save it wrong.
+                        if (received < length) {
+                            Timber.tag(TAG).w("Saving $id ahead came up short at $position")
+                            break
+                        }
+                    } finally {
+                        runCatching { piece.close() }
+                    }
+                }
+                position += length
+            }
+            Timber.tag(TAG).d("Saved ahead: $id, whole=${playerCache.isCached(id, 0, contentLength)}")
+        }
+    }
+
+    private var saveAheadJob: Job? = null
+
+    /** Songs this run has started saving ahead, so one it stopped part way is finished, not skipped. */
+    private val savingAhead: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+
+    /**
+     * Songs jumped to in a row for being on the phone, reset when one plays. It stops a queue
+     * whose saved songs will not play either from being walked round for ever.
+     */
+    private var offlineJumps = 0
+
+    /**
+     * With no connection, goes on to the next song in the queue that is on the phone — saved
+     * ahead, downloaded, or one of the listener's own files — rather than stopping to wait.
+     * False when there is none; then the wait goes on as before, and the song that stopped
+     * picks up where it was when the connection comes back.
+     */
+    private fun playNextOnPhone(): Boolean {
+        val count = player.mediaItemCount
+        if (offlineJumps >= minOf(count, MAX_OFFLINE_JUMPS)) return false
+        val timeline = player.currentTimeline
+        if (timeline.isEmpty) return false
+        val current = player.currentMediaItemIndex
+        val repeatMode = if (player.repeatMode == Player.REPEAT_MODE_ONE) Player.REPEAT_MODE_OFF else player.repeatMode
+        var index = current
+        repeat(count) {
+            index = timeline.getNextWindowIndex(index, repeatMode, player.shuffleModeEnabled)
+            if (index == C.INDEX_UNSET || index == current) return false
+            val item = player.getMediaItemAt(index)
+            val id = item.metadata?.id ?: item.mediaId
+            if (isOnPhone(id)) {
+                offlineJumps++
+                Timber.tag(TAG).i("No connection: going on to $id, which is on the phone")
+                player.seekTo(index, 0)
+                player.prepare()
+                return true
+            }
+        }
+        return false
+    }
+
+    /** Whether all of [id] can be played without a connection. */
+    private fun isOnPhone(id: String): Boolean {
+        if (LocalMusic.isLocal(id)) return true
+        val length =
+            runBlocking(Dispatchers.IO) { database.formatOnce(id)?.contentLength }
+                ?: ContentMetadata.getContentLength(playerCache.getContentMetadata(id)).takeIf { it > 0 }
+                ?: return false
+        return downloadCache.isCached(id, 0, length) || playerCache.isCached(id, 0, length)
+    }
+
+    /**
+     * Starts saving the songs ahead over, a few seconds from now: when the song changes, when
+     * the queue changes (a radio fills in after its first song), and when a connection comes
+     * back. Starting over costs little, since whatever is already saved is passed over.
+     */
+    private fun restartSaveAhead() {
+        saveAheadJob?.cancel()
+        saveAheadJob =
+            scope.launch {
+                delay(SAVE_AHEAD_DELAY_MS)
+                withContext(Dispatchers.IO) {
+                    try {
+                        saveUpcomingSongs()
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Timber.tag(TAG).w(e, "Stopped saving the songs ahead")
+                    }
+                }
+            }
+    }
+
+    /**
+     * Fetches the first piece of [id] and reads the file's size from the server's answer, for a
+     * song whose details came without one. The size is written into the cache as well, so the
+     * player knows where the song ends when it later plays it with no connection to ask.
+     */
+    private suspend fun sizeFromFirstPiece(
+        source: DataSource.Factory,
+        id: String,
+        buffer: ByteArray,
+    ): Long? {
+        val piece = source.createDataSource()
+        val size =
+            try {
+                piece.open(DataSpec.Builder().setUri(id).setKey(id).setPosition(0).setLength(CHUNK_LENGTH).build())
+                // "bytes 0-524287/3456789": the figure after the slash.
+                val range =
+                    piece.responseHeaders.entries
+                        .firstOrNull { it.key.equals("Content-Range", ignoreCase = true) }
+                        ?.value
+                        ?.firstOrNull()
+                while (piece.read(buffer, 0, buffer.size) != C.RESULT_END_OF_INPUT) {
+                    currentCoroutineContext().ensureActive()
+                }
+                range?.substringAfter('/', "")?.toLongOrNull()
+            } finally {
+                runCatching { piece.close() }
+            } ?: return null
+        val mutations = ContentMetadataMutations()
+        ContentMetadataMutations.setContentLength(mutations, size)
+        playerCache.applyContentMetadataMutations(id, mutations)
+        return size
+    }
+
+    /** The ids of the next [count] songs the queue will play, in the order it will play them. */
+    private fun upcomingSongIds(count: Int): List<String> {
+        val timeline = player.currentTimeline
+        if (timeline.isEmpty) return emptyList()
+        val current = player.currentMediaItemIndex
+        // Repeating one song plays it again, but the queue after it is still what comes next.
+        val repeatMode = if (player.repeatMode == Player.REPEAT_MODE_ONE) Player.REPEAT_MODE_OFF else player.repeatMode
+        val ids = mutableListOf<String>()
+        var index = current
+        while (ids.size < count) {
+            index = timeline.getNextWindowIndex(index, repeatMode, player.shuffleModeEnabled)
+            if (index == C.INDEX_UNSET || index == current) break
+            val item = player.getMediaItemAt(index)
+            val id = item.metadata?.id ?: item.mediaId
+            if (id !in ids) ids += id
+        }
+        return ids
+    }
+
+    /** Waits while the playing song is short of audio, so saving ahead never takes its bandwidth. */
+    private suspend fun waitUntilPlayerHasEnough() {
+        while (true) {
+            val enough =
+                withContext(Dispatchers.Main) {
+                    val duration = player.duration
+                    player.playbackState != Player.STATE_BUFFERING &&
+                        (
+                            player.totalBufferedDuration >= SAVE_AHEAD_AFTER_BUFFERED_MS ||
+                                (duration != C.TIME_UNSET && player.bufferedPosition >= duration - 1000)
+                        )
+                }
+            if (enough) return
+            delay(2000)
+        }
     }
 
     /**
@@ -4523,6 +4766,7 @@ class MusicService :
                 }
 
                 if (usePlayerCache && playerCache.isCached(mediaId, dataSpec.position, requiredLength)) {
+                    if (dataSpec.length < 0) Timber.tag(TAG).d("From the song cache: $mediaId")
                     recoverSongDeduped(mediaId)
                     return@Factory dataSpec
                 }
@@ -5782,6 +6026,20 @@ class MusicService :
         const val NOTIFICATION_ID = 888
         const val ERROR_CODE_NO_STREAM = 1000001
         const val CHUNK_LENGTH = 512 * 1024L
+
+        /** The most songs jumped over in a row looking for one on the phone. */
+        const val MAX_OFFLINE_JUMPS = 10
+
+        /** How many songs of the queue are saved to the phone ahead of time on Wi-Fi. */
+        const val SAVE_AHEAD_SONGS = 3
+
+        /** How much of the playing song has to be in hand before saving ahead begins. */
+        const val SAVE_AHEAD_AFTER_BUFFERED_MS = 30_000L
+
+        /** A pause before saving ahead starts, so a queue being built is not chased step by step. */
+        const val SAVE_AHEAD_DELAY_MS = 5_000L
+
+        private const val SAVE_AHEAD_BUFFER_BYTES = 64 * 1024
         const val PERSISTENT_QUEUE_FILE = "persistent_queue.data"
         const val PERSISTENT_AUTOMIX_FILE = "persistent_automix.data"
         const val PERSISTENT_PLAYER_STATE_FILE = "persistent_player_state.data"
