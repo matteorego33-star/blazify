@@ -86,6 +86,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -229,6 +230,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.blazify.music.utils.Updater
 import com.blazify.music.utils.dataStore
 import com.blazify.music.utils.safeDataStoreEdit
+import com.blazify.music.utils.settingsSnapshot
 import com.blazify.music.utils.get
 import com.blazify.music.utils.rememberEnumPreference
 import com.blazify.music.utils.rememberPreference
@@ -509,11 +511,16 @@ class MainActivity : ComponentActivity() {
                 syncUtils = syncUtils,
             )
 
-            // First run: introduce what the app does before dropping into it.
-            val (onboardingCompleted, setOnboardingCompleted) =
-                rememberPreference(OnboardingCompletedKey, defaultValue = false)
-            if (!onboardingCompleted) {
-                OnboardingScreen(onFinish = { setOnboardingCompleted(true) })
+            // First run: introduce what the app does before dropping into it. Until the saved
+            // answer is read it is unknown, not "not yet": taken as "not yet", every launch built
+            // the whole introduction behind the first frame and threw it away a moment later.
+            val onboardingCompleted by remember {
+                dataStore.data.map { it[OnboardingCompletedKey] ?: false }.distinctUntilChanged()
+            }.collectAsState(initial = settingsSnapshot?.let { it[OnboardingCompletedKey] ?: false })
+            if (onboardingCompleted == false) {
+                OnboardingScreen(onFinish = {
+                    lifecycleScope.launch { safeDataStoreEdit { it[OnboardingCompletedKey] = true } }
+                })
             }
         }
     }
