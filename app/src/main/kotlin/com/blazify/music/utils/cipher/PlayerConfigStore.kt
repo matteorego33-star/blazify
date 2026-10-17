@@ -1,7 +1,6 @@
 package com.blazify.music.utils.cipher
 
 import android.content.Context
-import android.util.Base64
 import com.blazify.innertube.YouTube
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +13,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import timber.log.Timber
 import java.io.File
-import java.nio.charset.StandardCharsets
 
 /**
  * Owns the player-config table at runtime: bundled asset as the offline default, overlaid
@@ -42,24 +40,22 @@ object PlayerConfigStore {
      * every cached source laid over it, so a source that is behind can never take away a
      * player another one already taught.
      */
-    internal enum class Source(private val encodedUrl: String, val cacheName: String) {
+    internal enum class Source(val url: String, val cacheName: String) {
         OWN(
-            "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3JhamVuZHJhNzE2OS9ibGF6aWZ5L3BsYXllci1jb25maWdzL3BsYXllcl9jb25maWdzLmpzb24=",
+            "https://raw.githubusercontent.com/rajendra7169/blazify/player-configs/player_configs.json",
             "configs_own",
         ),
         MIRROR(
-            "aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL3JhamVuZHJhNzE2OS9ibGF6aWZ5QHBsYXllci1jb25maWdzL3BsYXllcl9jb25maWdzLmpzb24=",
+            "https://cdn.jsdelivr.net/gh/rajendra7169/blazify@player-configs/player_configs.json",
             "configs_mirror",
         ),
 
         // Keeps the file names from when this was the only source, so a copy cached back then still loads.
         UPSTREAM(
-            "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL01ldHJvbGlzdEdyb3VwL2ZhcmFkYXkvbWFzdGVyL3JlZ2lzdHJ5L3BsYXllcl9jb25maWdzLmpzb24=",
+            "https://raw.githubusercontent.com/MetrolistGroup/faraday/master/registry/player_configs.json",
             "configs_remote",
         ),
         ;
-
-        val url: String by lazy { String(Base64.decode(encodedUrl, Base64.DEFAULT), StandardCharsets.UTF_8) }
     }
 
     // Lowest first. Our copy goes on top: when it disagrees with upstream it is either a fix made
