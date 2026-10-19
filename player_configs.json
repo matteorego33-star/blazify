@@ -459,6 +459,7 @@
     "40dba4d7": { "sig": "vL(25,4433,INPUT)", "nClass": "QI", "sts": 20741, "aliases": ["f44465e3", "e29a2e88", "52726943", "b6eda4df", "8f9b066a"] },
     "4d596e5d": { "sig": "Le(25,1424,INPUT)", "nClass": "qt", "sts": 20742, "aliases": ["83f0e2d1", "ec8a4d33"] },
     "922b5303": { "sig": "sa(25,1424,INPUT)", "nClass": "ez", "sts": 20742, "aliases": ["81618434"] },
-    "a0385a48": { "sig": "Le(25,1424,INPUT)", "nClass": "qt", "sts": 20742, "aliases": ["6636507e"] }
+    "a0385a48": { "sig": "Le(25,1424,INPUT)", "nClass": "qt", "sts": 20742, "aliases": ["6636507e"] },
+    "b2368fb0": { "sig": "Ww(25,7059,INPUT)", "nClass": "Vw", "sts": 20744, "aliases": ["938ea829", "67288f35", "e05dbddf"] }
   }
 }

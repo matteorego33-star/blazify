@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17T05:07:23.398Z",
+  "updatedAt": "2026-10-19T13:07:23.269Z",
   "current": {
     "playerHash": "0229cd64",
     "playerUrl": "https://www.youtube.com/s/player/0229cd64/player_ias.vflset/en_GB/base.js",
@@ -1648,6 +1648,16 @@
       "releaseTag": "player-6718331f"
     },
     {
+      "playerHash": "67288f35",
+      "playerUrl": "https://www.youtube.com/s/player/67288f35/player_ias.vflset/en_GB/base.js",
+      "sha256": "c1b357dced0b451fb70bae67d2a143be5188b3c98c6778e132454e749739e35e",
+      "firstSeenAt": "2026-10-19T10:27:22.006Z",
+      "status": "validated",
+      "validator": "faraday",
+      "configPath": "registry/player_configs.json",
+      "releaseTag": "player-67288f35"
+    },
+    {
       "playerHash": "67d54db7",
       "playerUrl": "https://www.youtube.com/s/player/67d54db7/player_ias.vflset/en_GB/base.js",
       "sha256": "66b8d3aac1f8d8b4996c9ccefb3450b9d2908b36de1828caa024a4698749cacc",
@@ -3018,6 +3028,16 @@
       "releaseTag": "player-b1e9a19c"
     },
     {
+      "playerHash": "b2368fb0",
+      "playerUrl": "https://www.youtube.com/s/player/b2368fb0/player_ias.vflset/en_GB/base.js",
+      "sha256": "fb2149d0bd7c0b11adc19818764395d0cde793b577e4737fb553aca99d883958",
+      "firstSeenAt": "2026-10-19T09:07:27.654Z",
+      "status": "validated",
+      "validator": "faraday",
+      "configPath": "registry/player_configs.json",
+      "releaseTag": "player-b2368fb0"
+    },
+    {
       "playerHash": "b39ad138",
       "playerUrl": "https://www.youtube.com/s/player/b39ad138/player_ias.vflset/en_GB/base.js",
       "sha256": "227ec9f10c3ae2367a2037ee3bf9bf3fa724e97cc6acbc85cf7bb67842a23003",
@@ -3686,6 +3706,16 @@
       "validator": "faraday",
       "configPath": "registry/player_configs.json",
       "releaseTag": "player-dfc3d2b2"
+    },
+    {
+      "playerHash": "e05dbddf",
+      "playerUrl": "https://www.youtube.com/s/player/e05dbddf/player_ias.vflset/en_GB/base.js",
+      "sha256": "81cf8806effffbfb6377f5cf55b0524dfc26853f43c08a2576ff538522575925",
+      "firstSeenAt": "2026-10-19T13:07:23.269Z",
+      "status": "validated",
+      "validator": "faraday",
+      "configPath": "registry/player_configs.json",
+      "releaseTag": "player-e05dbddf"
     },
     {
       "playerHash": "e0eecb93",
