@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.png" alt="Blazify — a free, open-source music player for Android, Windows, Linux and iPhone. No ads, offline downloads, synced lyrics, imported playlists." width="900" />
+<img src="docs/assets/banner.png" alt="Blazify: a free, open-source music player for Android, Windows, Linux and iPhone. No ads, offline downloads, synced lyrics, imported playlists." width="900" />
 
 # Blazify 🎧🔥
 
@@ -12,7 +12,7 @@
 
 [![android](https://img.shields.io/badge/Download_for_Android-FFA726?style=for-the-badge&logoColor=1A0E00&logo=android)](https://github.com/rajendra7169/blazify/releases/latest) [![windows](https://img.shields.io/badge/Download_for_Windows-FFA726?style=for-the-badge&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzFBMEUwMCIgZD0iTTEuNSAzLjkgMTAuMiAyLjd2OC42SDEuNXpNMTEuNCAyLjU1IDIyLjUgMXYxMC4zSDExLjR6TTEuNSAxMi43aDguN3Y4LjZMMS41IDIwLjF6TTExLjQgMTIuN0gyMi41VjIzbC0xMS4xLTEuNTV6Ii8+PC9zdmc+)](https://github.com/rajendra7169/blazify-desktop/releases/latest) [![linux](https://img.shields.io/badge/Download_for_Linux-FFA726?style=for-the-badge&logoColor=1A0E00&logo=linux)](https://github.com/rajendra7169/blazify-desktop/releases/latest) [![iphone](https://img.shields.io/badge/Download_for_iPhone-FFA726?style=for-the-badge&logoColor=1A0E00&logo=apple)](https://github.com/rajendra7169/blazify-ios/releases/latest)
 
-On a phone without Google services — de-Googled, LineageOS, a Huawei — take the
+On a phone without Google services (de-Googled, LineageOS, a Huawei), take the
 [latest release](https://github.com/rajendra7169/blazify/releases/latest) and take
 `Blazify.apk` instead of `Blazify-gms.apk`. It is the same app without casting
 to a television.
@@ -36,8 +36,8 @@ to a television.
 
 | | | |
 |:---:|:---:|:---:|
-| <img src="docs/assets/frame-splash.png" width="230" alt="Blazify splash screen" /> | <img src="docs/assets/frame-home.png" width="230" alt="Blazify home screen showing recently played music" /> | <img src="docs/assets/frame-player.png" width="230" alt="Blazify now-playing screen with album art" /> |
-| **Splash** | **Home** | **Player** |
+| <img src="docs/assets/frame-welcome.png" width="230" alt="Blazify welcome screen on first launch" /> | <img src="docs/assets/frame-home.png" width="230" alt="Blazify home screen showing recently played music" /> | <img src="docs/assets/frame-player.png" width="230" alt="Blazify now-playing screen with album art" /> |
+| **Welcome** | **Home** | **Player** |
 | <img src="docs/assets/frame-lyrics.png" width="230" alt="Word-by-word synced lyrics in Blazify" /> | <img src="docs/assets/frame-equalizer.png" width="230" alt="Blazify ten-band equalizer with live frequency-response curve" /> | <img src="docs/assets/frame-look-and-feel.png" width="230" alt="Blazify Look and Feel hub with live theme preview" /> |
 | **Synced lyrics** | **Equalizer** | **Look & Feel** |
 
@@ -65,11 +65,11 @@ Jetpack Compose, gapless through Media3/ExoPlayer.
 ## Blazify everywhere else
 
 The same player, built natively for each platform. The buttons at the top of
-this page download any of them — these are the repos.
+this page download any of them. These are the repos:
 
-**Android** — [rajendra7169/blazify](https://github.com/rajendra7169/blazify) *(you are here)*<br>
-**Windows & Linux** — [rajendra7169/blazify-desktop](https://github.com/rajendra7169/blazify-desktop)<br>
-**iPhone** — [rajendra7169/blazify-ios](https://github.com/rajendra7169/blazify-ios)
+**Android:** [rajendra7169/blazify](https://github.com/rajendra7169/blazify) *(you are here)*<br>
+**Windows & Linux:** [rajendra7169/blazify-desktop](https://github.com/rajendra7169/blazify-desktop)<br>
+**iPhone:** [rajendra7169/blazify-ios](https://github.com/rajendra7169/blazify-ios)
 
 Screenshots, install guides and everything else: **[blazify website](https://rajendra7169.github.io/blazify/)**
 
@@ -152,7 +152,7 @@ What is planned, what has been asked for, and what is deliberately not being don
 
 ## Install
 
-Open the **[latest release](https://github.com/rajendra7169/blazify/releases/latest)** and take `Blazify-gms.apk` — the everyday build, casting to a television included.
+Open the **[latest release](https://github.com/rajendra7169/blazify/releases/latest)** and take `Blazify-gms.apk`, the everyday build, with casting to a television included.
 On a phone with no Google services, take `Blazify.apk` from that same release instead.
 Every build lives on the **[Releases](https://github.com/rajendra7169/blazify/releases/latest)** page.
 
@@ -167,7 +167,7 @@ installs each new release for you.
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.blazify.music%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Frajendra7169%2Fblazify%22%2C%22author%22%3A%22rajendra7169%22%2C%22name%22%3A%22Blazify%22%7D"><img src="https://github.com/ImranR98/Obtainium/blob/main/assets/graphics/badge_obtainium.png?raw=true" alt="Get it on Obtainium" height="48"></a>
 
 Tap that on your phone, or add `https://github.com/rajendra7169/blazify` in
-Obtainium by hand. Blazify updates itself too — this is for people who prefer
+Obtainium by hand. Blazify updates itself too; this is for people who prefer
 one app managing everything they sideload.
 
 ### Also on app stores
@@ -182,7 +182,7 @@ version first. The same app is also listed here:
 ### Coming from 9.12.3 or earlier
 
 9.12.4 is signed with a new key, so Android will not install it over an
-older build — you have to back up, uninstall, then reinstall. Two minutes,
+older build. You have to back up, uninstall, then reinstall. Two minutes,
 steps here: **[MIGRATION.md](MIGRATION.md)**.
 
 ---
@@ -237,8 +237,8 @@ Their contributions inspire us to build with the same spirit of collaboration, i
 
 ## Community
 
-**[Join the Blazify channel on WhatsApp](https://whatsapp.com/channel/0029VbDTBZy8F2pEkp0ERZ2Y)**
-— every release is announced there first, with the download link. It is one-way,
+**[Join the Blazify channel on WhatsApp](https://whatsapp.com/channel/0029VbDTBZy8F2pEkp0ERZ2Y)**.
+Every release is announced there first, with the download link. It is one-way,
 so there is no group chat to mute, and nobody's phone number is shown to anyone.
 
 <div align="center">
@@ -249,14 +249,14 @@ so there is no group chat to mute, and nobody's phone number is shown to anyone.
 
 </div>
 
-**[Discussions](https://github.com/rajendra7169/blazify/discussions)** — ask how
+**[Discussions](https://github.com/rajendra7169/blazify/discussions)**: ask how
 something works, or say what you would like built next. Local music support, the
 tag editor and folder browsing were all added because someone asked for them.
 Every planned idea has its own post in
 [Ideas](https://github.com/rajendra7169/blazify/discussions/categories/ideas): upvote the
 ones you want most.
 
-**[Issues](https://github.com/rajendra7169/blazify/issues)** — for bugs, feature ideas
+**[Issues](https://github.com/rajendra7169/blazify/issues)**: for bugs, feature ideas
 and UI/UX suggestions, each with a short form. Or use **Settings → Report a problem**
 inside the app: it fills in your app version and phone for you, which is usually the
 difference between a bug that gets fixed and one that cannot be reproduced.
