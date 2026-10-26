@@ -34,12 +34,11 @@ to a television.
 
 <div align="center">
 
-| | | |
-|:---:|:---:|:---:|
-| <img src="docs/assets/frame-welcome.png" width="230" alt="Blazify welcome screen on first launch" /> | <img src="docs/assets/frame-home.png" width="230" alt="Blazify home screen showing recently played music" /> | <img src="docs/assets/frame-player.png" width="230" alt="Blazify now-playing screen with album art" /> |
-| **Welcome** | **Home** | **Player** |
-| <img src="docs/assets/frame-lyrics.png" width="230" alt="Word-by-word synced lyrics in Blazify" /> | <img src="docs/assets/frame-equalizer.png" width="230" alt="Blazify ten-band equalizer with live frequency-response curve" /> | <img src="docs/assets/frame-look-and-feel.png" width="230" alt="Blazify Look and Feel hub with live theme preview" /> |
-| **Synced lyrics** | **Equalizer** | **Look & Feel** |
+<img src="docs/assets/readme-screens.png" width="100%" alt="Blazify screens: Home with Quick picks, Search with recent searches, word-by-word lyrics, Yours, Library, the account menu and Settings" />
+
+<img src="docs/assets/readme-players.png" width="100%" alt="Six Blazify player designs: Classic, Ring, Full Art, Record, Cassette and Video Art, each coloured by the song that is playing" />
+
+<sub>Six player designs. Each one takes its colours from the song that is playing.</sub>
 
 </div>
 
