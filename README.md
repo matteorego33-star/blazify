@@ -40,6 +40,8 @@ to a television.
 
 <sub>Six player designs, each taking its colours from the song that is playing.<br />Tap any screen to see it full size.</sub>
 
+<a href="https://www.youtube.com/watch?v=Q7ooU5S2Wck"><img src="docs/assets/buttons/watch-youtube.png" width="130" alt="Watch the Blazify video on YouTube" /></a>
+
 </div>
 
 ---
