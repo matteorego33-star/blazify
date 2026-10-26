@@ -537,7 +537,7 @@
     <string name="update_allow_installs">Blazify needs permission to install apps. Grant it, then press Install again.</string>
     <string name="update_allow_installs_button">Open settings</string>
     <string name="update_uninstall_first_title">Uninstall this version first</string>
-    <string name="update_uninstall_first_body">This build is signed with a different key, so Android will not install it over the current one. The download is kept in your Downloads folder and will still be there afterwards.\n\n1. Back up first — Settings → Backup and restore → Backup.\n2. Uninstall Blazify.\n3. Open Downloads and tap %s.</string>
+    <string name="update_uninstall_first_body">This build is signed with a different key, so Android will not install it over the current one. The download is kept in your Downloads folder and will still be there afterwards.\n\n1. Back up first: Settings → Backup and restore → Backup.\n2. Uninstall Blazify.\n3. Open Downloads and tap %s.</string>
     <string name="update_open_downloads">Open Downloads</string>
     <string name="update_no_download">This release has no downloadable build attached.</string>
     <string name="update_up_to_date">You are on the latest version</string>
@@ -976,7 +976,7 @@
     <string name="column_label">Column %d</string>
 
     <string name="discord_connect_description">Sign in with Discord to share what you\'re listening to</string>
-    <string name="discord_information_warning">Blazify uses Discord\'s public OAuth2 and Gateway APIs to share what you\'re listening to. Authorization happens through a local browser session that closes itself after capturing the code — nothing is sent to third-party servers. Your token is stored on this device in encrypted preferences and is never shared. Blazify connects directly to wss://gateway.discord.gg to publish your activity, and only requests the minimum scope required (sdk.social_layer_presence).</string>
+    <string name="discord_information_warning">Blazify uses Discord\'s public OAuth2 and Gateway APIs to share what you\'re listening to. Authorization happens through a local browser session that closes itself after capturing the code, and nothing is sent to third-party servers. Your token is stored on this device in encrypted preferences and is never shared. Blazify connects directly to wss://gateway.discord.gg to publish your activity, and only requests the minimum scope required (sdk.social_layer_presence).</string>
     <string name="discord_status_connecting">Connecting to Discord…</string>
     <string name="discord_status_reconnecting">Reconnecting to Discord…</string>
     <string name="discord_status_connected">Connected</string>
@@ -1240,7 +1240,7 @@
     <string name="no_recommendations">No recommendations yet.</string>
     <!-- About page -->
     <string name="about_developer_role">Developer</string>
-    <string name="about_me_body">I\'m Rajendra Pandey, an independent app developer from Nepal who loves turning ideas into polished, everyday experiences. Blazify is my take on music streaming — fast, beautiful and personal — crafted from the ground up with Kotlin and Jetpack Compose. I care about the little details that make an app feel effortless, and I\'m always tinkering to make it better. Thanks for being here and letting my work be part of your day.</string>
+    <string name="about_me_body">I\'m Rajendra Pandey, an independent app developer from Nepal who loves turning ideas into polished, everyday experiences. Blazify is my take on music streaming: fast, beautiful and personal, crafted from the ground up with Kotlin and Jetpack Compose. I care about the little details that make an app feel effortless, and I\'m always tinkering to make it better. Thanks for being here and letting my work be part of your day.</string>
     <string name="buy_me_a_coffee">Buy me a coffee</string>
     <string name="coffee_dialog_subtitle">Scan the code to support Blazify</string>
     <string name="made_with_love">Made with ❤️ by Rajendra Pandey</string>
@@ -1336,13 +1336,13 @@
     <string name="onboard_next">Next</string>
     <string name="onboard_start">Start listening</string>
     <string name="onboard_1_title">All the music, none of the clutter</string>
-    <string name="onboard_1_body">Millions of songs, albums and artists — searched, streamed and downloaded for offline listening, with no ads in the way.</string>
+    <string name="onboard_1_body">Search and stream millions of songs, albums and artists, and keep them for offline listening. No ads of its own.</string>
     <string name="onboard_2_title">Lyrics that keep up</string>
     <string name="onboard_2_body">Word-by-word synced lyrics from several sources, with translation and romanization when you want to sing along in any language.</string>
     <string name="onboard_3_title">Listen together, in sync</string>
     <string name="onboard_3_body">Share a room code and play the same song at the same moment with friends, wherever they are.</string>
     <string name="onboard_4_title">Make it yours</string>
-    <string name="onboard_4_body">Colours follow your album art, and you can restyle the player, mini-player, lyrics and navigation — with a live preview as you go.</string>
+    <string name="onboard_4_body">Colours follow your album art, and you can restyle the player, mini-player, lyrics and navigation, with a live preview as you go.</string>
     <string name="nav_bar_style">Navigation bar style</string>
     <string name="nav_style_pill">Pill (Material)</string>
     <string name="nav_style_gradient">Gradient capsule</string>
