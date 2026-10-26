@@ -1442,4 +1442,6 @@
     <string name="sync_lyrics_leave">Leave without saving?</string>
     <string name="sync_lyrics_leave_desc">The times you tapped will be lost.</string>
     <string name="sync_lyrics_leave_confirm">Leave</string>
+    <!-- The queue's name when playing songs picked by hand from a list -->
+    <string name="queue_selection">Selected songs</string>
 </resources>

@@ -570,7 +570,7 @@ internal fun LyricsSampleInterior(
                 ) {
                     Icon(painterResource(R.drawable.translate), null, tint = Color.White, modifier = Modifier.size(7.dp))
                     Spacer(Modifier.width(3.dp))
-                    Text("Language", fontSize = 5.5.sp, lineHeight = 6.sp, color = Color.White)
+                    Text(stringResource(R.string.language_group_title), fontSize = 5.5.sp, lineHeight = 6.sp, color = Color.White)
                 }
             }
             // Stanzas fill the whole page height — dimmed · bright active · dimmed —
