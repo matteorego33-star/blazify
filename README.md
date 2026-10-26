@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/logo-512.png" width="150" alt="Blazify logo: a flame with a play button inside headphones" />
+<img src="docs/assets/logo-tight.png" width="120" alt="Blazify logo: a flame with a play button inside headphones" />
 
 # Blazify 🎧🔥
 
