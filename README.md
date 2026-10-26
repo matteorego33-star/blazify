@@ -1,16 +1,16 @@
 <div align="center">
 
-<img src="docs/assets/banner.png" alt="Blazify: a free, open-source music player for Android, Windows, Linux and iPhone. No ads, offline downloads, synced lyrics, imported playlists." width="900" />
+<img src="docs/assets/logo-512.png" width="150" alt="Blazify logo: a flame with a play button inside headphones" />
 
 # Blazify 🎧🔥
 
-**A free, open-source music player. No ads, no tracking, no account needed.**
+**A free, open-source music player and YouTube Music client. No ads of its own, no tracking, no account needed.**
 
 *Stream it. Feel it. Blaze it.*
 
 **Download it now:** one click, straight from the newest release.
 
-<a href="https://github.com/rajendra7169/blazify/releases/latest"><img src="docs/assets/buttons/get-android.png" width="170" alt="Download for Android" /></a> <a href="https://github.com/rajendra7169/blazify-ios/releases/latest"><img src="docs/assets/buttons/get-iphone.png" width="170" alt="Download for iPhone" /></a> <a href="https://github.com/rajendra7169/blazify-desktop/releases/latest"><img src="docs/assets/buttons/get-windows.png" width="170" alt="Download for Windows" /></a> <a href="https://github.com/rajendra7169/blazify-desktop/releases/latest"><img src="docs/assets/buttons/get-linux.png" width="170" alt="Download for Linux" /></a>
+<a href="https://github.com/rajendra7169/blazify/releases/latest"><img src="docs/assets/buttons/get-android.png" width="130" alt="Download for Android" /></a> <a href="https://github.com/rajendra7169/blazify-ios/releases/latest"><img src="docs/assets/buttons/get-iphone.png" width="130" alt="Download for iPhone" /></a> <a href="https://github.com/rajendra7169/blazify-desktop/releases/latest"><img src="docs/assets/buttons/get-windows.png" width="130" alt="Download for Windows" /></a> <a href="https://github.com/rajendra7169/blazify-desktop/releases/latest"><img src="docs/assets/buttons/get-linux.png" width="130" alt="Download for Linux" /></a>
 
 On a phone without Google services (de-Googled, LineageOS, a Huawei), take the
 [latest release](https://github.com/rajendra7169/blazify/releases/latest) and take
@@ -46,10 +46,11 @@ to a television.
 
 ## Overview
 
-**Blazify is a free, open-source music player with no advertisements, no tracking,
-and no account required.** It is an alternative to Spotify and YouTube Music that
-plays any song you choose rather than shuffling, downloads for offline listening
-without a subscription, and keeps playing with the screen off.
+**Blazify is a free, open-source YouTube Music client and music player for Android**,
+with versions for iPhone, Windows and Linux. It has no ads of its own, no tracking,
+and needs no account. It is an alternative to Spotify and the official YouTube Music
+app that plays any song you choose rather than shuffling, saves songs for offline
+listening, and keeps playing with the screen off.
 
 It streams from a vast online catalogue, shows word-by-word synced lyrics, has a
 ten-band equalizer, and lets you restyle almost every surface of the app with a
@@ -58,6 +59,12 @@ own YouTube Music library and playlists.
 
 Available for **Android, Windows, Linux and iPhone**. Built with Kotlin and
 Jetpack Compose, gapless through Media3/ExoPlayer.
+
+**Looking for something like it?** Blazify fits if you want a Spotify alternative,
+a YouTube Music alternative for Android, an open-source music streaming app, or a free
+music player with synced lyrics and an equalizer. If you used ViMusic, it will feel
+familiar, and if you used InnerTune or Metrolist, Blazify grew from them (see
+[Thank you](#thank-you-)).
 
 ---
 
@@ -164,7 +171,7 @@ one app managing everything they sideload.
 GitHub Releases above is the official source and always has the newest
 version first. The same app is also listed here:
 
-<a href="https://apkpure.com/blazify/com.blazify.music"><img src="docs/assets/buttons/store-apkpure.png" width="170" alt="Get it on APKPure" /></a> <a href="https://appteka.store/app/b16r317210"><img src="docs/assets/buttons/store-appteka.png" width="170" alt="Get it on Appteka" /></a> <a href="https://blazify.apk.com/"><img src="docs/assets/buttons/store-apkcom.png" width="170" alt="Also at blazify.apk.com" /></a>
+<a href="https://apkpure.com/blazify/com.blazify.music"><img src="docs/assets/buttons/store-apkpure.png" width="130" alt="Get it on APKPure" /></a> <a href="https://appteka.store/app/b16r317210"><img src="docs/assets/buttons/store-appteka.png" width="130" alt="Get it on Appteka" /></a> <a href="https://blazify.apk.com/"><img src="docs/assets/buttons/store-apkcom.png" width="130" alt="Also at blazify.apk.com" /></a>
 
 ---
 
