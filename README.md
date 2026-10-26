@@ -34,11 +34,13 @@ to a television.
 
 <div align="center">
 
-<img src="docs/assets/readme-screens.png" width="100%" alt="Blazify screens: Home with Quick picks, Search with recent searches, word-by-word lyrics, Yours, Library, the account menu and Settings" />
+<a href="docs/assets/screens/home.png"><img src="docs/assets/screens/home.png" width="13%" alt="Blazify Home with For you, Speed dial and Quick picks" /></a> <a href="docs/assets/screens/search.png"><img src="docs/assets/screens/search.png" width="13%" alt="Search with recent searches and Browse" /></a> <a href="docs/assets/screens/lyrics.png"><img src="docs/assets/screens/lyrics.png" width="13%" alt="Word-by-word synced lyrics" /></a> <a href="docs/assets/screens/yours.png"><img src="docs/assets/screens/yours.png" width="13%" alt="Yours with Recently Played and Recommended for You" /></a> <a href="docs/assets/screens/library.png"><img src="docs/assets/screens/library.png" width="13%" alt="Library with Liked, Your Top 50 and device music" /></a> <a href="docs/assets/screens/account.png"><img src="docs/assets/screens/account.png" width="13%" alt="The account menu" /></a> <a href="docs/assets/screens/settings.png"><img src="docs/assets/screens/settings.png" width="13%" alt="Settings" /></a>
 
-<img src="docs/assets/readme-players.png" width="100%" alt="Six Blazify player designs: Classic, Ring, Full Art, Record, Cassette and Video Art, each coloured by the song that is playing" />
+<sub><b>Home</b> · <b>Search</b> · <b>Lyrics</b> · <b>Yours</b> · <b>Library</b> · <b>Account</b> · <b>Settings</b></sub>
 
-<sub>Six player designs. Each one takes its colours from the song that is playing.</sub>
+<a href="docs/assets/screens/player-classic.png"><img src="docs/assets/screens/player-classic.png" width="13%" alt="Classic player design" /></a> <a href="docs/assets/screens/player-ring.png"><img src="docs/assets/screens/player-ring.png" width="13%" alt="Ring player design" /></a> <a href="docs/assets/screens/player-full-art.png"><img src="docs/assets/screens/player-full-art.png" width="13%" alt="Full Art player design" /></a> <a href="docs/assets/screens/player-record.png"><img src="docs/assets/screens/player-record.png" width="13%" alt="Record player design" /></a> <a href="docs/assets/screens/player-cassette.png"><img src="docs/assets/screens/player-cassette.png" width="13%" alt="Cassette player design" /></a> <a href="docs/assets/screens/player-video-art.png"><img src="docs/assets/screens/player-video-art.png" width="13%" alt="Video Art player design" /></a>
+
+<sub><b>Classic</b> · <b>Ring</b> · <b>Full Art</b> · <b>Record</b> · <b>Cassette</b> · <b>Video Art</b><br />Six player designs, each taking its colours from the song that is playing. Tap any screen to see it full size.</sub>
 
 </div>
 
