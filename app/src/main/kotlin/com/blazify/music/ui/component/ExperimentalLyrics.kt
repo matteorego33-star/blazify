@@ -149,6 +149,9 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private const val LYRICS_ANCHOR_RATIO = 0.35f
+// Outside full screen the Sources chip sits at the top of the pane; anchoring lower keeps
+// the line just sung (still bright for a moment) clear of it.
+private const val LYRICS_ANCHOR_RATIO_WITH_SOURCES = 0.42f
 private val LYRICS_ITEM_FALLBACK_HEIGHT_DP = 68.dp
 private val LYRICS_ITEM_GAP_DP = 16.dp
 private val LYRICS_FADE_TOP_DP = 130.dp
@@ -567,7 +570,7 @@ fun ExperimentalLyrics(
         modifier = modifier.fillMaxSize().padding(bottom = 12.dp)
     ) {
         val maxHeightPx = constraints.maxHeight.toFloat()
-        val anchorY = maxHeightPx * LYRICS_ANCHOR_RATIO
+        val anchorY = maxHeightPx * if (isFullScreen) LYRICS_ANCHOR_RATIO else LYRICS_ANCHOR_RATIO_WITH_SOURCES
         val lineHeightPx = with(density) { LYRICS_ITEM_FALLBACK_HEIGHT_DP.toPx() }
         val indicatorHeightPx = with(density) { 72.dp.toPx() }
         
