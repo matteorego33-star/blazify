@@ -129,7 +129,8 @@ android {
         buildConfigField("String", "LASTFM_API_KEY", "\"$lastFmKey\"")
         buildConfigField("String", "LASTFM_SECRET", "\"$lastFmSecret\"")
         buildConfigField("String", "ARCHITECTURE", "\"universal\"")
-        buildConfigField("Long", "DISCORD_APP_ID", "1447278780795064401L")
+        // Blazify's own Discord application, so friends see "Blazify" in your status
+        buildConfigField("Long", "DISCORD_APP_ID", "1564500874733297664L")
     }
 
     flavorDimensions += listOf("variant")
