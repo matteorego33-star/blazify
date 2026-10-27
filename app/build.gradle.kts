@@ -122,7 +122,8 @@ android {
             abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
         }
 
-        // LastFM API keys from GitHub Secrets
+        // Blazify's Last.fm API account, read from local.properties (never committed) or the
+        // environment. Builds without it ask the user for their own key in Last.fm settings.
         val lastFmKey = localProperties.getProperty("LASTFM_API_KEY") ?: System.getenv("LASTFM_API_KEY") ?: ""
         val lastFmSecret = localProperties.getProperty("LASTFM_SECRET") ?: System.getenv("LASTFM_SECRET") ?: ""
 
@@ -159,6 +160,10 @@ android {
             dimension = "variant"
             buildConfigField("Boolean", "CAST_AVAILABLE", "false")
             buildConfigField("Boolean", "UPDATER_AVAILABLE", "false")
+            // F-Droid builds this from the public source and must get the same APK as ours,
+            // so it never carries the private Last.fm key; users can add their own instead.
+            buildConfigField("String", "LASTFM_API_KEY", "\"\"")
+            buildConfigField("String", "LASTFM_SECRET", "\"\"")
         }
     }
 

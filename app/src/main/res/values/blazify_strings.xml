@@ -574,6 +574,14 @@
     <string name="last_fm_send_likes">Sync Loved and Unloved</string>
     <string name="last_fm_send_likes_description">Love or unlove songs in Last.fm when you like or unlike them in Blazify</string>
     <string name="logging_in">Logging in…</string>
+    <string name="lastfm_own_key">Your Last.fm API key</string>
+    <string name="lastfm_own_key_set">Added</string>
+    <string name="lastfm_own_key_missing">Needed before you can log in</string>
+    <string name="lastfm_own_key_explain">This version of Blazify comes without a Last.fm key. Create a free one on Last.fm in about two minutes, then paste the API key and shared secret here.</string>
+    <string name="lastfm_own_key_create">Create a key on Last.fm</string>
+    <string name="lastfm_api_key">API key</string>
+    <string name="lastfm_shared_secret">Shared secret</string>
+    <string name="lastfm_own_key_invalid">Paste both values, each 32 letters and numbers long</string>
 
     <string name="scrobbling_configuration">Scrobbling configuration</string>
     <string name="scrobble_min_track_duration">Scrobble songs longer than (seconds)</string>

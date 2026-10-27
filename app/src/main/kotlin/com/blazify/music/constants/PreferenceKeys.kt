@@ -260,6 +260,9 @@ val ListenTogetherSessionTimestampKey = longPreferencesKey("listenTogetherSessio
 
 val LastFMSessionKey = stringPreferencesKey("lastfmSession")
 val LastFMUsernameKey = stringPreferencesKey("lastfmUsername")
+// The user's own Last.fm API account, for builds that ship without Blazify's (F-Droid)
+val LastFMUserApiKeyKey = stringPreferencesKey("lastfmUserApiKey")
+val LastFMUserSecretKey = stringPreferencesKey("lastfmUserSecret")
 val EnableLastFMScrobblingKey = booleanPreferencesKey("lastfmScrobblingEnable")
 val LastFMUseNowPlaying = booleanPreferencesKey("lastfmUseNowPlaying")
 

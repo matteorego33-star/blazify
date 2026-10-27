@@ -216,11 +216,16 @@ class App :
             KuGou.useTraditionalChinese = true
         }
 
-        // Initialize LastFM with API keys from BuildConfig (GitHub Secrets)
-        LastFM.initialize(
-            apiKey = BuildConfig.LASTFM_API_KEY.takeIf { it.isNotEmpty() } ?: "",
-            secret = BuildConfig.LASTFM_SECRET.takeIf { it.isNotEmpty() } ?: "",
-        )
+        // Blazify's own Last.fm key when this build has one, otherwise the key the user
+        // added in Last.fm settings (the F-Droid build ships without ours)
+        if (BuildConfig.LASTFM_API_KEY.isNotEmpty()) {
+            LastFM.initialize(apiKey = BuildConfig.LASTFM_API_KEY, secret = BuildConfig.LASTFM_SECRET)
+        } else {
+            LastFM.initialize(
+                apiKey = settings[LastFMUserApiKeyKey].orEmpty(),
+                secret = settings[LastFMUserSecretKey].orEmpty(),
+            )
+        }
 
         if (settings[ProxyEnabledKey] == true) {
             val username = settings[ProxyUsernameKey].orEmpty()

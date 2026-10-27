@@ -54,9 +54,13 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.blazify.lastfm.LastFM
 import com.blazify.music.LocalPlayerAwareWindowInsets
+import androidx.compose.ui.platform.LocalUriHandler
+import com.blazify.music.BuildConfig
 import com.blazify.music.R
 import com.blazify.music.constants.EnableLastFMScrobblingKey
 import com.blazify.music.constants.LastFMSessionKey
+import com.blazify.music.constants.LastFMUserApiKeyKey
+import com.blazify.music.constants.LastFMUserSecretKey
 import com.blazify.music.constants.LastFMUseNowPlaying
 import com.blazify.music.constants.LastFMUseSendLikes
 import com.blazify.music.constants.LastFMUsernameKey
@@ -123,6 +127,80 @@ fun LastFMSettings(
     var showLoginDialog by rememberSaveable { mutableStateOf(false) }
     var isLoggingIn by rememberSaveable { mutableStateOf(false) }
     var loginError by rememberSaveable { mutableStateOf<String?>(null) }
+
+    // Builds without Blazify's Last.fm key (F-Droid) need the user's own before logging in
+    val needsOwnKey = BuildConfig.LASTFM_API_KEY.isEmpty()
+    var userApiKey by rememberPreference(LastFMUserApiKeyKey, "")
+    var userSecret by rememberPreference(LastFMUserSecretKey, "")
+    val hasOwnKey = userApiKey.isNotEmpty() && userSecret.isNotEmpty()
+    var showKeyDialog by rememberSaveable { mutableStateOf(false) }
+    val uriHandler = LocalUriHandler.current
+
+    if (showKeyDialog) {
+        var tempKey by rememberSaveable { mutableStateOf(userApiKey) }
+        var tempSecret by rememberSaveable { mutableStateOf(userSecret) }
+        var keyError by rememberSaveable { mutableStateOf(false) }
+        // Last.fm's key and secret are both 32 hex characters
+        val looksRight = { value: String -> value.trim().matches(Regex("[0-9a-fA-F]{32}")) }
+
+        AlertDialog(
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+            onDismissRequest = { showKeyDialog = false },
+            title = { Text(stringResource(R.string.lastfm_own_key)) },
+            text = {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.lastfm_own_key_explain),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    OutlinedButton(onClick = { uriHandler.openUri("https://www.last.fm/api/account/create") }) {
+                        Text(stringResource(R.string.lastfm_own_key_create))
+                    }
+                    OutlinedTextField(
+                        value = tempKey,
+                        onValueChange = { tempKey = it; keyError = false },
+                        label = { Text(stringResource(R.string.lastfm_api_key)) },
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = tempSecret,
+                        onValueChange = { tempSecret = it; keyError = false },
+                        label = { Text(stringResource(R.string.lastfm_shared_secret)) },
+                        singleLine = true,
+                    )
+                    if (keyError) {
+                        Text(
+                            text = stringResource(R.string.lastfm_own_key_invalid),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (!looksRight(tempKey) || !looksRight(tempSecret)) {
+                        keyError = true
+                        return@TextButton
+                    }
+                    userApiKey = tempKey.trim()
+                    userSecret = tempSecret.trim()
+                    LastFM.initialize(apiKey = userApiKey, secret = userSecret)
+                    showKeyDialog = false
+                }) {
+                    Text(stringResource(R.string.save))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showKeyDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     if (showLoginDialog) {
         var tempUsername by rememberSaveable { mutableStateOf("") }
@@ -290,6 +368,28 @@ fun LastFMSettings(
             )
         )
 
+        if (needsOwnKey) {
+            Material3SettingsGroup(
+                title = stringResource(R.string.lastfm_own_key),
+                items = listOf(
+                    Material3SettingsItem(
+                        title = { Text(stringResource(R.string.lastfm_own_key)) },
+                        description = {
+                            Text(
+                                stringResource(
+                                    if (hasOwnKey) R.string.lastfm_own_key_set else R.string.lastfm_own_key_missing
+                                )
+                            )
+                        },
+                        icon = painterResource(R.drawable.music_note),
+                        onClick = { showKeyDialog = true }
+                    ),
+                )
+            )
+
+            Spacer(Modifier.height(8.dp))
+        }
+
         // Options section (card-based)
         Material3SettingsGroup(
             title = stringResource(R.string.account),
@@ -310,7 +410,9 @@ fun LastFMSettings(
                                 Text(stringResource(R.string.action_logout))
                             }
                         } else {
-                            OutlinedButton(onClick = { showLoginDialog = true }) {
+                            OutlinedButton(onClick = {
+                                if (needsOwnKey && !hasOwnKey) showKeyDialog = true else showLoginDialog = true
+                            }) {
                                 Text(stringResource(R.string.action_login))
                             }
                         }
