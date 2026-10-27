@@ -558,16 +558,25 @@ fun OnlineSearchResult(
                 }
             }
             if (isSearchFocused) {
-                OnlineSearchScreen(
-                    query = query.text,
-                    onQueryChange = { query = it },
-                    onSearch = onSearch,
-                    onDismiss = {
-                        isSearchFocused = false
-                        focusManager.clearFocus()
-                    },
-                    pureBlack = pureBlack,
-                )
+                // The suggestions have no background of their own (Search paints it once),
+                // so here, laid over the last results, they need one or those show through.
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background),
+                ) {
+                    OnlineSearchScreen(
+                        query = query.text,
+                        onQueryChange = { query = it },
+                        onSearch = onSearch,
+                        onDismiss = {
+                            isSearchFocused = false
+                            focusManager.clearFocus()
+                        },
+                        pureBlack = pureBlack,
+                    )
+                }
             }
             HideOnScrollFAB(
                 lazyListState = lazyListState,
