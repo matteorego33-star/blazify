@@ -89,10 +89,17 @@ fun EqFrequencyResponseGraph(
                 .height(200.dp)
                 .padding(4.dp)
         ) {
-            val plotLeft = GRAPH_PADDING_LEFT
+            // Wide enough for the widest dB label: a fixed 40 px cut the minus sign off
+            // labels like "-7.5" on dense screens
+            val widestLabel = generateSequence(graphData.dbBottom) { it + graphData.dbStep }
+                .takeWhile { it <= graphData.dbTop }
+                .maxOfOrNull { textMeasurer.measure(dbLabel(it), labelStyle).size.width } ?: 0
+            val plotLeft = maxOf(GRAPH_PADDING_LEFT, widestLabel + 8f)
             val plotRight = size.width - GRAPH_PADDING_RIGHT
             val plotTop = GRAPH_PADDING_TOP
-            val plotBottom = size.height - GRAPH_PADDING_BOTTOM
+            // Tall enough for the Hz labels under the plot, which a fixed 24 px cut in half
+            val hzLabelHeight = textMeasurer.measure("10k", labelStyle).size.height
+            val plotBottom = size.height - maxOf(GRAPH_PADDING_BOTTOM, hzLabelHeight + 8f)
             val plotWidth = plotRight - plotLeft
             val plotHeight = plotBottom - plotTop
 
@@ -127,11 +134,7 @@ fun EqFrequencyResponseGraph(
                         strokeWidth = if (isZero) 1.5f else 0.5f
                     )
                     // Label
-                    val labelText = if (db == 0.0) "0" else {
-                        if (db == db.toLong().toDouble()) db.toLong().toString()
-                        else String.format("%.1f", db)
-                    }
-                    drawDbLabel(textMeasurer, labelText, labelStyle, y, plotLeft)
+                    drawDbLabel(textMeasurer, dbLabel(db), labelStyle, y, plotLeft)
                     db += dbStep
                 }
 
@@ -183,6 +186,12 @@ fun EqFrequencyResponseGraph(
             }
         }
     }
+}
+
+private fun dbLabel(db: Double): String = when {
+    abs(db) < 0.01 -> "0"
+    db == db.toLong().toDouble() -> db.toLong().toString()
+    else -> String.format("%.1f", db)
 }
 
 private fun DrawScope.drawDbLabel(
