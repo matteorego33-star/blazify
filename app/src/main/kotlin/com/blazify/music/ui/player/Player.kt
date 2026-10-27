@@ -3240,22 +3240,24 @@ private fun RingPlayerLayout(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Shuffle first and repeat last, at the standard size, as on every other design and
+            // on this design's own lyrics page, so nothing moves when the lyrics open (issue #19).
             RingIconButton(
-                res = if (repeatMode == Player.REPEAT_MODE_ONE) R.drawable.repeat_one else R.drawable.repeat,
-                tint = if (repeatMode != Player.REPEAT_MODE_OFF) BlazeThemeColor else textColor,
+                res = R.drawable.shuffle,
+                tint = if (shuffleOn) BlazeThemeColor else textColor,
                 size = 24,
-                onClick = onToggleRepeat,
+                onClick = onToggleShuffle,
             )
             RingIconButton(R.drawable.skip_previous, textColor, size = 34, onClick = onPrevious)
             // Same morph as the other designs: a circle when paused, a rounded square while playing.
             val playRoundness by animateDpAsState(
-                targetValue = if (isPlaying) 22.dp else 33.dp,
+                targetValue = if (isPlaying) 24.dp else 36.dp,
                 animationSpec = tween(durationMillis = 90, easing = LinearEasing),
                 label = "ringPlayRoundness",
             )
             Box(
                 modifier = Modifier
-                    .size(66.dp)
+                    .size(72.dp)
                     .clip(RoundedCornerShape(playRoundness))
                     .background(MaterialTheme.colorScheme.primary)
                     .clickable(onClick = onTogglePlay),
@@ -3265,15 +3267,15 @@ private fun RingPlayerLayout(
                     painter = painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(30.dp),
+                    modifier = Modifier.size(36.dp),
                 )
             }
             RingIconButton(R.drawable.skip_next, textColor, size = 34, onClick = onNext)
             RingIconButton(
-                res = R.drawable.shuffle,
-                tint = if (shuffleOn) BlazeThemeColor else textColor,
+                res = if (repeatMode == Player.REPEAT_MODE_ONE) R.drawable.repeat_one else R.drawable.repeat,
+                tint = if (repeatMode != Player.REPEAT_MODE_OFF) BlazeThemeColor else textColor,
                 size = 24,
-                onClick = onToggleShuffle,
+                onClick = onToggleRepeat,
             )
         }
 
