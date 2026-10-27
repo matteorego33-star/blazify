@@ -509,7 +509,7 @@
     <string name="ai_translation_transcribed_desc">Converte a pronúncia para o script de destino</string>
     <string name="ai_provider_help">Obter chaves de API</string>
     <string name="ai_provider_openrouter_help">Visite https://openrouter.ai para modelos gratuitos e pagos</string>
-    <string name="ai_provider_openai_help">Visite https://plataform.openai.com/api-keys</string>
+    <string name="ai_provider_openai_help">Visite https://platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">Visite https://console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">Visite https://aistudio.google.com/apikey</string>
     <string name="ai_provider_perplexity_help">Visite https://perplexity.ai/settings/api</string>
