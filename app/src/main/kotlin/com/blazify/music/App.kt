@@ -27,6 +27,7 @@ import com.blazify.innertube.YouTube
 import com.blazify.innertube.models.ArtistConjunctions
 import com.blazify.innertube.models.YouTubeLocale
 import com.blazify.kugou.KuGou
+import com.blazify.music.lyrics.JapaneseDictionary
 import com.blazify.lastfm.LastFM
 import com.blazify.music.BuildConfig
 import com.blazify.music.utils.ListenBrainz
@@ -215,6 +216,9 @@ class App :
         if (languageTag == "zh-TW") {
             KuGou.useTraditionalChinese = true
         }
+
+        // Japanese lyric romanization reads a dictionary downloaded on request
+        JapaneseDictionary.init(this@App)
 
         // Blazify's own Last.fm key when this build has one, otherwise the key the user
         // added in Last.fm settings (the F-Droid build ships without ours)

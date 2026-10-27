@@ -300,6 +300,9 @@ android {
             excludes += "META-INF/LICENSE.md"
             excludes += "META-INF/INDEX.LIST"
             excludes += "META-INF/io.netty.versions.properties"
+            // The 13 MB Japanese reading dictionary is downloaded when someone first needs it
+            // (lyrics/JapaneseDictionary.kt); keeping it out halves the APK
+            excludes += "com/atilika/kuromoji/ipadic/*.bin"
         }
     }
 }

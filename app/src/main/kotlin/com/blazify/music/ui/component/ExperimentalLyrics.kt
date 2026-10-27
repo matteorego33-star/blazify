@@ -30,6 +30,7 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.verticalDrag
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -37,7 +38,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
@@ -46,6 +51,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
@@ -103,6 +109,7 @@ import com.blazify.music.constants.AiProviderKey
 import com.blazify.music.constants.AiSystemPromptKey
 import com.blazify.music.constants.DeeplApiKey
 import com.blazify.music.constants.DeeplFormalityKey
+import com.blazify.music.constants.JapaneseDictionaryDeclinedKey
 import com.blazify.music.constants.LyricsAnimationStyle
 import com.blazify.music.constants.LyricsAnimationStyleKey
 import com.blazify.music.constants.LyricsClickKey
@@ -125,7 +132,9 @@ import com.blazify.music.constants.ShowIntervalIndicatorKey
 import com.blazify.music.constants.TranslateLanguageKey
 import com.blazify.music.constants.TranslateModeKey
 import com.blazify.music.db.entities.LyricsEntity.Companion.LYRICS_NOT_FOUND
+import com.blazify.music.lyrics.JapaneseDictionary
 import com.blazify.music.lyrics.LyricsResyncHelper
+import com.blazify.music.lyrics.LyricsUtils
 import com.blazify.music.lyrics.LyricsTranslationHelper
 import com.blazify.music.lyrics.LyricsUtils.findActiveLineIndices
 import com.blazify.music.lyrics.LyricsEntry
@@ -192,6 +201,9 @@ fun ExperimentalLyrics(
     val respectAgentPositioning by rememberPreference(RespectAgentPositioningKey, true)
     val lyricsTextSize by rememberPreference(LyricsTextSizeKey, 36f)
     val lyricsLineSpacing by rememberPreference(LyricsLineSpacingKey, 1.3f)
+    var japaneseDictDeclined by rememberPreference(JapaneseDictionaryDeclinedKey, false)
+    val japaneseDictWanted by JapaneseDictionary.wanted.collectAsState()
+    val japaneseDictState by JapaneseDictionary.state.collectAsState()
     val lyricsGlow by rememberPreference(LyricsGlowEffectKey, true)
     val lyricsAnimationStyle by rememberEnumPreference(LyricsAnimationStyleKey, LyricsAnimationStyle.KARAOKE)
     val showIntervalIndicator by rememberPreference(ShowIntervalIndicatorKey, true)
@@ -925,6 +937,60 @@ fun ExperimentalLyrics(
                 .padding(top = 8.dp),
         ) {
             LyricsLanguageButton(onClick = { showSourcePicker = true })
+        }
+
+        // Japanese lyrics but no reading dictionary yet: offer the one-time download
+        val lyricsAreJapanese = remember(lyrics) {
+            lyrics != null && lyrics != LYRICS_NOT_FOUND && LyricsUtils.isJapanese(lyrics) && !LyricsUtils.isChinese(lyrics)
+        }
+        AnimatedVisibility(
+            visible = japaneseDictWanted && lyricsAreJapanese && !japaneseDictDeclined &&
+                japaneseDictState !is JapaneseDictionary.State.Installed && !isSelectionModeActive,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding()
+                .padding(top = 60.dp, start = 16.dp, end = 16.dp),
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                modifier = Modifier.widthIn(max = 420.dp),
+            ) {
+                Column(modifier = Modifier.padding(start = 16.dp, top = 14.dp, end = 8.dp, bottom = 4.dp)) {
+                    Text(
+                        text = when (val state = japaneseDictState) {
+                            is JapaneseDictionary.State.Downloading -> stringResource(
+                                R.string.japanese_dict_downloading, (state.progress * 100).roundToInt()
+                            )
+                            is JapaneseDictionary.State.Failed -> stringResource(R.string.japanese_dict_failed)
+                            else -> stringResource(R.string.japanese_dict_prompt, JapaneseDictionary.SIZE_MB)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                    if (japaneseDictState !is JapaneseDictionary.State.Downloading) {
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            TextButton(onClick = { japaneseDictDeclined = true }) {
+                                Text(stringResource(R.string.japanese_dict_not_now))
+                            }
+                            TextButton(onClick = JapaneseDictionary::startDownload) {
+                                Text(
+                                    stringResource(
+                                        if (japaneseDictState is JapaneseDictionary.State.Failed) R.string.retry
+                                        else R.string.japanese_dict_download
+                                    )
+                                )
+                            }
+                        }
+                    } else {
+                        Spacer(Modifier.height(10.dp))
+                    }
+                }
+            }
         }
     }
 

@@ -49,7 +49,7 @@ Blazify is a music player for Android devices, built with Kotlin and Jetpack Com
 
 Blazify has no advertising, no analytics and no tracking libraries of any kind. Signing in is entirely optional. Everything except your personal YouTube Music library works signed out.
 
-It talks to YouTube Music and Google's video servers; to PipePipe's decoder (api.pipepipe.dev), which gets only YouTube's player version and the scrambled stream values; to Blazify's own repository for a table of player settings (raw.githubusercontent.com, cdn.jsdelivr.net); and to lyrics providers for the song playing. Anything else only when you turn it on.
+It talks to YouTube Music and Google's video servers; to PipePipe's decoder (api.pipepipe.dev), which gets only YouTube's player version and the scrambled stream values; to Blazify's own repository for a table of player settings (raw.githubusercontent.com, cdn.jsdelivr.net); and to lyrics providers for the song playing. Anything else only when you turn it on, such as the Japanese reading dictionary for romanized Japanese lyrics, which is downloaded once from Maven Central (repo1.maven.org) only after you agree to it.
 
 One thing worth stating plainly, because it is the only time the app sends anything about your own files anywhere: when you scan the music on your phone, any track whose file carries no cover art has its title looked up online so a picture can be found. Files that already have artwork are never sent. It can be turned off, and turning it off only costs you the missing covers.
 

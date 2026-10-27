@@ -574,6 +574,14 @@
     <string name="last_fm_send_likes">Sync Loved and Unloved</string>
     <string name="last_fm_send_likes_description">Love or unlove songs in Last.fm when you like or unlike them in Blazify</string>
     <string name="logging_in">Logging in…</string>
+    <string name="japanese_dict_title">Japanese reading dictionary</string>
+    <string name="japanese_dict_needed">Download it to show Japanese lyrics in English letters (%1$d MB, once)</string>
+    <string name="japanese_dict_installed">Downloaded. Japanese lyrics can show in English letters</string>
+    <string name="japanese_dict_downloading">Downloading… %1$d%%</string>
+    <string name="japanese_dict_failed">The download didn\'t finish. Check your connection and try again</string>
+    <string name="japanese_dict_prompt">Show Japanese lyrics in English letters? This downloads %1$d MB once.</string>
+    <string name="japanese_dict_download">Download</string>
+    <string name="japanese_dict_not_now">Not now</string>
     <string name="lastfm_own_key">Your Last.fm API key</string>
     <string name="lastfm_own_key_set">Added</string>
     <string name="lastfm_own_key_missing">Needed before you can log in</string>

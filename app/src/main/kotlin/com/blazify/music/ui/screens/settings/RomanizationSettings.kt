@@ -17,12 +17,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -36,11 +39,14 @@ import com.blazify.music.R
 import com.blazify.music.constants.LyricsRomanizeAsMainKey
 import com.blazify.music.constants.LyricsRomanizeCyrillicByLineKey
 import com.blazify.music.constants.LyricsRomanizeList
+import com.blazify.music.lyrics.JapaneseDictionary
+import com.blazify.music.ui.component.BlazeLoader
 import com.blazify.music.ui.component.IconButton
 import com.blazify.music.ui.component.Material3SettingsGroup
 import com.blazify.music.ui.component.Material3SettingsItem
 import com.blazify.music.ui.utils.backToMain
 import com.blazify.music.utils.rememberPreference
+import kotlin.math.roundToInt
 
 val defaultList = mutableListOf(
     "Japanese" to true,
@@ -96,6 +102,8 @@ fun RomanizationSettings(
         defaultValue = false
     )
 
+    val dictionaryState by JapaneseDictionary.state.collectAsState()
+
     val checkboxesList: MutableList<Material3SettingsItem> = mutableListOf()
 
     Column(
@@ -144,6 +152,47 @@ fun RomanizationSettings(
                         )
                     },
                     icon = painterResource(R.drawable.info)
+                )
+            )
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Material3SettingsGroup(
+            title = stringResource(R.string.japanese_dict_title),
+            items = listOf(
+                Material3SettingsItem(
+                    title = { Text(stringResource(R.string.japanese_dict_title)) },
+                    description = {
+                        Text(
+                            when (val state = dictionaryState) {
+                                is JapaneseDictionary.State.Installed -> stringResource(R.string.japanese_dict_installed)
+                                is JapaneseDictionary.State.Downloading ->
+                                    stringResource(R.string.japanese_dict_downloading, (state.progress * 100).roundToInt())
+                                is JapaneseDictionary.State.Failed -> stringResource(R.string.japanese_dict_failed)
+                                is JapaneseDictionary.State.NotInstalled ->
+                                    stringResource(R.string.japanese_dict_needed, JapaneseDictionary.SIZE_MB)
+                            }
+                        )
+                    },
+                    trailingContent = {
+                        when (dictionaryState) {
+                            is JapaneseDictionary.State.Installed ->
+                                OutlinedButton(onClick = JapaneseDictionary::delete) {
+                                    Text(stringResource(R.string.delete))
+                                }
+                            is JapaneseDictionary.State.Downloading -> BlazeLoader(modifier = Modifier.size(20.dp))
+                            is JapaneseDictionary.State.Failed ->
+                                OutlinedButton(onClick = JapaneseDictionary::startDownload) {
+                                    Text(stringResource(R.string.retry))
+                                }
+                            is JapaneseDictionary.State.NotInstalled ->
+                                OutlinedButton(onClick = JapaneseDictionary::startDownload) {
+                                    Text(stringResource(R.string.japanese_dict_download))
+                                }
+                        }
+                    },
+                    icon = painterResource(R.drawable.language)
                 )
             )
         )

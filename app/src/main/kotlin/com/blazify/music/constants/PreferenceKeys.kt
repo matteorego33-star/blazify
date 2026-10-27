@@ -546,6 +546,8 @@ val LyricsScrollKey = booleanPreferencesKey("lyricsScrollKey")
 val HideStatusBarOnFullscreenKey = booleanPreferencesKey("hideStatusBarOnFullscreen")
 val LyricsRomanizeAsMainKey = booleanPreferencesKey("lyricsRomanizeAsMain")
 val LyricsRomanizeCyrillicByLineKey = booleanPreferencesKey("lyricsRomanizeCyrillicByLine")
+// "Not now" on the Japanese dictionary prompt in lyrics; it can still be downloaded in settings
+val JapaneseDictionaryDeclinedKey = booleanPreferencesKey("japaneseDictionaryDeclined")
 val OpenRouterApiKey = stringPreferencesKey("openRouterApiKey")
 val AiProviderKey = stringPreferencesKey("aiProvider")
 val OpenRouterBaseUrlKey = stringPreferencesKey("openRouterBaseUrl")

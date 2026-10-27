@@ -9,6 +9,7 @@ package com.blazify.music.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.blazify.music.db.entities.LyricsEntity.Companion.LYRICS_NOT_FOUND
+import com.blazify.music.lyrics.JapaneseDictionary
 import com.blazify.music.lyrics.LyricsEntry
 import com.blazify.music.lyrics.LyricsUtils
 import com.blazify.music.lyrics.lyricsTextLooksSynced
@@ -35,6 +36,38 @@ class LyricsViewModel @Inject constructor() : ViewModel() {
 
     private val _mergedLyricsList = MutableStateFlow<List<LyricsListItem>>(emptyList())
     val mergedLyricsList: StateFlow<List<LyricsListItem>> = _mergedLyricsList.asStateFlow()
+
+    // What the current lines were romanized with, so they can be romanized again once the
+    // Japanese dictionary arrives while the song is showing
+    private var romanizeArgs: Triple<String, List<String>, Boolean>? = null
+
+    init {
+        viewModelScope.launch {
+            JapaneseDictionary.state.collect { state ->
+                val (lyrics, languages, byLine) = romanizeArgs ?: return@collect
+                if (state is JapaneseDictionary.State.Installed) {
+                    romanizeLines(_lines.value, lyrics, languages, byLine)
+                }
+            }
+        }
+    }
+
+    private suspend fun romanizeLines(
+        lines: List<LyricsEntry>,
+        lyrics: String,
+        enabledLanguages: List<String>,
+        romanizeCyrillicByLine: Boolean,
+    ) = withContext(Dispatchers.Default) {
+        lines.forEach { entry ->
+            if (entry == LyricsEntry.HEAD_LYRICS_ENTRY) return@forEach
+            entry.romanizedTextFlow.value = LyricsUtils.romanize(
+                text = lyrics,
+                line = entry.text,
+                enabledLanguages = enabledLanguages,
+                romanizeCyrillicByLine = romanizeCyrillicByLine
+            )
+        }
+    }
 
     fun processLyrics(
         lyrics: String?,
@@ -77,17 +110,10 @@ class LyricsViewModel @Inject constructor() : ViewModel() {
 
             // Romanize in the background after the UI has been updated
             if (lyrics != null && lyrics != LYRICS_NOT_FOUND && enabledLanguages.isNotEmpty()) {
-                launch(Dispatchers.Default) {
-                    processedLines.forEach { entry ->
-                        if (entry == LyricsEntry.HEAD_LYRICS_ENTRY) return@forEach
-                        entry.romanizedTextFlow.value = LyricsUtils.romanize(
-                            text = lyrics,
-                            line = entry.text,
-                            enabledLanguages = enabledLanguages,
-                            romanizeCyrillicByLine = romanizeCyrillicByLine
-                        )
-                    }
-                }
+                romanizeArgs = Triple(lyrics, enabledLanguages, romanizeCyrillicByLine)
+                launch { romanizeLines(processedLines, lyrics, enabledLanguages, romanizeCyrillicByLine) }
+            } else {
+                romanizeArgs = null
             }
         }
     }
