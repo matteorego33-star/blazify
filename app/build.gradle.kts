@@ -402,7 +402,9 @@ dependencies {
     implementation(libs.compose.foundation)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.util)
-    implementation(libs.compose.ui.tooling)
+    // Design-preview tooling only in debug builds: in a release it adds an exported
+    // PreviewActivity that any app could open, and Blazify uses none of it
+    debugImplementation(libs.compose.ui.tooling)
     implementation(libs.compose.animation)
     implementation(libs.compose.reorderable)
 
