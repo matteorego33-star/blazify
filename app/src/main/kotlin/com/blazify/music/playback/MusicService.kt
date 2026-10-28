@@ -3543,7 +3543,7 @@ class MusicService :
                 (cause as? PlaybackException)?.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED -> return true
                 (cause as? PlaybackException)?.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT -> return true
             }
-            cause = cause?.cause
+            cause = cause.cause
         }
         return false
     }
@@ -4175,8 +4175,9 @@ class MusicService :
         scope.launch(Dispatchers.IO) {
             val (freshSongId, freshIsPlaying) = withContext(Dispatchers.Main.immediate) {
                 player.currentMetadata?.id to player.isPlaying
-            } ?: return@launch
-            val song = database.song(freshSongId).first() ?: return@launch
+            }
+            val songId = freshSongId ?: return@launch
+            val song = database.song(songId).first() ?: return@launch
             updateDiscordRPC(song, freshIsPlaying)
         }
     }
