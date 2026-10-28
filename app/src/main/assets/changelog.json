@@ -1,5 +1,11 @@
 [
   {
+    "tagName": "v9.17.0",
+    "versionName": "9.17.0",
+    "releaseDate": "2026-10-28T00:00:00Z",
+    "description": "## Arctic Fresh\n\nThe app has a new name and a cleaner, quieter settings experience. Personal developer details and the in-app updater have been removed; install updates manually from the release source you use.\n\n## Smoother listening\n\n- **Switching songs from search no longer leaves an older queue active.** Results from an outdated queue are discarded.\n- **Home pagination avoids duplicate and stale requests**, so scrolling stays more predictable.\n\nThe changelog is bundled with the app and remains available offline."
+  },
+  {
     "tagName": "v9.12.6",
     "versionName": "9.12.6",
     "releaseDate": "2026-09-02T00:00:00Z",
