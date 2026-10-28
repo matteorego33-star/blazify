@@ -89,7 +89,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.blazify.music.ui.screens.settings.integrations.ListenBrainzSettings
 import com.blazify.music.ui.screens.settings.PlayerDesignScreen
-import com.blazify.music.ui.screens.settings.UpdaterScreen
 import com.blazify.music.ui.screens.settings.integrations.DiscordSettings
 import com.blazify.music.ui.screens.settings.integrations.IntegrationScreen
 import com.blazify.music.ui.screens.settings.integrations.LastFMSettings
@@ -103,7 +102,6 @@ import com.blazify.music.utils.rememberPreference
 fun NavGraphBuilder.navigationBuilder(
     navController: NavHostController,
     scrollBehavior: TopAppBarScrollBehavior,
-    latestVersionName: String,
     activity: Activity,
     snackbarHostState: SnackbarHostState,
 ) {
@@ -456,7 +454,7 @@ fun NavGraphBuilder.navigationBuilder(
     }
 
     composable("settings") {
-        SettingsScreen(navController, latestVersionName)
+        SettingsScreen(navController)
     }
 
     composable("settings/appearance") {
@@ -528,10 +526,6 @@ fun NavGraphBuilder.navigationBuilder(
 
     composable(route = "settings/integrations/listen_together") {
         ListenTogetherSettings(navController)
-    }
-
-    composable("settings/updater") {
-        UpdaterScreen(navController)
     }
 
     composable("settings/about") {

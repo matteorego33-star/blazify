@@ -159,12 +159,6 @@
     <string name="edit_playlist_cover_note_wait">Po výbere obrázka chvíľu počkajte, kým sa nový obal zobrazí vo vašom zozname skladieb.</string>
     <string name="choose_from_library">Vyberte si z knižnice</string>
     <string name="remove_custom_image">Odstrániť vlastný obrázok</string>
-    <string name="updater">Aktualizátor</string>
-    <string name="check_for_updates">Automaticky kontrolovať aktualizácie</string>
-    <string name="update_notifications">Povoliť upozornenia na aktualizácie</string>
-    <string name="update_available_title">Aktualizácia je k dispozícii</string>
-    <string name="update_channel_name">Aktualizácie aplikácií</string>
-    <string name="update_channel_desc">Upozornenia na nové verzie</string>
     <string name="audio_offload">Povoliť odľahčenie</string>
     <string name="audio_offload_description">Na prehrávanie zvuku použite cestu pre odľahčenie zvuku. Zakázanie tejto funkcie môže zvýšiť spotrebu energie, ale môže byť užitočné, ak máte problémy s prehrávaním zvuku alebo následným spracovaním</string>
     <string name="lyrics_romanize_macedonian">Romanizovať macedónske texty</string>
@@ -180,7 +174,7 @@
     <string name="scrobble_delay_percent">Percentuálne oneskorenie Scrobble</string>
     <string name="scrobble_delay_minutes">Minúty oneskorenia Scrobble</string>
     <string name="last_fm_send_likes">Odoslať označenia Páči sa mi to/Nepáči sa mi to</string>
-    <string name="last_fm_send_likes_description">Piesne, ktoré sa mi páčia/nepáčia, sa mi páčia na Last.fm, keď sa mi páčia/nepáčia na Blazifye</string>
+    <string name="last_fm_send_likes_description">Piesne, ktoré sa mi páčia/nepáčia, sa mi páčia na Last.fm, keď sa mi páčia/nepáčia na Arctic Freshe</string>
     <string name="download_playlist_desc">Stiahnuť všetky skladby na počúvanie offline</string>
     <string name="remove_download_playlist_desc">Odstrániť všetky stiahnuté skladby z tohto playlistu</string>
     <string name="download_in_progress_desc">Prebieha sťahovanie</string>
@@ -251,10 +245,10 @@
     <string name="wrapped_total_artists_subtitle">Jedineční interpreti</string>
     <string name="wrapped_total_songs_title">Vypočuli ste si</string>
     <string name="wrapped_total_songs_subtitle">Jedinečné skladby</string>
-    <string name="wrapped_intro_title">BLAZIFY</string>
+    <string name="wrapped_intro_title">ARCTIC FRESH</string>
     <string name="wrapped_intro_subtitle">Je čas zistiť, čo ste počúvali</string>
     <string name="wrapped_intro_button">poďme!</string>
-    <string name="wrapped_logo_content_description">Blazify Logo</string>
+    <string name="wrapped_logo_content_description">Arctic Fresh Logo</string>
     <string name="wrapped_year">2025</string>
     <string name="wrapped_ready_title">VAŠE WRAPPED JE HOTOVÉ!</string>
     <string name="wrapped_ready_subtitle">Je čas pozrieť sa, čo sa vám tento rok páčilo.</string>
@@ -297,7 +291,7 @@
     <string name="lyrics_romanize_as_main">Zobraziť romanizované lyriky ako hlavné</string>
     <string name="hide_youtube_shorts">Skryť YouTube Shorts</string>
     <string name="wrapped_thank_you">Ďakujeme za vypočutie</string>
-    <string name="wrapped_special_thanks">Špeciálne poďakovanie MO Agamy za vytvorenie Blazifyu</string>
+    <string name="wrapped_special_thanks">Špeciálne poďakovanie MO Agamy za vytvorenie Arctic Freshu</string>
     <string name="wrapped_close">Zatvoriť wrapped</string>
     <string name="wrapped_playlist_title">Vaše %s Wrapped</string>
     <string name="wrapped_create_playlist">Vytvoriť playlist</string>

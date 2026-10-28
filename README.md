@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/assets/logo-tight.png" width="120" alt="Blazify logo: a flame with a play button inside headphones" />
+<img src="docs/assets/logo-tight.png" width="120" alt="Arctic Fresh logo: a flame with a play button inside headphones" />
 
-# Blazify 🎧🔥
+# Arctic Fresh 🎧🔥
 
 **A free, open-source music player and YouTube Music client. No ads of its own, no tracking, no account needed.**
 
@@ -14,7 +14,7 @@
 
 On a phone without Google services (de-Googled, LineageOS, a Huawei), take the
 [latest release](https://github.com/rajendra7169/blazify/releases/latest) and take
-`Blazify.apk` instead of `Blazify-gms.apk`. It is the same app without casting
+`Arctic Fresh.apk` instead of `Arctic Fresh-gms.apk`. It is the same app without casting
 to a television.
 
 **Official website: [rajendra7169.github.io/blazify](https://rajendra7169.github.io/blazify/)** · screenshots, features and downloads for every platform
@@ -22,7 +22,6 @@ to a television.
 [![Release](https://img.shields.io/github/v/release/rajendra7169/blazify?color=FFA726&label=release)](https://github.com/rajendra7169/blazify/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/rajendra7169/blazify/total?color=FFA726&label=downloads)](https://github.com/rajendra7169/blazify/releases)
 [![Website](https://img.shields.io/badge/website-blazify-FFA726)](https://rajendra7169.github.io/blazify/)
-[![WhatsApp](https://img.shields.io/badge/WhatsApp-channel-FFA726?logo=whatsapp&logoColor=1A0E00)](https://whatsapp.com/channel/0029VbDTBZy8F2pEkp0ERZ2Y)
 [![Discussions](https://img.shields.io/badge/discussions-ask%20anything-FFA726?logo=github&logoColor=1A0E00)](https://github.com/rajendra7169/blazify/discussions)
 [![License](https://img.shields.io/badge/license-GPL--3.0-FFA726.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Android%208.0%2B-FFA726)
@@ -34,13 +33,13 @@ to a television.
 
 <div align="center">
 
-<a href="docs/assets/screens/screens-1.png"><img src="docs/assets/screens/screens-1.png" width="412" alt="Blazify Home with For you and Quick picks, Search with recent searches, and word-by-word synced lyrics" /></a> <a href="docs/assets/screens/screens-2.png"><img src="docs/assets/screens/screens-2.png" width="412" alt="Yours with Recently Played and Recommended, the Look and Feel hub with a live preview, and Settings" /></a>
+<a href="docs/assets/screens/screens-1.png"><img src="docs/assets/screens/screens-1.png" width="412" alt="Arctic Fresh Home with For you and Quick picks, Search with recent searches, and word-by-word synced lyrics" /></a> <a href="docs/assets/screens/screens-2.png"><img src="docs/assets/screens/screens-2.png" width="412" alt="Yours with Recently Played and Recommended, the Look and Feel hub with a live preview, and Settings" /></a>
 
 <a href="docs/assets/screens/players-1.png"><img src="docs/assets/screens/players-1.png" width="412" alt="Classic, Ring and Full Art player designs" /></a> <a href="docs/assets/screens/players-2.png"><img src="docs/assets/screens/players-2.png" width="412" alt="Record, Cassette and Video Art player designs" /></a>
 
 <sub>Six player designs, each taking its colours from the song that is playing.<br />Tap any screen to see it full size.</sub>
 
-<a href="https://www.youtube.com/watch?v=Q7ooU5S2Wck"><img src="docs/assets/buttons/watch-youtube.png" width="130" alt="Watch the Blazify video on YouTube" /></a>
+<a href="https://www.youtube.com/watch?v=Q7ooU5S2Wck"><img src="docs/assets/buttons/watch-youtube.png" width="130" alt="Watch the Arctic Fresh video on YouTube" /></a>
 
 </div>
 
@@ -48,7 +47,7 @@ to a television.
 
 ## Overview
 
-**Blazify is a free, open-source YouTube Music client and music player for Android**,
+**Arctic Fresh is a free, open-source YouTube Music client and music player for Android**,
 with versions for iPhone, Windows and Linux. It has no ads of its own, no tracking,
 and needs no account. It is an alternative to Spotify and the official YouTube Music
 app that plays any song you choose rather than shuffling, saves songs for offline
@@ -62,22 +61,22 @@ own YouTube Music library and playlists.
 Available for **Android, Windows, Linux and iPhone**. Built with Kotlin and
 Jetpack Compose, gapless through Media3/ExoPlayer.
 
-**Looking for something like it?** Blazify fits if you want a Spotify alternative,
+**Looking for something like it?** Arctic Fresh fits if you want a Spotify alternative,
 a YouTube Music alternative for Android, an open-source music streaming app, or a free
 music player with synced lyrics and an equalizer. If you used ViMusic, it will feel
-familiar, and if you used InnerTune or Metrolist, Blazify grew from them (see
+familiar, and if you used InnerTune or Metrolist, Arctic Fresh grew from them (see
 [Thank you](#thank-you-)).
 
 ---
 
-## Blazify everywhere else
+## Arctic Fresh everywhere else
 
 The same player, built natively for each platform. The buttons at the top of
 this page download any of them. These are the repos:
 
-**Android:** [rajendra7169/blazify](https://github.com/rajendra7169/blazify) *(you are here)*<br>
-**Windows & Linux:** [rajendra7169/blazify-desktop](https://github.com/rajendra7169/blazify-desktop)<br>
-**iPhone:** [rajendra7169/blazify-ios](https://github.com/rajendra7169/blazify-ios)
+**Android:** [Arctic Fresh](https://github.com/rajendra7169/blazify) *(you are here)*<br>
+**Windows & Linux:** [Arctic Fresh desktop](https://github.com/rajendra7169/blazify-desktop)<br>
+**iPhone:** [Arctic Fresh for iPhone](https://github.com/rajendra7169/blazify-ios)
 
 Screenshots, install guides and everything else: **[blazify website](https://rajendra7169.github.io/blazify/)**
 
@@ -138,7 +137,6 @@ Screenshots, install guides and everything else: **[blazify website](https://raj
 - **Android Auto**: Full in-car playback
 - **Widgets**: Home-screen controls
 - **Backup & restore**: Your whole library in one file: songs, playlists, history, sign-in
-- **In-app updates**: Tells you when a new version is out, downloads it, and installs it. Want new things early? Turn on beta updates
 
 ---
 
@@ -150,30 +148,14 @@ What is planned, what has been asked for, and what is deliberately not being don
 
 ## Install
 
-Open the **[latest release](https://github.com/rajendra7169/blazify/releases/latest)** and take `Blazify-gms.apk`, the everyday build, with casting to a television included.
-On a phone with no Google services, take `Blazify.apk` from that same release instead.
+Open the **[latest release](https://github.com/rajendra7169/blazify/releases/latest)** and download the GMS APK for casting to a television.
+On a phone with no Google services, download the FOSS APK from the same release instead.
 Every build lives on the **[Releases](https://github.com/rajendra7169/blazify/releases/latest)** page.
 
 Requires **Android 8.0 (API 26)** or newer. New install? Just open the APK, nothing else to do.
 It runs on ARM phones and tablets, and on Intel and AMD devices too, such as Waydroid and Android emulators.
 
-### Automatic updates with Obtainium
-
-[Obtainium](https://github.com/ImranR98/Obtainium) watches this repository and
-installs each new release for you.
-
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.blazify.music%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Frajendra7169%2Fblazify%22%2C%22author%22%3A%22rajendra7169%22%2C%22name%22%3A%22Blazify%22%7D"><img src="https://github.com/ImranR98/Obtainium/blob/main/assets/graphics/badge_obtainium.png?raw=true" alt="Get it on Obtainium" height="48"></a>
-
-Tap that on your phone, or add `https://github.com/rajendra7169/blazify` in
-Obtainium by hand. Blazify updates itself too; this is for people who prefer
-one app managing everything they sideload.
-
-### Also on app stores
-
-GitHub Releases above is the official source and always has the newest
-version first. The same app is also listed here:
-
-<a href="https://apkpure.com/blazify/com.blazify.music"><img src="docs/assets/buttons/store-apkpure.png" width="130" alt="Get it on APKPure" /></a> <a href="https://appteka.store/app/b16r317210"><img src="docs/assets/buttons/store-appteka.png" width="130" alt="Get it on Appteka" /></a> <a href="https://blazify.apk.com/"><img src="docs/assets/buttons/store-apkcom.png" width="130" alt="Also at blazify.apk.com" /></a>
+Updates are installed manually: download the APK from the [latest release](https://github.com/rajendra7169/blazify/releases/latest) and open it on your device.
 
 ---
 
@@ -187,7 +169,7 @@ steps here: **[MIGRATION.md](MIGRATION.md)**.
 
 ## Thank you 🙏
 
-Blazify stands on the foundation of remarkable open-source projects and the talented people behind them.
+Arctic Fresh stands on the foundation of remarkable open-source projects and the talented people behind them.
 Their contributions inspire us to build with the same spirit of collaboration, innovation, and openness.
 
 **Main inspirations**
@@ -201,7 +183,7 @@ Their contributions inspire us to build with the same spirit of collaboration, i
 ## Libraries & Integrations
 
 <details>
-<summary><b>Projects Blazify builds on</b></summary>
+<summary><b>Projects Arctic Fresh builds on</b></summary>
 
 | Project | Contribution |
 |---|---|
@@ -233,20 +215,6 @@ Their contributions inspire us to build with the same spirit of collaboration, i
 
 ---
 
-## Community
-
-**[Join the Blazify channel on WhatsApp](https://whatsapp.com/channel/0029VbDTBZy8F2pEkp0ERZ2Y)**.
-Every release is announced there first, with the download link. It is one-way,
-so there is no group chat to mute, and nobody's phone number is shown to anyone.
-
-<div align="center">
-
-<img src="docs/assets/whatsapp-channel-qr.png" width="200" alt="QR code to follow the Blazify channel on WhatsApp" />
-
-**Scan to follow the channel**
-
-</div>
-
 **[Discussions](https://github.com/rajendra7169/blazify/discussions)**: ask how
 something works, or say what you would like built next. Local music support, the
 tag editor and folder browsing were all added because someone asked for them.
@@ -272,25 +240,6 @@ this project belong to their respective owners.
 
 ---
 
-## Support ☕
-
-<details>
-<summary><b>Buy me a coffee</b></summary>
-
-If Blazify made your day a little better, you can buy me a coffee.
-
-<div align="center">
-
-<img src="docs/assets/coffee-qr.png" width="200" alt="QR code to support Blazify" />
-
-**Scan to support Blazify**
-
-</div>
-
-</details>
-
----
-
 ## License
 
 Released under the **[GNU General Public License v3.0](LICENSE)**. See [NOTICE](NOTICE).
@@ -299,9 +248,3 @@ If you distribute this app or a build of it, GPL-3.0 asks you to pass on the
 same freedoms: keep the licence, keep the notices, and make the source available.
 
 ---
-
-<div align="center">
-
-Made with ❤️ by **Rajendra Pandey**
-
-</div>

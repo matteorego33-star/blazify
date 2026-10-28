@@ -6,7 +6,6 @@
 
 package com.blazify.music.ui.screens.settings
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,8 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,7 +45,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Brush
@@ -64,10 +60,8 @@ import com.blazify.music.ui.theme.BlazeGradientEnd
 import com.blazify.music.ui.theme.BlazeThemeColor
 import com.blazify.innertube.YouTube
 import com.blazify.innertube.utils.parseCookieString
-import com.blazify.music.BuildConfig
 import com.blazify.music.R
 import com.blazify.music.constants.AccountChannelHandleKey
-import com.blazify.music.constants.BetaUpdatesKey
 import com.blazify.music.constants.AccountEmailKey
 import com.blazify.music.constants.AccountNameKey
 import com.blazify.music.constants.DataSyncIdKey
@@ -75,15 +69,12 @@ import com.blazify.music.constants.InnerTubeCookieKey
 import com.blazify.music.constants.UseLoginForBrowse
 import com.blazify.music.constants.VisitorDataKey
 import com.blazify.music.constants.YtmSyncKey
-import com.blazify.music.ui.component.DefaultDialog
 import com.blazify.music.ui.component.InfoLabel
+import com.blazify.music.ui.component.DefaultDialog
 import com.blazify.music.ui.component.Material3SettingsGroup
 import com.blazify.music.ui.component.Material3SettingsItem
 import com.blazify.music.ui.component.PreferenceEntry
 import com.blazify.music.ui.component.TextFieldDialog
-import com.blazify.music.ui.component.UpdateDialog
-import com.blazify.music.utils.ReleaseInfo
-import com.blazify.music.utils.Updater
 import com.blazify.music.utils.rememberPreference
 import com.blazify.music.viewmodels.AccountSettingsViewModel
 import com.blazify.music.viewmodels.HomeViewModel
@@ -92,34 +83,9 @@ import com.blazify.music.viewmodels.HomeViewModel
 fun AccountSettings(
     navController: NavController,
     onClose: () -> Unit,
-    latestVersionName: String,
     showSettings: Boolean = true,
 ) {
     val context = LocalContext.current
-    val (betaUpdates) = rememberPreference(BetaUpdatesKey, false)
-    var showDeveloperDialog by remember { mutableStateOf(false) }
-    // The app checks on launch, so by the time anybody opens this the answer is
-    // usually already known. Starting at Idle asked them to press for something
-    // that had been found minutes ago.
-    var updateState by remember {
-        mutableStateOf<UpdateCheck>(
-            Updater
-                .getCachedLatestRelease()
-                ?.takeIf {
-                    BuildConfig.UPDATER_AVAILABLE &&
-                        Updater.isUpdateAvailable(BuildConfig.VERSION_NAME, it.versionName) &&
-                        Updater.getDownloadUrlForCurrentVariant(it) != null
-                }?.let { UpdateCheck.Available(it) }
-                ?: UpdateCheck.Idle,
-        )
-    }
-    // The download runs in the app, in a dialog, the same one settings and the
-    // launch offer use. It used to hand the file to a browser.
-    var updateRelease by remember { mutableStateOf<ReleaseInfo?>(null) }
-    val repoUrl = stringResource(R.string.blazify_repo_url)
-    val websiteUrl = stringResource(R.string.developer_website_url)
-    val devGithubUrl = stringResource(R.string.developer_github_url)
-    val uriHandler = LocalUriHandler.current
 
     val (accountNamePref, onAccountNameChange) = rememberPreference(AccountNameKey, "")
     val (accountEmail, onAccountEmailChange) = rememberPreference(AccountEmailKey, "")
@@ -440,77 +406,10 @@ fun AccountSettings(
 
             Spacer(Modifier.height(4.dp))
 
-            // Integrations lives in settings and is set up once; checking for a
-            // new version is the thing people come back to. The izzy build has
-            // no updater at all, so there it simply is not offered.
-            if (BuildConfig.UPDATER_AVAILABLE) {
-                // Asked and answered in place. Sending someone to a screen whose
-                // only content is the same question, to press it again, is two
-                // taps and a page for one line of text.
-                PreferenceEntry(
-                    title = { Text(stringResource(R.string.check_for_updates_title)) },
-                    description =
-                        when (val state = updateState) {
-                            UpdateCheck.Running -> stringResource(R.string.update_check_running)
-                            UpdateCheck.Latest -> stringResource(R.string.update_check_latest)
-                            UpdateCheck.Failed -> stringResource(R.string.update_check_failed)
-                            is UpdateCheck.Available ->
-                                stringResource(R.string.update_check_available, state.release.versionName)
-                            UpdateCheck.Idle -> stringResource(R.string.update_check_idle)
-                        },
-                    icon = {
-                        BadgedBox(
-                            badge = { if (updateState is UpdateCheck.Available) Badge() },
-                        ) {
-                            Icon(painterResource(R.drawable.update), null)
-                        }
-                    },
-                    onClick = {
-                        val ready = updateState as? UpdateCheck.Available
-                        if (ready != null) {
-                            updateRelease = ready.release
-                            return@PreferenceEntry
-                        }
-                        if (updateState == UpdateCheck.Running) return@PreferenceEntry
-                        updateState = UpdateCheck.Running
-                        scope.launch {
-                            val result = Updater.checkForUpdate(forceRefresh = true, includeBetas = betaUpdates)
-                            updateState =
-                                result.fold(
-                                    onSuccess = { (release, isNewer) ->
-                                        val url = release?.let(Updater::getDownloadUrlForCurrentVariant)
-                                        if (isNewer && release != null && url != null) {
-                                            UpdateCheck.Available(release)
-                                        } else {
-                                            UpdateCheck.Latest
-                                        }
-                                    },
-                                    onFailure = { UpdateCheck.Failed },
-                                )
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                )
-
-                Spacer(Modifier.height(4.dp))
-            }
-
             if (showSettings) {
                 PreferenceEntry(
                     title = { Text(stringResource(R.string.settings)) },
-                    icon = {
-                        BadgedBox(
-                            badge = {
-                                if (BuildConfig.UPDATER_AVAILABLE && latestVersionName != BuildConfig.VERSION_NAME) {
-                                    Badge()
-                                }
-                            }
-                        ) {
-                            Icon(painterResource(R.drawable.settings), contentDescription = null)
-                        }
-                    },
+                    icon = { Icon(painterResource(R.drawable.settings), contentDescription = null) },
                     onClick = {
                         onClose()
                         navController.navigate("settings")
@@ -523,153 +422,7 @@ fun AccountSettings(
                 Spacer(Modifier.height(4.dp))
             }
 
-            // A second row saying the same thing, one line below the row that
-            // already says it, used to live here. It opened a browser.
         }
 
-        updateRelease?.let { release ->
-            UpdateDialog(release = release, onDismiss = { updateRelease = null })
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        Text(
-            text = stringResource(R.string.developer_heading),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                .clickable { showDeveloperDialog = true }
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-        ) {
-            Image(
-                painter = painterResource(R.drawable.developer_photo),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape),
-            )
-
-            Spacer(Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.developer_name),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = stringResource(R.string.developer_role_short),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-
-            Spacer(Modifier.width(8.dp))
-
-            OutlinedButton(
-                onClick = { uriHandler.openUri(repoUrl) },
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                ),
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.github),
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = stringResource(R.string.developer_star),
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1,
-                )
-            }
-        }
-
-        Spacer(Modifier.height(8.dp))
     }
-
-    if (showDeveloperDialog) {
-        DefaultDialog(onDismiss = { showDeveloperDialog = false }) {
-            Image(
-                painter = painterResource(R.drawable.developer_photo),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(96.dp)
-                    .clip(CircleShape),
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            Text(
-                text = stringResource(R.string.developer_name),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
-            Spacer(Modifier.height(2.dp))
-
-            Text(
-                text = stringResource(R.string.developer_role),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            Spacer(Modifier.height(14.dp))
-
-            Text(
-                text = stringResource(R.string.developer_bio),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 20.dp),
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                TextButton(onClick = { uriHandler.openUri(websiteUrl) }) {
-                    Text(stringResource(R.string.developer_website))
-                }
-                Spacer(Modifier.width(8.dp))
-                TextButton(onClick = { uriHandler.openUri(devGithubUrl) }) {
-                    Text(stringResource(R.string.developer_github))
-                }
-            }
-
-            Spacer(Modifier.height(8.dp))
-        }
-    }
-}
-
-/** What the update row has to say, without leaving the sheet to say it. */
-private sealed interface UpdateCheck {
-    data object Idle : UpdateCheck
-
-    data object Running : UpdateCheck
-
-    data object Latest : UpdateCheck
-
-    data object Failed : UpdateCheck
-
-    data class Available(val release: ReleaseInfo) : UpdateCheck
 }

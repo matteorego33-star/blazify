@@ -167,8 +167,8 @@ Output MUST be a JSON array with EXACTLY $lineCount strings."""
                                     addHeader("Authorization", "Bearer ${apiKey.trim()}")
                                 }
                             }.addHeader("Content-Type", "application/json")
-                            .addHeader("HTTP-Referer", "https://github.com/BlazifyGroup/Blazify")
-                            .addHeader("X-Title", "Blazify")
+                            .addHeader("HTTP-Referer", "https://github.com/rajendra7169/blazify")
+                            .addHeader("X-Title", "Arctic Fresh")
                             .post(jsonBody.toString().toRequestBody(JSON))
                             .build()
 

@@ -1,7 +1,7 @@
-# 🔥 Blazify Roadmap
+# 🔥 Arctic Fresh Roadmap
 
 What's coming next, what's being considered, and how you can decide what gets
-built. Blazify is shaped by the people who use it, so your votes and ideas
+built. Arctic Fresh is shaped by the people who use it, so your votes and ideas
 really do change the order.
 
 ---
@@ -15,8 +15,6 @@ really do change the order.
 - **Suggest.** Something missing? Open a
   [feature request](https://github.com/rajendra7169/blazify/issues/new?template=feature_request.yml)
   or a [UI/UX suggestion](https://github.com/rajendra7169/blazify/issues/new?template=ui_ux_suggestion.yml).
-- **Try betas.** Switch on **Get beta updates** in **Settings › Updater** to get
-  new versions before everyone else, and tell us what breaks.
 - **Report.** Found something broken? A
   [bug report](https://github.com/rajendra7169/blazify/issues/new?template=bug_report.yml)
   takes a minute, and only one box is required.
@@ -25,15 +23,14 @@ really do change the order.
 
 ## 🚧 Coming in the next release
 
-Nothing waiting yet — 9.16.0 has just gone out. Vote on what comes next in
+Nothing waiting yet — 9.17.0 is current. Vote on what comes next in
 [Ideas](https://github.com/rajendra7169/blazify/discussions/categories/ideas).
 
 ---
 
 ## 🎉 New in 9.16.0
 
-Out now: [download it](https://github.com/rajendra7169/blazify/releases/latest),
-or update from **Settings › Updater**.
+Out now: [download it](https://github.com/rajendra7169/blazify/releases/latest).
 
 **The song, seen and heard**
 - **Video Art player** — the song's own official video plays behind the player,
@@ -46,7 +43,7 @@ or update from **Settings › Updater**.
   telling the server what you are playing.
 
 **Bringing music in, and passing it on**
-- **Import playlists from Spotify** — paste a playlist or album link and Blazify
+- **Import playlists from Spotify** — paste a playlist or album link and Arctic Fresh
   looks each song up and builds the playlist here, telling you what it could not find.
 - **Share a playlist** as a link or a QR code. The songs travel in the link itself,
   so no website ever sees them, and opening one offers to keep it.
@@ -58,7 +55,6 @@ or update from **Settings › Updater**.
 - **Jump to the playing song** in a long playlist, album or library list.
 - **Play a song a set number of times** before the queue carries on.
 - **Block an artist** and they stay out of Home, search, picks and radio.
-- Updates download in the app now, with a progress bar, instead of in a browser.
 
 **Everywhere else**
 - **Sideways screens and tablets** — the player designs, the theme gallery and
@@ -74,11 +70,10 @@ or update from **Settings › Updater**.
 
 ## 🎉 New in 9.14.0
 
-Out now: [download it](https://github.com/rajendra7169/blazify/releases/latest),
-or update from **Settings › Updater**.
+Out now: [download it](https://github.com/rajendra7169/blazify/releases/latest).
 
 **Playback you can count on**
-- Songs start faster and fail less often. Blazify keeps its own up-to-date copy
+- Songs start faster and fail less often. Arctic Fresh keeps its own up-to-date copy
   of what YouTube's player needs, fetches a fresh link when a stream expires,
   and moves on from a song that loads but never plays.
 - Where you were is saved every few seconds, and shuffle stays on after the app is closed.
@@ -137,7 +132,7 @@ Not decided yet. Enough votes move an idea up to Planned.
 | Idea | What it means | |
 | --- | --- | --- |
 | **Animated album art and a music video switch** | Moving artwork in the player, and the video for songs that have one | [Vote](https://github.com/rajendra7169/blazify/discussions/8) |
-| **Android TV layout** | Big-screen, remote-friendly Blazify | [Vote](https://github.com/rajendra7169/blazify/discussions/7) |
+| **Android TV layout** | Big-screen, remote-friendly Arctic Fresh | [Vote](https://github.com/rajendra7169/blazify/discussions/7) |
 | **Your own music server** | Play from Jellyfin, Navidrome or any Subsonic server | [Vote](https://github.com/rajendra7169/blazify/discussions/6) |
 
 ---
@@ -156,7 +151,7 @@ badly can be corrected from inside the app.
 
 ### Windows installer in desktop 1.0.5
 
-Blazify for Windows now comes as a normal installer, published with the Linux
+Arctic Fresh for Windows now comes as a normal installer, published with the Linux
 builds on the [desktop releases page](https://github.com/rajendra7169/blazify-desktop/releases/latest).
 
 ### First iPhone builds, 0.1.0 and 0.2.0
@@ -169,7 +164,7 @@ is out as an IPA to sideload. It is still early.
 ## Also in progress
 
 - **F-Droid listing.** Submitted and in review; the reproducible-build check
-  passes. The `izzy` build variant exists for it: no updater, and no permission
+  passes. The `izzy` build variant exists for it with the same core features.
   to install packages. (An earlier IzzyOnDroid request was declined.)
 
 ---

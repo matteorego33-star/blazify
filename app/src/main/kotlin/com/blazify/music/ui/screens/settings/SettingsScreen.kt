@@ -33,7 +33,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -67,7 +66,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.navigation.NavController
-import com.blazify.music.BuildConfig
 import com.blazify.music.LocalChangelogState
 import com.blazify.music.LocalPlayerAwareWindowInsets
 import com.blazify.music.R
@@ -78,8 +76,6 @@ import com.blazify.music.constants.InnerTubeCookieKey
 import com.blazify.music.constants.PureBlackKey
 import com.blazify.music.constants.PureBlackMiniPlayerKey
 import com.blazify.music.ui.component.IconButton
-import com.blazify.music.ui.component.ReleaseNotesCard
-import com.blazify.music.utils.Updater
 import com.blazify.music.ui.utils.backToMain
 import com.blazify.music.utils.rememberEnumPreference
 import com.blazify.music.utils.rememberPreference
@@ -95,7 +91,6 @@ private class SettingRow(
     val icon: Int,
     val title: String,
     val subtitle: String,
-    val badge: Boolean = false,
     val onClick: () -> Unit,
 )
 
@@ -103,7 +98,6 @@ private class SettingRow(
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    latestVersionName: String,
 ) {
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
@@ -118,12 +112,6 @@ fun SettingsScreen(
     }
     val showChangelog = LocalChangelogState.current
     var showBugReport by remember { mutableStateOf(false) }
-    // Newer, not merely different. An inequality also fires when this build is
-    // ahead of the last published one — which is every development build, and
-    // was every build at all while the version being compared was the release
-    // headline rather than a version. The badge was permanently on.
-    val hasUpdate = BuildConfig.UPDATER_AVAILABLE &&
-        Updater.isUpdateAvailable(BuildConfig.VERSION_NAME, latestVersionName)
     var query by rememberSaveable { mutableStateOf("") }
 
     // Profile + quick-toggle state for the landing header. The name and picture come
@@ -192,7 +180,7 @@ fun SettingsScreen(
             },
         ),
         stringResource(R.string.settings_group_about) to buildList {
-            add(SettingRow(R.drawable.info, stringResource(R.string.about), stringResource(R.string.hint_about), badge = hasUpdate) {
+            add(SettingRow(R.drawable.info, stringResource(R.string.about), stringResource(R.string.hint_about)) {
                 navController.navigate("settings/about")
             })
             add(SettingRow(R.drawable.newspaper, stringResource(R.string.changelog), stringResource(R.string.hint_changelog)) {
@@ -201,11 +189,6 @@ fun SettingsScreen(
             add(SettingRow(R.drawable.bug_report, stringResource(R.string.report_problem), stringResource(R.string.hint_report_problem)) {
                 showBugReport = true
             })
-            if (BuildConfig.UPDATER_AVAILABLE) {
-                add(SettingRow(R.drawable.update, stringResource(R.string.updater), stringResource(R.string.hint_updater)) {
-                    navController.navigate("settings/updater")
-                })
-            }
             if (isAndroid12OrLater) {
                 add(SettingRow(R.drawable.link, stringResource(R.string.default_links), stringResource(R.string.hint_links)) {
                     openDefaultLinksSettings(context)
@@ -285,11 +268,6 @@ fun SettingsScreen(
             }
         }
 
-        if (hasUpdate) {
-            Spacer(Modifier.height(18.dp))
-            ReleaseNotesCard()
-        }
-
         Spacer(Modifier.height(24.dp))
     }
 
@@ -310,12 +288,6 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(18.dp))
-                    // Email first: it is the only one of the three that asks
-                    // nothing of somebody who just wants to say it is broken.
-                    ReportChoice(stringResource(R.string.report_problem_email)) {
-                        showBugReport = false
-                        BugReport.email(context)
-                    }
                     ReportChoice(stringResource(R.string.report_problem_open)) {
                         showBugReport = false
                         uriHandler.openUri(BugReport.issueUrl())
@@ -394,10 +366,6 @@ private fun BlazeSettingRow(row: SettingRow, colorIndex: Int) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (row.badge) {
-                    Spacer(Modifier.width(8.dp))
-                    Badge()
-                }
             }
             Text(
                 text = row.subtitle,

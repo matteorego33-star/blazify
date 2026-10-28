@@ -12,6 +12,13 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import timber.log.Timber
 
+data class ReleaseInfo(
+    val tagName: String,
+    val versionName: String,
+    val description: String,
+    val releaseDate: String,
+)
+
 /**
  * The release notes for this build, carried inside it.
  *
@@ -22,9 +29,7 @@ import timber.log.Timber
  * explanation, and it fails in exactly the situation where reading what changed
  * matters most: a build somebody has just been handed and is not sure about.
  *
- * What shipped is known at the moment it ships, so it travels with it. The site
- * is still asked, and anything it returns that is not already here is added —
- * it just is no longer the only source.
+ * What shipped is known at the moment it ships, so it travels with it.
  */
 object BundledChangelog {
 
@@ -50,9 +55,8 @@ object BundledChangelog {
                     versionName = it.versionName,
                     description = it.description,
                     releaseDate = it.releaseDate,
-                    assets = emptyList(),
                 )
-            }.sortedWith { a, b -> Updater.compareVersions(b.tagName, a.tagName) }
+            }
         }.onFailure {
             Timber.tag("BundledChangelog").w(it, "Could not read the bundled release notes")
         }.getOrDefault(emptyList())

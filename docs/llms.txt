@@ -1,15 +1,12 @@
-# Blazify
+# Arctic Fresh
 
 > A free, open-source music player for Android, Windows, Linux and iPhone.
 > Streams millions of songs, plays them offline, and shows word-by-word synced
 > lyrics. No advertising, no tracking, no account required, no paid tier.
 
-Blazify is made by Rajendra Pandey in Kathmandu, Nepal, and licensed under
-GPL-3.0. Its official website is https://rajendra7169.github.io/blazify/ and its
-source is at https://github.com/rajendra7169/blazify
-
-Not to be confused with blazify.org, an unrelated marketing company, or with
-Blaze Player, an unrelated application.
+Arctic Fresh is licensed under GPL-3.0. Its official website is
+https://rajendra7169.github.io/blazify/ and its source is at
+https://github.com/rajendra7169/blazify
 
 ## What it is
 
@@ -35,7 +32,6 @@ off.
 - "Don't play this song" hides a song from queues, radio and recommendations
 - Double-tap to seek on every player design; each podcast keeps its own speed
 - Mobile data controls and Wi-Fi-only downloads
-- Opt-in beta updates for people who want new versions early
 
 ## Privacy
 
@@ -52,6 +48,7 @@ signed out.
 - iPhone: https://github.com/rajendra7169/blazify-ios/releases/latest (sideloaded IPA)
 - Not on the Google Play Store, because apps that stream audio from YouTube are
   removed from it. Installed by sideloading the APK.
+- Updates are installed manually from the latest release.
 
 ## Links
 

@@ -12,7 +12,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ForegroundServiceStartNotAllowedException
-import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
@@ -64,8 +63,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -119,8 +116,6 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.util.Consumer
@@ -149,8 +144,6 @@ import com.blazify.innertube.models.SongItem
 import com.blazify.innertube.models.WatchEndpoint
 import com.blazify.music.constants.AppBarHeight
 import com.blazify.music.constants.AppLanguageKey
-import com.blazify.music.constants.BetaUpdatesKey
-import com.blazify.music.constants.CheckForUpdatesKey
 import com.blazify.music.constants.DarkModeKey
 import com.blazify.music.constants.DefaultOpenTabKey
 import com.blazify.music.constants.DisableScreenshotKey
@@ -159,7 +152,6 @@ import com.blazify.music.constants.EnableHighRefreshRateKey
 import com.blazify.music.constants.EnableLandscapeScalingKey
 import androidx.datastore.preferences.core.edit
 import com.blazify.music.constants.LastSeenVersionKey
-import com.blazify.music.constants.UpdateDeclinedVersionKey
 import com.blazify.music.constants.ListenTogetherInTopBarKey
 import com.blazify.music.constants.ListenTogetherUsernameKey
 import com.blazify.music.constants.LyricsProviderOrderKey
@@ -178,7 +170,6 @@ import com.blazify.music.constants.SimpMusicMigrationDoneKey
 import com.blazify.music.constants.SlimNavBarHeight
 import com.blazify.music.constants.SlimNavBarKey
 import com.blazify.music.constants.StopMusicOnTaskClearKey
-import com.blazify.music.constants.UpdateNotificationsEnabledKey
 import com.blazify.music.constants.UseNewMiniPlayerDesignKey
 import com.blazify.music.db.MusicDatabase
 import com.blazify.music.db.entities.SearchHistory
@@ -211,7 +202,6 @@ import com.blazify.music.ui.menu.YouTubeSongMenu
 import com.blazify.music.ui.player.BottomSheetPlayer
 import com.blazify.music.ui.screens.Screens
 import com.blazify.music.ui.screens.navigationBuilder
-import com.blazify.music.ui.component.UpdateDialog
 import com.blazify.music.ui.screens.settings.ChangelogScreen
 import com.blazify.music.ui.screens.settings.DarkMode
 import com.blazify.music.ui.screens.settings.NavigationTab
@@ -228,9 +218,7 @@ import com.blazify.music.ui.utils.appBarScrollBehavior
 import com.blazify.music.ui.utils.resetHeightOffset
 import com.blazify.music.utils.SearchRoutes
 import com.blazify.music.utils.SyncUtils
-import com.blazify.music.utils.ReleaseInfo
 import androidx.activity.result.contract.ActivityResultContracts
-import com.blazify.music.utils.Updater
 import com.blazify.music.utils.dataStore
 import com.blazify.music.utils.safeDataStoreEdit
 import com.blazify.music.utils.settingsSnapshot
@@ -289,7 +277,6 @@ class MainActivity : ComponentActivity() {
 
     /** A playlist somebody shared, waiting to be kept or turned down. */
     private var sharedPlaylist by mutableStateOf<PlaylistLink.Shared?>(null)
-    private var latestVersionName by mutableStateOf(BuildConfig.VERSION_NAME)
 
     // Keep PlayerConnection as regular property - NOT mutableStateOf to prevent UI recomposition
     // when it becomes null during onStop. Only update the snapshot for Compose when needed.
@@ -526,8 +513,6 @@ class MainActivity : ComponentActivity() {
             // No splash of our own: Android's launch screen (the logo on black)
             // covers the real loading, and the app opens straight onto Home.
             BlazifyApp(
-                latestVersionName = latestVersionName,
-                onLatestVersionNameChange = { latestVersionName = it },
                 playerConnection = playerConnectionSnapshot,
                 database = database,
                 downloadUtil = downloadUtil,
@@ -552,79 +537,11 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun BlazifyApp(
-        latestVersionName: String,
-        onLatestVersionNameChange: (String) -> Unit,
         playerConnection: PlayerConnection?,
         database: MusicDatabase,
         downloadUtil: DownloadUtil,
         syncUtils: SyncUtils,
     ) {
-        val checkForUpdates by rememberPreference(CheckForUpdatesKey, defaultValue = true)
-
-        // The release being offered in the app, if any. Declared here because the
-        // check below is what fills it in.
-        val offeredRelease = remember { mutableStateOf<ReleaseInfo?>(null) }
-
-        if (BuildConfig.UPDATER_AVAILABLE) {
-            LaunchedEffect(checkForUpdates) {
-                if (checkForUpdates) {
-                    withContext(Dispatchers.IO) {
-                        val updatesEnabled = dataStore.get(CheckForUpdatesKey, true)
-                        val notifEnabled = dataStore.get(UpdateNotificationsEnabledKey, true)
-                        if (!updatesEnabled) return@withContext
-
-                        Updater.checkForUpdate(
-                            includeBetas = dataStore.get(BetaUpdatesKey, false),
-                        ).onSuccess { (releaseInfo, hasUpdate) ->
-                            if (releaseInfo != null) {
-                                onLatestVersionNameChange(releaseInfo.versionName)
-                                // Offer it in the app, once. A notification can be
-                                // swiped away before it is read, and on a device
-                                // that never granted notifications it is never seen
-                                // at all — but somebody who has just opened the app
-                                // is, by definition, looking at it.
-                                if (hasUpdate &&
-                                    dataStore.get(UpdateDeclinedVersionKey, "") != releaseInfo.tagName
-                                ) {
-                                    offeredRelease.value = releaseInfo
-                                }
-                                if (hasUpdate && notifEnabled) {
-                                    val downloadUrl = Updater.getDownloadUrlForCurrentVariant(releaseInfo)
-                                    if (downloadUrl != null) {
-                                        val intent = Intent(Intent.ACTION_VIEW, downloadUrl.toUri())
-
-                                        val flags =
-                                            PendingIntent.FLAG_UPDATE_CURRENT or
-                                                (PendingIntent.FLAG_IMMUTABLE)
-                                        val pending = PendingIntent.getActivity(this@MainActivity, 1001, intent, flags)
-
-                                        val notif =
-                                            NotificationCompat
-                                                .Builder(this@MainActivity, "updates")
-                                                .setSmallIcon(R.drawable.update)
-                                                .setContentTitle(getString(R.string.update_available_title))
-                                                .setContentText(releaseInfo.versionName)
-                                                .setContentIntent(pending)
-                                                .setAutoCancel(true)
-                                                .build()
-
-                                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-                                            ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) ==
-                                            PackageManager.PERMISSION_GRANTED
-                                        ) {
-                                            NotificationManagerCompat.from(this@MainActivity).notify(1001, notif)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    onLatestVersionNameChange(BuildConfig.VERSION_NAME)
-                }
-            }
-        }
-
         val enableDynamicTheme by rememberPreference(DynamicThemeKey, defaultValue = true)
         val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
 
@@ -1222,19 +1139,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    offeredRelease.value?.let { release ->
-                        val scope = rememberCoroutineScope()
-                        UpdateDialog(
-                            release = release,
-                            onDismiss = {
-                                offeredRelease.value = null
-                                scope.launch {
-                                    dataStore.edit { it[UpdateDeclinedVersionKey] = release.tagName }
-                                }
-                            },
-                        )
-                    }
-
                     Scaffold(
                         snackbarHost = { BlazeSnackbarHost(snackbarHostState) },
                         topBar = {
@@ -1299,37 +1203,31 @@ class MainActivity : ComponentActivity() {
                                                 TextButton(
                                                     onClick = { navController.navigate("listen_together_from_topbar") },
                                                 ) {
-                                                    Image(
-                                                        painter = painterResource(R.drawable.blaze_logo),
+                                                    Icon(
+                                                        painter = painterResource(R.drawable.group_outlined),
                                                         contentDescription = null,
                                                         modifier = Modifier.size(20.dp),
                                                     )
                                                     Spacer(Modifier.width(6.dp))
-                                                    Text(stringResource(R.string.blaze_together))
+                                                    Text(stringResource(R.string.together))
                                                 }
                                             }
                                             IconButton(onClick = { showAccountDialog = true }) {
-                                                BadgedBox(badge = {
-                                                    if (latestVersionName != BuildConfig.VERSION_NAME) {
-                                                        Badge()
-                                                    }
-                                                }) {
-                                                    if (accountImageUrl != null) {
-                                                        AsyncImage(
-                                                            model = accountImageUrl,
-                                                            contentDescription = stringResource(R.string.account),
-                                                            modifier =
-                                                                Modifier
-                                                                    .size(24.dp)
-                                                                    .clip(CircleShape),
-                                                        )
-                                                    } else {
-                                                        Icon(
-                                                            painter = painterResource(R.drawable.account),
-                                                            contentDescription = stringResource(R.string.account),
-                                                            modifier = Modifier.size(24.dp),
-                                                        )
-                                                    }
+                                                if (accountImageUrl != null) {
+                                                    AsyncImage(
+                                                        model = accountImageUrl,
+                                                        contentDescription = stringResource(R.string.account),
+                                                        modifier =
+                                                            Modifier
+                                                                .size(24.dp)
+                                                                .clip(CircleShape),
+                                                    )
+                                                } else {
+                                                    Icon(
+                                                        painter = painterResource(R.drawable.account),
+                                                        contentDescription = stringResource(R.string.account),
+                                                        modifier = Modifier.size(24.dp),
+                                                    )
                                                 }
                                             }
                                         },
@@ -1623,7 +1521,6 @@ class MainActivity : ComponentActivity() {
                                     navigationBuilder(
                                         navController = navController,
                                         scrollBehavior = topAppBarScrollBehavior,
-                                        latestVersionName = latestVersionName,
                                         activity = this@MainActivity,
                                         snackbarHostState = snackbarHostState,
                                     )
@@ -1658,7 +1555,6 @@ class MainActivity : ComponentActivity() {
                                 showAccountDialog = false
                                 homeViewModel.refresh()
                             },
-                            latestVersionName = latestVersionName,
                         )
                     }
 

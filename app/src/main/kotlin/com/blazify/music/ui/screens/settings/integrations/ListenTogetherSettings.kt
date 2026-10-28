@@ -675,7 +675,7 @@ private fun ServerChooserDialog(
                                 fontWeight = FontWeight.SemiBold,
                             )
                             Text(
-                                text = "${server.location} - ${server.operator}",
+                                text = listOfNotNull(server.location, server.operator).joinToString(" - "),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )

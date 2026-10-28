@@ -121,7 +121,7 @@ fun BlazeHomeHeader(
     val iconTint = MaterialTheme.colorScheme.primary
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Header row: account | logo + "Blazify" | settings
+        // Header row: account | logo + app name | settings
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -165,7 +165,7 @@ fun BlazeHomeHeader(
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    text = "Blazify",
+                    text = "Arctic Fresh",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 3.sp,

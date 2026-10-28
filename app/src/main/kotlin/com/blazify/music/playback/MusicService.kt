@@ -2043,9 +2043,13 @@ class MusicService :
             player.playWhenReady = playWhenReady
         }
         scope.launch(SilentHandler) {
+            val initialStatusResult = withContext(Dispatchers.IO) {
+                runCatching { queue.getInitialStatus() }
+            }
+            if (currentQueue !== queue) return@launch
             val initialStatus =
                 withContext(Dispatchers.IO) {
-                    runCatching { queue.getInitialStatus() }
+                    initialStatusResult
                         .getOrElse { error ->
                             if (error is kotlin.coroutines.cancellation.CancellationException) throw error
                             // The song that was tapped is already playing; this only fills in
@@ -2060,8 +2064,9 @@ class MusicService :
                         .filterExplicit(dataStore.get(HideExplicitKey, false))
                         .filterVideoSongs(dataStore.get(HideVideoSongsKey, false))
                         .filterHidden(dataStore.get(HiddenSongIdsKey, emptySet()))
-                            .filterBlockedArtists(dataStore.get(BlockedArtistsKey, emptySet()))
+                        .filterBlockedArtists(dataStore.get(BlockedArtistsKey, emptySet()))
                 }
+            if (currentQueue !== queue) return@launch
             if (queue.preloadItem != null && player.playbackState == STATE_IDLE) return@launch
             if (initialStatus.title != null) {
                 queueTitle = initialStatus.title

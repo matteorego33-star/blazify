@@ -710,7 +710,6 @@ fun HomeScreen(
     if (showAccountDialog) {
         AccountSettingsDialog(
             onDismiss = { showAccountDialog = false },
-            latestVersionName = BuildConfig.VERSION_NAME,
             showSettings = false,
         )
     }
@@ -1449,7 +1448,7 @@ fun HomeScreen(
                                         .only(WindowInsetsSides.Horizontal)
                                         .asPaddingValues(),
                             ) {
-                                items(featuredPodcasts.distinctBy { it.id }, key = { "home_featured_podcast_${it.id}" }) { podcast ->
+                                items(featuredPodcasts, key = { "home_featured_podcast_${it.id}" }) { podcast ->
                                     ytGridItem(podcast)
                                 }
                             }

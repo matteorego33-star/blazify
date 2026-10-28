@@ -131,11 +131,6 @@ val ProxyTypeKey = stringPreferencesKey("proxyType")
 val ProxyUsernameKey = stringPreferencesKey("proxyUsername")
 val ProxyPasswordKey = stringPreferencesKey("proxyPassword")
 val YtmSyncKey = booleanPreferencesKey("ytmSync")
-val CheckForUpdatesKey = booleanPreferencesKey("checkForUpdates")
-val UpdateNotificationsEnabledKey = booleanPreferencesKey("updateNotifications")
-val BetaUpdatesKey = booleanPreferencesKey("betaUpdates")
-val LastUpdateCheckTimeKey = longPreferencesKey("lastUpdateCheckTime")
-
 val AudioQualityKey = stringPreferencesKey("audioQuality")
 
 enum class AudioQuality {
@@ -333,14 +328,6 @@ val ShowWrappedCardKey = booleanPreferencesKey("show_wrapped_card")
 val WrappedSeenYearKey = intPreferencesKey("wrapped_seen_year")
 val LastSeenVersionKey = stringPreferencesKey("lastSeenVersion")
 
-/**
- * The release somebody has already been offered and waved away.
- *
- * Without it the offer returns on every launch, which is how a helpful notice
- * becomes something people learn to dismiss without reading. Held by tag, so the
- * next release asks again exactly once.
- */
-val UpdateDeclinedVersionKey = stringPreferencesKey("updateDeclinedVersion")
 val RandomizeHomeOrderKey = booleanPreferencesKey("randomizeHomeOrder")
 
 val ShowLikedPlaylistKey = booleanPreferencesKey("show_liked_playlist")

@@ -286,7 +286,7 @@
     <string name="listenbrainz_get_token_desc">Opens your ListenBrainz settings page</string>
     <string name="listenbrainz_forget">Forget this token</string>
     <string name="listenbrainz_forget_desc">Stops sending and removes the token from this phone</string>
-    <string name="sponsorblock_desc">Uses SponsorBlock\'s community marks to jump talking, credits and sponsor breaks in music videos. Blazify asks by a few characters of a code, so the server is never told what you are playing.</string>
+    <string name="sponsorblock_desc">Uses SponsorBlock\'s community marks to jump talking, credits and sponsor breaks in music videos. Arctic Fresh asks by a few characters of a code, so the server is never told what you are playing.</string>
     <string name="sponsorblock_categories">What to skip</string>
     <string name="sponsorblock_non_music">Anything that is not music</string>
     <string name="sponsorblock_sponsor">Sponsor breaks</string>
@@ -336,36 +336,11 @@
     <string name="list_bullet">•</string>
     <string name="view_on_github">View on GitHub</string>
 
-    <!-- Know about the developer, in the account sheet -->
         <string name="genres">Genres</string>
 <string name="all_genres">All genres</string>
     <string name="fewer_genres">Fewer genres</string>
-    <string name="developer_heading">Know about the developer</string>
-    <string name="developer_name" translatable="false">Rajendra Pandey</string>
-    <string name="developer_role">Builds Blazify, from Kathmandu</string>
-    <string name="developer_role_short">Developer, Kathmandu</string>
-    <string name="developer_star">Star</string>
-    <string name="update_check_idle">Tap to check</string>
-    <string name="update_check_running">Checking\u2026</string>
-    <string name="update_check_latest">You have the newest version</string>
-    <string name="update_check_available">%1$s is out. Tap to get it</string>
-    <string name="update_check_failed">Could not check. Tap to try again</string>
-    <string name="developer_bio">I build Blazify on my own, in the open. It began because I wanted a music player that looked the way I thought one should, and people kept asking me for a copy. What goes into each version is mostly what people tell me is broken or missing.</string>
-    <string name="developer_website">Website</string>
-    <string name="developer_github">GitHub</string>
-    <string name="developer_website_url" translatable="false">https://rajendrapandey.info.np</string>
-    <string name="developer_github_url" translatable="false">https://github.com/rajendra7169</string>
-    <string name="blazify_repo_url" translatable="false">https://github.com/rajendra7169/blazify</string>
     <string name="current_version">Current version</string>
     <string name="version_format">Version: %s</string>
-    <string name="update_settings">Update settings</string>
-    <string name="check_for_updates_title">Check for updates</string>
-    <string name="checking_for_updates">Checking for updates…</string>
-    <string name="latest_version_format">Latest: %s</string>
-    <string name="check_for_updates_button">Check for updates</string>
-    <string name="hide_changelog">Hide changelog</string>
-    <string name="view_changelog">View changelog</string>
-    <string name="failed_to_check_updates">Failed to check for updates: %s</string>
 
     <string name="all_time">All time</string>
     <string name="past_24_hours">Past 24 hours</string>
@@ -518,29 +493,6 @@
     <!-- Live broadcasts -->
     <string name="live">LIVE</string>
 
-    <!-- Updater -->
-    <string name="updater">Updater</string>
-    <string name="check_for_updates">Automatically check for updates</string>
-    <string name="update_notifications">Enable update notifications</string>
-    <string name="update_available_title">Update available</string>
-    <string name="update_channel_name">App updates</string>
-    <string name="update_channel_desc">Notifications about new app versions</string>
-    <!-- Downloading and installing an update -->
-    <string name="update_new_version">Blazify %s is available</string>
-    <string name="update_download">Download</string>
-    <string name="update_downloading">Downloading… %1$d%%</string>
-    <string name="update_downloading_indeterminate">Downloading…</string>
-    <string name="update_install_now">Install</string>
-    <string name="update_later">Later</string>
-    <string name="update_saved_to_downloads">Saved to Downloads as %s</string>
-    <string name="update_failed">Download failed: %s</string>
-    <string name="update_allow_installs">Blazify needs permission to install apps. Grant it, then press Install again.</string>
-    <string name="update_allow_installs_button">Open settings</string>
-    <string name="update_uninstall_first_title">Uninstall this version first</string>
-    <string name="update_uninstall_first_body">This build is signed with a different key, so Android will not install it over the current one. The download is kept in your Downloads folder and will still be there afterwards.\n\n1. Back up first: Settings → Backup and restore → Backup.\n2. Uninstall Blazify.\n3. Open Downloads and tap %s.</string>
-    <string name="update_open_downloads">Open Downloads</string>
-    <string name="update_no_download">This release has no downloadable build attached.</string>
-    <string name="update_up_to_date">You are on the latest version</string>
 
     <!-- Offload -->
     <string name="audio_offload">Enable audio offload</string>
@@ -572,7 +524,7 @@
     <string name="enable_scrobbling">Enable scrobbling</string>
     <string name="lastfm_now_playing">Send Now Playing status</string>
     <string name="last_fm_send_likes">Sync Loved and Unloved</string>
-    <string name="last_fm_send_likes_description">Love or unlove songs in Last.fm when you like or unlike them in Blazify</string>
+    <string name="last_fm_send_likes_description">Love or unlove songs in Last.fm when you like or unlike them in Arctic Fresh</string>
     <string name="logging_in">Logging in…</string>
     <string name="japanese_dict_title">Japanese reading dictionary</string>
     <string name="japanese_dict_needed">Download it to show Japanese lyrics in English letters (%1$d MB, once)</string>
@@ -585,7 +537,7 @@
     <string name="lastfm_own_key">Your Last.fm API key</string>
     <string name="lastfm_own_key_set">Added</string>
     <string name="lastfm_own_key_missing">Needed before you can log in</string>
-    <string name="lastfm_own_key_explain">This version of Blazify comes without a Last.fm key. Create a free one on Last.fm in about two minutes, then paste the API key and shared secret here.</string>
+    <string name="lastfm_own_key_explain">This version of Arctic Fresh comes without a Last.fm key. Create a free one on Last.fm in about two minutes, then paste the API key and shared secret here.</string>
     <string name="lastfm_own_key_create">Create a key on Last.fm</string>
     <string name="lastfm_api_key">API key</string>
     <string name="lastfm_shared_secret">Shared secret</string>
@@ -657,10 +609,10 @@
     <string name="wrapped_total_artists_subtitle">unique artists!</string>
     <string name="wrapped_total_songs_title">You\'ve listened to</string>
     <string name="wrapped_total_songs_subtitle">unique songs!</string>
-    <string name="wrapped_intro_title">BLAZIFY</string>
+    <string name="wrapped_intro_title">ARCTIC FRESH</string>
     <string name="wrapped_intro_subtitle">it\'s time to see what you\'ve been listening to all this year…</string>
     <string name="wrapped_intro_button">let\'s go!</string>
-    <string name="wrapped_logo_content_description">Blazify Logo</string>
+    <string name="wrapped_logo_content_description">Arctic Fresh Logo</string>
     <string name="wrapped_year">2025</string>
     <string name="wrapped_ready_title">YOUR WRAPPED IS READY!</string>
     <string name="wrapped_ready_subtitle">Time to see what you loved all this year…</string>
@@ -716,7 +668,7 @@
     <string name="plays">plays</string>
     <string name="casting_to">Casting to %s</string>
     <string name="progress_percent">Progress %s%%</string>
-    <string name="listening_to_blazify">Listening to Blazify</string>
+    <string name="listening_to_blazify">Listening to Arctic Fresh</string>
     <string name="open">Open</string>
     <string name="failed_to_create_image">Failed to create image: %s</string>
     <string name="copied_title">Title copied</string>
@@ -726,7 +678,7 @@
 
     <!-- Playback errors -->
     <string name="error_playback_failed">Playback failed</string>
-    <string name="error_age_restricted">This song is age-restricted, and Blazify can\'t play age-restricted songs yet.</string>
+    <string name="error_age_restricted">This song is age-restricted, and Arctic Fresh can\'t play age-restricted songs yet.</string>
     <string name="error_job_cancelled">The video is not available for playback. Try again or skip to the next song.</string>
     <string name="error_episode_save">Failed to save episode</string>
     <string name="error_episode_remove">Failed to remove episode</string>
@@ -737,13 +689,13 @@
     <!-- Widget strings -->
     <string name="album_art">Album art</string>
     <string name="no_song_playing">No song playing</string>
-    <string name="tap_to_open">Tap to open Blazify</string>
+    <string name="tap_to_open">Tap to open Arctic Fresh</string>
     <string name="previous">Previous</string>
     <string name="play_pause">Play/Pause</string>
     <string name="next">Next</string>
     <string name="like">Like</string>
     <string name="not_playing">No song playing</string>
-    <string name="tap_to_play">Tap to open Blazify</string>
+    <string name="tap_to_play">Tap to open Arctic Fresh</string>
     <string name="widget_description">Music player widget with playback controls</string>
     <string name="turntable_widget_description">Circular music widget with play and like controls</string>
     <string name="widget_music_player">Music Player</string>
@@ -770,8 +722,8 @@
     <!-- Decryption Library Settings -->
 
     <!-- Listen Together -->
-    <string name="together">Blaze Together</string>
-    <string name="blaze_together">Blaze Together</string>
+    <string name="together">Listen Together</string>
+    <string name="blaze_together">Listen Together</string>
     <string name="listen_together">Listen Together</string>
     <string name="listen_together_server_url">Server URL</string>
     <string name="listen_together_choose_server">Choose server</string>
@@ -783,7 +735,7 @@
     <string name="listen_together_disconnected">Disconnected</string>
     <string name="listen_together_connecting">Connecting…</string>
     <string name="listen_together_error">Connection error</string>
-    <string name="listen_together_host_not_allowed">This server doesn\'t let Blazify host rooms yet. You can still join a room someone else made.</string>
+    <string name="listen_together_host_not_allowed">This server doesn\'t let Arctic Fresh host rooms yet. You can still join a room someone else made.</string>
     <string name="listen_together_create_room">Create room</string>
     <string name="listen_together_create_room_desc">Create a room and share the code with your friends</string>
     <string name="listen_together_join_room">Join room</string>
@@ -914,7 +866,7 @@
     <string name="crash_description">An unexpected error occurred. Please share the crash report to help us fix the issue</string>
     <string name="crash_share_logs">Share logs</string>
     <string name="crash_share_title">Share crash report</string>
-    <string name="crash_report_subject">Blazify crash report</string>
+    <string name="crash_report_subject">Arctic Fresh crash report</string>
     <string name="crash_close">Close</string>
     <string name="crash_no_log">No crash log available</string>
 
@@ -968,7 +920,7 @@
     <string name="clear_recognition_history_confirm">Are you sure you want to clear all recognition history?</string>
     <string name="delete_from_history">Delete from history</string>
     <string name="re_listen">Re-listen</string>
-    <string name="play_on_app">Play on Blazify</string>
+    <string name="play_on_app">Play on Arctic Fresh</string>
     <string name="qs_tile_music_recognizer">Recognize music</string>
     <string name="recognition_notification_channel_name">Music recognition</string>
     <string name="recognition_notification_channel_desc">Shows a notification while identifying a song from quick settings</string>
@@ -976,7 +928,7 @@
     <string name="recognition_notification_processing">Identifying…</string>
     <string name="recognition_notification_no_match">No match found</string>
     <string name="recognition_notification_failed">Recognition failed</string>
-    <string name="listen_on_blazify">Listen on Blazify</string>
+    <string name="listen_on_blazify">Listen on Arctic Fresh</string>
 
     <!-- CSV Import Strings -->
     <string name="map_csv_columns">Map CSV columns</string>
@@ -992,7 +944,7 @@
     <string name="column_label">Column %d</string>
 
     <string name="discord_connect_description">Sign in with Discord to share what you\'re listening to</string>
-    <string name="discord_information_warning">Blazify uses Discord\'s public OAuth2 and Gateway APIs to share what you\'re listening to. Authorization happens through a local browser session that closes itself after capturing the code, and nothing is sent to third-party servers. Your token is stored on this device in encrypted preferences and is never shared. Blazify connects directly to wss://gateway.discord.gg to publish your activity, and only requests the minimum scope required (sdk.social_layer_presence).</string>
+    <string name="discord_information_warning">Arctic Fresh uses Discord\'s public OAuth2 and Gateway APIs to share what you\'re listening to. Authorization happens through a local browser session that closes itself after capturing the code, and nothing is sent to third-party servers. Your token is stored on this device in encrypted preferences and is never shared. Arctic Fresh connects directly to wss://gateway.discord.gg to publish your activity, and only requests the minimum scope required (sdk.social_layer_presence).</string>
     <string name="discord_status_connecting">Connecting to Discord…</string>
     <string name="discord_status_reconnecting">Reconnecting to Discord…</string>
     <string name="discord_status_connected">Connected</string>
@@ -1060,7 +1012,7 @@
     <string name="jump_to_playing">Jump to playing</string>
     <string name="share_playlist">Share playlist</string>
     <string name="share_playlist_ways">A link or a square to point a camera at</string>
-    <string name="share_playlist_hint">Anyone with Blazify can open this and keep the playlist. The songs travel in the link itself, not through any website.</string>
+    <string name="share_playlist_hint">Anyone with Arctic Fresh can open this and keep the playlist. The songs travel in the link itself, not through any website.</string>
     <string name="shared_playlist_title">Keep this playlist?</string>
     <string name="shared_playlist_kept">Kept %1$d of %2$d songs</string>
     <string name="shared_playlist_failed">Could not keep that playlist</string>
@@ -1095,7 +1047,6 @@
     <string name="logout_clear">Clear</string>
 
     <!-- Credits / About Screen -->
-    <string name="credits_lead_developer">Lead developer</string>
     <string name="credits_collaborator">Collaborator</string>
     <string name="credits_collaborators_section">Collaborators</string>
     <string name="credits_license_name">GNU General Public License v3.0</string>
@@ -1107,10 +1058,7 @@
     <string name="credits_github">GitHub</string>
     <string name="credits_view_repo">View repository</string>
     <string name="app_version_info">%1$s • %2$s</string>
-    <string name="like_what_i_do">Like what I do?</string>
-    <string name="buy_mo_a_coffee">Buy me a coffee!</string>
     <string name="community_and_info">Community &amp; Info</string>
-    <string name="blazify">BLAZIFY</string>
     <string name="wanna_play_favorite_song">Want to play their favorite song?</string>
     <string name="yeah">Yeah!</string>
     <string name="stands_with_palestine">This project stands with Palestine 🇵🇸</string>
@@ -1255,11 +1203,7 @@
     <string name="no_recently_played">No recently played songs yet.</string>
     <string name="no_recommendations">No recommendations yet.</string>
     <!-- About page -->
-    <string name="about_developer_role">Developer</string>
-    <string name="about_me_body">I\'m Rajendra Pandey, an independent app developer from Nepal who loves turning ideas into polished, everyday experiences. Blazify is my take on music streaming: fast, beautiful and personal, crafted from the ground up with Kotlin and Jetpack Compose. I care about the little details that make an app feel effortless, and I\'m always tinkering to make it better. Thanks for being here and letting my work be part of your day.</string>
-    <string name="buy_me_a_coffee">Buy me a coffee</string>
-    <string name="coffee_dialog_subtitle">Scan the code to support Blazify</string>
-    <string name="made_with_love">Made with ❤️ by Rajendra Pandey</string>
+    <string name="made_with_love">Made with care</string>
     <string name="about_open_source">Free and open source under GPL-3.0</string>
     <string name="arrange">Arrange</string>
     <!-- Library redesign -->
@@ -1297,7 +1241,6 @@
     <string name="report_problem">Report a problem</string>
     <string name="hint_report_problem">Something not working? Tell me about it</string>
     <string name="report_problem_body">Describe what happened and it will be sent with the details below, so nobody has to ask you which version you are on.</string>
-    <string name="report_problem_email">Send it as an email</string>
     <string name="report_problem_open">Open the issue tracker</string>
     <string name="report_problem_copy">Copy it to the clipboard</string>
     <string name="local_music">Music on this device</string>
@@ -1320,17 +1263,17 @@
     <string name="local_music_kb">%1$d KB</string>
     <string name="local_music_mb">%1$d MB</string>
     <string name="edit_tags">Edit details</string>
-    <string name="edit_tags_desc">Change the title, artist or album shown in Blazify</string>
+    <string name="edit_tags_desc">Change the title, artist or album shown in Arctic Fresh</string>
     <string name="edit_tags_title">Title</string>
     <string name="edit_tags_artist">Artist</string>
     <string name="edit_tags_album">Album</string>
     <string name="edit_tags_save">Save</string>
     <string name="edit_tags_reset">Use file tags</string>
-    <string name="edit_tags_note">Shown in Blazify only. The file itself is left alone, so other apps still see its original tags.</string>
-    <string name="local_music_permission">Blazify needs permission to read audio files</string>
+    <string name="edit_tags_note">Shown in Arctic Fresh only. The file itself is left alone, so other apps still see its original tags.</string>
+    <string name="local_music_permission">Arctic Fresh needs permission to read audio files</string>
     <string name="blaze_greeting_default_name">Music Lover</string>
-    <string name="star_on_github">Star Blazify on GitHub</string>
-    <string name="star_prompt_title">Getting on with Blazify?</string>
+    <string name="star_on_github">Star Arctic Fresh on GitHub</string>
+    <string name="star_prompt_title">Getting on with Arctic Fresh?</string>
     <string name="star_prompt_body">It is made by one person and given away, with no ads and nothing tracked. A star on GitHub is most of how anyone else finds it.</string>
     <string name="star_prompt_yes">Star it</string>
     <string name="star_prompt_later">Later</string>
@@ -1379,10 +1322,9 @@
     <string name="hint_privacy">History, pauses, listening data</string>
     <string name="hint_storage">Cache, downloads, clear data</string>
     <string name="hint_backup">Export or import your library</string>
-    <string name="hint_about">Version and developer</string>
+    <string name="hint_about">Version and open-source information</string>
     <string name="hint_changelog">What\'s new in this version</string>
-    <string name="hint_links">Handle Blazify links by default</string>
-    <string name="hint_updater">Check for updates</string>
+    <string name="hint_links">Handle Arctic Fresh links by default</string>
     <!-- Player designs -->
     <string name="player_theme">Player theme</string>
     <string name="player_theme_desc">Choose a player layout</string>
@@ -1437,9 +1379,6 @@
     <!-- Player bottom row -->
     <string name="cast">Cast</string>
 
-    <!-- Updater -->
-    <string name="beta_updates">Get beta updates</string>
-    <string name="beta_updates_desc">Try new versions before everyone else. Betas can have bugs; turn this off to wait for the next stable update.</string>
     <plurals name="shared_playlist_body">
         <item quantity="one">%1$s, one song, shared with you.</item>
         <item quantity="other">%1$s, %2$d songs, shared with you.</item>

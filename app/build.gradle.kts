@@ -108,9 +108,9 @@ android {
         applicationId = applicationIdOverride ?: baseApplicationId
         minSdk = 26
         targetSdk = 36
-        versionCode = 161
-        versionName = "9.16.0"
-        resValue("string", "app_name", appNameOverride ?: "Blazify")
+        versionCode = 163
+        versionName = "9.17.0"
+        resValue("string", "app_name", appNameOverride ?: "Arctic Fresh")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -130,36 +130,29 @@ android {
         buildConfigField("String", "LASTFM_API_KEY", "\"$lastFmKey\"")
         buildConfigField("String", "LASTFM_SECRET", "\"$lastFmSecret\"")
         buildConfigField("String", "ARCHITECTURE", "\"universal\"")
-        // Blazify's own Discord application, so friends see "Blazify" in your status
+        // The Discord application ID remains the one registered for the upstream project.
         buildConfigField("Long", "DISCORD_APP_ID", "1564500874733297664L")
     }
 
     flavorDimensions += listOf("variant")
     productFlavors {
-        // FOSS - no gcast. The updater is on: it was off while it pointed at the
-        // repository this project was forked from, where a "new version" was
-        // somebody else's app. It reads this project's own releases now, and
-        // this is the build people are handed directly, so it is also the build
-        // that most needs to be able to tell them a new one exists.
+        // FOSS - no Google Cast.
         create("foss") {
             dimension = "variant"
             isDefault = true
             buildConfigField("Boolean", "CAST_AVAILABLE", "false")
-            buildConfigField("Boolean", "UPDATER_AVAILABLE", "true")
         }
 
-        // GMS - Updater and gcast
+        // GMS - Google Cast.
         create("gms") {
             dimension = "variant"
             buildConfigField("Boolean", "CAST_AVAILABLE", "true")
-            buildConfigField("Boolean", "UPDATER_AVAILABLE", "true")
         }
 
-        // IzzyOnDroid - no gcast, no updater - the ONLY F-droid compliant build
+        // IzzyOnDroid - no Google Cast.
         create("izzy") {
             dimension = "variant"
             buildConfigField("Boolean", "CAST_AVAILABLE", "false")
-            buildConfigField("Boolean", "UPDATER_AVAILABLE", "false")
             // F-Droid builds this from the public source and must get the same APK as ours,
             // so it never carries the private Last.fm key; users can add their own instead.
             buildConfigField("String", "LASTFM_API_KEY", "\"\"")
@@ -235,7 +228,7 @@ android {
             }
             isDebuggable = true
             if (appNameOverride == null) {
-                resValue("string", "app_name", "Blazify Debug")
+                resValue("string", "app_name", "Arctic Fresh Debug")
             }
             signingConfig =
                 if (workflowDebugKeystoreFile != null) {

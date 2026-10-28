@@ -34,12 +34,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.blazify.music.R
-import com.blazify.music.BuildConfig
 import com.blazify.music.utils.BundledChangelog
 import com.blazify.music.utils.ReleaseInfo
-import com.blazify.music.utils.Updater
-import com.blazify.music.utils.rememberPreference
-import com.blazify.music.constants.BetaUpdatesKey
 import androidx.compose.ui.unit.sp
 import com.blazify.music.ui.theme.BlazeGradientEnd
 import com.blazify.music.ui.theme.BlazeThemeColor
@@ -66,31 +62,12 @@ fun ChangelogScreen(
 ) {
     var releases by remember { mutableStateOf<List<ReleaseInfo>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
-    val (betaUpdates) = rememberPreference(BetaUpdatesKey, false)
     val uriHandler = LocalUriHandler.current
 
     val context = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(Unit) {
-        // What shipped in this build, which is known without asking anybody.
-        val bundled = BundledChangelog.read(context)
-        releases = bundled
-        isLoading = bundled.isEmpty()
-
-        // Then whatever the site can add to it — older releases, mostly. It is no
-        // longer the only source, so a private repository or no connection at all
-        // costs the earlier entries rather than the whole page.
-        Updater.getAllReleases().onSuccess { allReleases ->
-            val extra = allReleases.filter { release ->
-                // Betas stay out of the list for anybody on stable updates.
-                (!release.isPrerelease || betaUpdates) &&
-                    Updater.compareVersions(BuildConfig.VERSION_NAME, release.tagName) >= 0 &&
-                    bundled.none { it.tagName == release.tagName }
-            }
-            releases = (bundled + extra).sortedWith { a, b ->
-                Updater.compareVersions(b.tagName, a.tagName)
-            }
-        }
+        releases = BundledChangelog.read(context)
         isLoading = false
     }
 

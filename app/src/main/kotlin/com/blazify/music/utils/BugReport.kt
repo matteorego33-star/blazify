@@ -8,10 +8,8 @@ package com.blazify.music.utils
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import androidx.core.content.getSystemService
-import androidx.core.net.toUri
 import com.blazify.music.BuildConfig
 import java.net.URLEncoder
 import java.util.Locale
@@ -31,12 +29,11 @@ import java.util.Locale
  */
 object BugReport {
     private const val ISSUES = "https://github.com/rajendra7169/blazify/issues/new"
-    private const val EMAIL = "rajendrapandey199971@gmail.com"
 
     /** Everything that would otherwise be the first three questions of a reply. */
     fun details(): String =
         buildString {
-            appendLine("Blazify ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}, ${BuildConfig.FLAVOR})")
+            appendLine("Arctic Fresh ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}, ${BuildConfig.FLAVOR})")
             appendLine("Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
             appendLine("${Build.MANUFACTURER} ${Build.MODEL}")
             append("Language ${Locale.getDefault()}")
@@ -60,36 +57,13 @@ object BugReport {
     internal fun issueUrl(version: String, device: String): String =
         "$ISSUES?template=bug_report.yml&version=${encode(version)}&device=${encode(device)}"
 
-    /**
-     * The tracker needs an account, and most people who use a music player do
-     * not have one. This asks for nothing but the mail app they already use.
-     */
-    fun email(context: Context): Boolean {
-        // Subject and body go in the URI, not in extras. With ACTION_SENDTO a
-        // mailto: client reads its query string and Gmail ignores EXTRA_SUBJECT
-        // and EXTRA_TEXT entirely, which opens a correctly addressed but
-        // completely empty message.
-        val subject = encode("Blazify ${BuildConfig.VERSION_NAME}: ")
-        val body = encode(plainBody())
-        val intent =
-            Intent(Intent.ACTION_SENDTO, "mailto:$EMAIL?subject=$subject&body=$body".toUri()).apply {
-                // Kept as well, for the clients that prefer extras.
-                putExtra(Intent.EXTRA_SUBJECT, "Blazify ${BuildConfig.VERSION_NAME}: ")
-                putExtra(Intent.EXTRA_TEXT, plainBody())
-            }
-        return runCatching {
-            context.startActivity(Intent.createChooser(intent, null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            true
-        }.getOrDefault(false)
-    }
-
     /** mailto: wants percent-encoding, and a literal + is a space to a mail client. */
     private fun encode(s: String) = URLEncoder.encode(s, "UTF-8").replace("+", "%20")
 
     /** For anyone without a GitHub account, or without a connection right now. */
     fun copyDetails(context: Context) {
         context.getSystemService<ClipboardManager>()
-            ?.setPrimaryClip(ClipData.newPlainText("Blazify", plainBody()))
+            ?.setPrimaryClip(ClipData.newPlainText("Arctic Fresh", plainBody()))
     }
 
     /** The same questions without the markdown, which an email client will not render. */
