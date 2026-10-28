@@ -17,7 +17,9 @@ import com.blazify.music.lyrics.LyricsHelper
 import com.blazify.music.lyrics.LyricsResult
 import com.blazify.music.models.MediaMetadata
 import com.blazify.music.utils.NetworkConnectivityObserver
+import com.blazify.music.utils.reportException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -94,13 +96,19 @@ constructor(
         mediaMetadata: MediaMetadata,
         lyricsEntity: LyricsEntity?,
     ) {
-        database.query {
-            lyricsEntity?.let(::delete)
-            val lyricsWithProvider =
-                runBlocking {
-                    lyricsHelper.getLyrics(mediaMetadata)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val lyricsWithProvider = lyricsHelper.getLyrics(mediaMetadata)
+                database.query {
+                    lyricsEntity?.let(::delete)
+                    upsert(LyricsEntity(mediaMetadata.id, lyricsWithProvider.lyrics, lyricsWithProvider.provider))
                 }
-            upsert(LyricsEntity(mediaMetadata.id, lyricsWithProvider.lyrics, lyricsWithProvider.provider))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to refetch lyrics for ${mediaMetadata.id}")
+                reportException(e)
+            }
         }
     }
 }
