@@ -731,16 +731,7 @@
     <string name="recognition_notification_no_match">一致する曲が見つかりませんでした</string>
     <string name="recognition_notification_failed">認識に失敗しました</string>
     <string name="listen_on_blazify">Arctic Freshで聴く</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">表示する項目</string>
-    <string name="android_auto_reorder_hint">項目をタップするとオン/オフを切り替えられます。長押しで並び替えができます。先頭の項目がデフォルトで表示されます</string>
-    <string name="android_auto_youtube_playlists">YouTubeのおすすめのプレイリストを表示</string>
-    <string name="android_auto_youtube_playlists_desc">Android AutoでYouTube Musicのおすすめのプレイリストを表示します</string>
-    <string name="android_auto_target_playlist">クイック追加先</string>
-    <string name="android_auto_target_playlist_desc">Android Autoのクイック追加ボタン使用時に曲を保存するプレイリストを選択します</string>
-    <string name="android_auto_target_playlist_auto">未設定</string>
     <string name="added_to_playlist">プレイリストに追加しました</string>
-    <string name="android_auto_target_playlist_not_set">プレイリストが選択されていません。Android Autoの設定で選択してください</string>
     <string name="time_transfer_title">再生時間の引き継ぎ</string>
     <string name="time_transfer_warning">1回以上再生した曲のみが対象です。この操作は完了すると元に戻せません。続行する前に必ずバックアップを作成してください</string>
     <string name="time_transfer_source_song">元の曲</string>
@@ -1081,7 +1072,6 @@
     <string name="hint_stream">音声の取得元</string>
     <string name="hint_content">地域、露骨な表現、ミュージックビデオ</string>
     <string name="hint_lyrics">歌詞のソースと自動翻訳</string>
-    <string name="hint_android_auto">車内向けレイアウト</string>
     <string name="hint_privacy">履歴、一時停止、再生データ</string>
     <string name="hint_storage">キャッシュ、ダウンロード、データ消去</string>
     <string name="hint_backup">ライブラリのエクスポートとインポート</string>

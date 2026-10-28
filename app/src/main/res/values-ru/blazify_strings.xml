@@ -759,16 +759,7 @@
     <string name="recognition_notification_no_match">Совпадений не найдено</string>
     <string name="recognition_notification_failed">Не удалось распознать</string>
     <string name="listen_on_blazify">Слушать в Arctic Fresh</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Видимые разделы</string>
-    <string name="android_auto_reorder_hint">Нажмите на раздел, чтобы включить или отключить его.\nУдерживайте значок перетаскивания, чтобы изменить порядок. Первый раздел будет отображаться по умолчанию</string>
-    <string name="android_auto_youtube_playlists">Показывать предложенные плейлисты YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">Показывать рекомендованные плейлисты YouTube Music в разделе плейлистов при просмотре через Android Auto</string>
-    <string name="android_auto_target_playlist">Плейлист для быстрого добавления</string>
-    <string name="android_auto_target_playlist_desc">Выберите плейлист, в который будут сохраняться треки при нажатии кнопки быстрого добавления в Android Auto</string>
-    <string name="android_auto_target_playlist_auto">Не указано</string>
     <string name="added_to_playlist">Добавлено в плейлист</string>
-    <string name="android_auto_target_playlist_not_set">Плейлист не выбран. Выберите его в настройках Android Auto</string>
     <string name="mini_player_background_style">Стиль фона мини‑плеера</string>
     <string name="transparent">Прозрачный</string>
     <string name="mini_player_background_not_available">Недоступно, если отключен новый дизайн мини‑плеера</string>
@@ -1105,7 +1096,6 @@
     <string name="hint_stream">Откуда берётся звук</string>
     <string name="hint_content">Регион, 18+, клипы</string>
     <string name="hint_lyrics">Источники текстов и автоперевод</string>
-    <string name="hint_android_auto">Интерфейс в автомобиле</string>
     <string name="hint_privacy">История, паузы, данные прослушивания</string>
     <string name="hint_storage">Кеш, загрузки, очистка данных</string>
     <string name="hint_backup">Экспорт и импорт библиотеки</string>

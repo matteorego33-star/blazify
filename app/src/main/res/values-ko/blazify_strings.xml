@@ -493,16 +493,7 @@
     <string name="wanna_play_favorite_song">좋아하는 곡을 재생해 보시겠습니까?</string>
     <string name="yeah">좋습니다!</string>
     <string name="stands_with_palestine">이 프로젝트는 팔레스타인과 연대합니다</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">표시할 섹션</string>
-    <string name="android_auto_reorder_hint">섹션을 탭하여 활성화하거나 비활성화합니다.\n드래그 핸들을 길게 눌러 순서를 변경할 수 있습니다. 첫 번째 섹션이 기본으로 표시됩니다</string>
-    <string name="android_auto_youtube_playlists">YouTube 추천 재생목록 표시</string>
-    <string name="android_auto_youtube_playlists_desc">안드로이드 오토를 사용하는 동안 재생목록 섹션에 YouTube Music 추천 재생목록을 표시합니다</string>
-    <string name="android_auto_target_playlist">빠른 추가 대상</string>
-    <string name="android_auto_target_playlist_desc">안드로이드 오토에서 \'빠른 추가\' 버튼을 사용할 때 곡이 저장될 재생목록을 선택하세요</string>
-    <string name="android_auto_target_playlist_auto">설정되지 않음</string>
     <string name="added_to_playlist">재생목록에 추가됨</string>
-    <string name="android_auto_target_playlist_not_set">선택된 재생목록이 없습니다. Android Auto 설정에서 하나를 선택해 주세요</string>
     <string name="parsed_from_link">링크에서 가져왔습니다</string>
     <string name="max_selection_limit">최대 선택 개수에 도달했습니다</string>
     <string name="about_artist">아티스트 정보</string>
@@ -1081,7 +1072,6 @@
     <string name="hint_stream">오디오를 가져오는 곳</string>
     <string name="hint_content">지역, 청소년 유해, 뮤직비디오</string>
     <string name="hint_lyrics">가사 소스 및 자동 번역</string>
-    <string name="hint_android_auto">차량용 레이아웃</string>
     <string name="hint_privacy">기록, 일시정지, 청취 데이터</string>
     <string name="hint_storage">캐시, 다운로드, 데이터 삭제</string>
     <string name="hint_backup">보관함 내보내기 또는 가져오기</string>

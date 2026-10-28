@@ -752,16 +752,7 @@
     <string name="recognition_notification_no_match">Aucun résultat trouvé</string>
     <string name="recognition_notification_failed">Échec de la reconnaissance</string>
     <string name="listen_on_blazify">Écoutez sur Arctic Fresh</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Sections visibles</string>
-    <string name="android_auto_reorder_hint">Appuyez sur une section pour l\'activer ou la désactiver.\nAppuyez longuement sur la poignée de déplacement pour modifier l\'ordre. La première section s\'affichera par défaut</string>
-    <string name="android_auto_youtube_playlists">Afficher les playlists suggérées par YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">Afficher les playlists recommandées par YouTube Music dans la section « Playlists » lors de la navigation avec Android Auto</string>
-    <string name="android_auto_target_playlist">Ajout rapide d\'une destination</string>
-    <string name="android_auto_target_playlist_desc">Choisissez la playlist dans laquelle les titres sont enregistrés lorsque vous utilisez le bouton d\'ajout rapide dans Android Auto</string>
-    <string name="android_auto_target_playlist_auto">Non défini</string>
     <string name="added_to_playlist">Ajouté à la playlist</string>
-    <string name="android_auto_target_playlist_not_set">Aucune playlist n\'est sélectionnée. Choisissez-en une dans les paramètres d\'Android Auto</string>
     <string name="mini_player_background_style">Style d\'arrière-plan du mini-lecteur</string>
     <string name="transparent">Transparent</string>
     <string name="mini_player_background_not_available">Indisponible lorsque le nouveau design du mini-lecteur est désactivé</string>
@@ -1097,7 +1088,6 @@
     <string name="hint_stream">D\'où vient l\'audio</string>
     <string name="hint_content">Région, contenu explicite, clips</string>
     <string name="hint_lyrics">Sources de paroles et traduction automatique</string>
-    <string name="hint_android_auto">Affichage en voiture</string>
     <string name="hint_privacy">Historique, pauses, données d\'écoute</string>
     <string name="hint_storage">Cache, téléchargements, effacer les données</string>
     <string name="hint_backup">Exporter ou importer votre bibliothèque</string>

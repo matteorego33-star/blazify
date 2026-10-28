@@ -752,16 +752,7 @@
     <string name="recognition_notification_no_match">Nicio potrivire găsită</string>
     <string name="recognition_notification_failed">Recunoaștere eșuată</string>
     <string name="listen_on_blazify">Ascultă pe Arctic Fresh</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Secțiuni vizibile</string>
-    <string name="android_auto_reorder_hint">Atinge o secțiune pentru a o activa sau dezactiva.\nȚine apăsat glisorul pentru a reordona. Prima secțiune va fi afișată în mod prestabilit</string>
-    <string name="android_auto_youtube_playlists">Arată playlisturi sugerate de YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">Arată playlisturi recomandate de YouTube Music în secțiunea Playlisturi atunci când navighezi cu Android Auto</string>
-    <string name="android_auto_target_playlist_desc">Alege playlistul unde melodiile vor fi salvate atunci când folosești butonul de adăugare rapidă în Android Auto</string>
-    <string name="android_auto_target_playlist">Destinație adăugare rapidă</string>
-    <string name="android_auto_target_playlist_auto">Nesetată</string>
     <string name="added_to_playlist">Adăugată în playlist</string>
-    <string name="android_auto_target_playlist_not_set">Niciun playlist selectat. Alege unul în setările Android Auto</string>
     <string name="mini_player_background_style">Stilul fundalului mini-playerului</string>
     <string name="transparent">Transparent</string>
     <string name="mini_player_background_not_available">Indisponibil atunci când mini-playerul nou este dezactivat</string>

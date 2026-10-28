@@ -203,13 +203,7 @@
     <string name="auto_scroll">Birsinkronizatu</string>
     <string name="loudness_level_quiet">Isila (-19 dB)</string>
     <string name="deleting">Ezabatzen…</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Atal ikusgaiak</string>
-    <string name="android_auto_youtube_playlists">YouTubek gomendatutako zerrendak erakutsi</string>
-    <string name="android_auto_target_playlist">Helmuga azkar gehitu</string>
-    <string name="android_auto_target_playlist_auto">Ezarri gabe</string>
     <string name="added_to_playlist">Zerrendara gehituta</string>
-    <string name="android_auto_target_playlist_not_set">Ez da zerrendarik aukeratu. Android Autoren ezarpenetan aukeratu bat</string>
     <string name="time_transfer_warning">KONTUZ: Ekintza hau ezin da desegin behin eginda. Babes-kopia bat sortu jarraitu baino lehen. Gutxienez behin jotako abestiei baino ez zaie aplikatuko</string>
     <string name="time_transfer_source_song">Jatorrizko abestia</string>
     <string name="time_transfer_target_song">Helburuko abestia</string>

@@ -92,7 +92,7 @@ Screenshots, install guides and everything else: **[blazify website](https://raj
 - **Offline downloads**: Save anything for listening without a connection
 - **Your own music**: Plays the music already on your phone beside everything streamed, browse by folder, fix badly tagged files
 - **Queue control**: Drag to reorder, swipe to remove, shuffle, repeat one/all
-- **Don't play this song**: Hide a song from queues, radio, recommendations and Android Auto
+- **Don't play this song**: Hide a song from queues, radio and recommendations
 - **Double-tap to seek**: On every player design, as far as you choose
 - **Podcasts**: Each show remembers its own playback speed
 - **Mobile data controls**: Save data on mobile networks, download only on Wi-Fi
@@ -134,7 +134,6 @@ Screenshots, install guides and everything else: **[blazify website](https://raj
 - **Listen Together**: Share a room code and play in sync with friends
 - **Playlist import**: Bring playlists in from a file or a link
 - **last.fm**: Scrobble what you play
-- **Android Auto**: Full in-car playback
 - **Widgets**: Home-screen controls
 - **Backup & restore**: Your whole library in one file: songs, playlists, history, sign-in
 

@@ -27,7 +27,7 @@ off.
 - Optional Google sign-in, syncing your YouTube Music library and playlists
 - Listen Together: play in sync with friends over a room code
 - Backup and restore your whole library to a single file
-- Android Auto, home-screen widgets, last.fm scrobbling
+- Home-screen widgets, last.fm scrobbling
 - Plays the music already on the phone beside streamed songs (Android)
 - "Don't play this song" hides a song from queues, radio and recommendations
 - Double-tap to seek on every player design; each podcast keeps its own speed

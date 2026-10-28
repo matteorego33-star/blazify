@@ -795,16 +795,7 @@
     <string name="recognition_notification_no_match">Sin coincidencias</string>
     <string name="recognition_notification_failed">Reconocimiento fallido</string>
     <string name="listen_on_blazify">Escuchar en Arctic Fresh</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Secciones visibles</string>
-    <string name="android_auto_reorder_hint">Toca una sección para habilitarla o deshabilitarla\nMantén presionado el control de arrastre para reordenar. La primera sección se mostrará por defecto</string>
-    <string name="android_auto_youtube_playlists">Mostrar lista de reproducción sugeridas por Youtube</string>
-    <string name="android_auto_youtube_playlists_desc">Mostrar listas de reproducción recomendadas por Youtube music dentro en la sección de lista de reproducción al navegar con Android Auto</string>
-    <string name="android_auto_target_playlist">Destinación de agregado rapido</string>
-    <string name="android_auto_target_playlist_desc">Selecciona la lista de reproducción donde las canciones se van a guardar usando el botón de añadir rápidamente en Android Auto</string>
-    <string name="android_auto_target_playlist_auto">No establecido</string>
     <string name="added_to_playlist">Añadido a la lista de reproducción</string>
-    <string name="android_auto_target_playlist_not_set">Ninguna lista de reproducción seleccionada. Elige una en los ajustes de Android Auto</string>
     <string name="autoplay">Reproducción automatica</string>
     <string name="autoplay_desc">Reproducir la siguiente canción de forma automática cuando la actual termine</string>
     <string name="back">Atrás</string>
@@ -1097,7 +1088,6 @@
     <string name="hint_stream">De dónde se obtiene el audio</string>
     <string name="hint_content">Región, contenido explícito, videoclips</string>
     <string name="hint_lyrics">Fuentes de letras y traducción automática</string>
-    <string name="hint_android_auto">Diseño para el coche</string>
     <string name="hint_privacy">Historial, pausas, datos de escucha</string>
     <string name="hint_storage">Caché, descargas, borrar datos</string>
     <string name="hint_backup">Exporta o importa tu biblioteca</string>

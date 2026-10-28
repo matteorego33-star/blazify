@@ -58,6 +58,7 @@ import com.blazify.music.utils.reportException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -71,6 +72,7 @@ import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -590,68 +592,85 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun load() {
-        isLoading.value = true
         val hideExplicit = context.dataStore.get(HideExplicitKey, false)
         val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
         val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
         val hiddenSongIds = context.dataStore.get(HiddenSongIdsKey, emptySet())
         val blockedArtists = context.dataStore.get(BlockedArtistsKey, emptySet())
         val fromTimeStamp = LocalDateTime.now().minusWeeks(2)
+        isLoading.value = true
+        try {
+            // Phase 1 loads the essential local and online sections in parallel.
+            coroutineScope {
+                launch(Dispatchers.IO) { getQuickPicks() }
 
-        // Phase 1: Load essential sections in parallel — local DB (fast) + YouTube home page.
-        // isLoading is set to false as soon as all Phase 1 tasks complete so the UI appears quickly.
-        coroutineScope {
-            launch(Dispatchers.IO) { getQuickPicks() }
+                launch(Dispatchers.IO) {
+                    forgottenFavorites.value = forgottenSongs()
+                        .filterVideoSongs(hideVideoSongs)
+                        .filterNot { it.id in hiddenSongIds }
+                        .filterBlockedArtists(blockedArtists)
+                        .shuffled()
+                        .take(20)
+                }
 
-            launch(Dispatchers.IO) {
-                forgottenFavorites.value = forgottenSongs()
-                    .filterVideoSongs(hideVideoSongs).filterNot { it.id in hiddenSongIds }.filterBlockedArtists(blockedArtists).shuffled().take(20)
+                launch(Dispatchers.IO) {
+                    val songs = database.mostPlayedSongs(
+                        fromTimeStamp = fromTimeStamp,
+                        limit = 15,
+                        offset = 5,
+                        toTimeStamp = LocalDateTime.now(),
+                    ).first()
+                        .filterVideoSongs(hideVideoSongs)
+                        .filterNot { it.id in hiddenSongIds }
+                        .filterBlockedArtists(blockedArtists)
+                        .shuffled()
+                        .take(10)
+                    val albums = database.mostPlayedAlbums(fromTimeStamp, limit = 8, offset = 2).first()
+                        .filter { it.album.thumbnailUrl != null }
+                        .shuffled()
+                        .take(5)
+                    val artists = database.mostPlayedArtists(fromTimeStamp).first()
+                        .filter { it.artist.isYouTubeArtist && it.artist.thumbnailUrl != null }
+                        .shuffled()
+                        .take(5)
+                    keepListening.value = (songs + albums + artists).shuffled()
+                }
+
+                launch(Dispatchers.IO) {
+                    YouTube.home().onSuccess { page ->
+                        page.chips?.let { YouTubeBrowseViewModel.rememberChips(it) }
+                        homePage.value = page.copy(
+                            sections = page.sections.mapNotNull { section ->
+                                val filtered = section.items
+                                    .filterOutNulls()
+                                    .filterExplicit(hideExplicit)
+                                    .filterVideoSongs(hideVideoSongs)
+                                    .filterYoutubeShorts(hideYoutubeShorts)
+                                if (filtered.isEmpty()) null else section.copy(items = filtered)
+                            },
+                        )
+                    }.onFailure { reportException(it) }
+                }
+
+                if (YouTube.cookie != null) {
+                    launch(Dispatchers.IO) { loadAccountPlaylists() }
+                }
             }
 
-            launch(Dispatchers.IO) {
-                val songs = database.mostPlayedSongs(fromTimeStamp = fromTimeStamp, limit = 15, offset = 5, toTimeStamp = LocalDateTime.now()).first()
-                    .filterVideoSongs(hideVideoSongs).filterNot { it.id in hiddenSongIds }.filterBlockedArtists(blockedArtists).shuffled().take(10)
-                val albums = database.mostPlayedAlbums(fromTimeStamp, limit = 8, offset = 2).first()
-                    .filter { it.album.thumbnailUrl != null }.shuffled().take(5)
-                val artists = database.mostPlayedArtists(fromTimeStamp).first()
-                    .filter { it.artist.isYouTubeArtist && it.artist.thumbnailUrl != null }.shuffled().take(5)
-                keepListening.value = (songs + albums + artists).shuffled()
-            }
-
-            launch(Dispatchers.IO) {
-                YouTube.home().onSuccess { page ->
-                    // Mood pages pick their placeholder by these; known from here, the first
-                    // one opened is drawn in the right shape too.
-                    page.chips?.let { YouTubeBrowseViewModel.rememberChips(it) }
-                    homePage.value = page.copy(
-                        sections = page.sections.mapNotNull { section ->
-                            val filtered = section.items
-                                .filterOutNulls()
-                                .filterExplicit(hideExplicit)
-                                .filterVideoSongs(hideVideoSongs)
-                                .filterYoutubeShorts(hideYoutubeShorts)
-                            if (filtered.isEmpty()) null else section.copy(items = filtered)
-                        }
-                    )
-                }.onFailure { reportException(it) }
-            }
-
-            if (YouTube.cookie != null) {
-                launch(Dispatchers.IO) { loadAccountPlaylists() }
-            }
+            allLocalItems.value =
+                (quickPicks.value.orEmpty() + forgottenFavorites.value.orEmpty() + keepListening.value.orEmpty())
+                    .filter { it is Song || it is Album }
+            firstLoadDone.value = true
+        } finally {
+            isLoading.value = false
         }
 
-        allLocalItems.value = (quickPicks.value.orEmpty() + forgottenFavorites.value.orEmpty() + keepListening.value.orEmpty())
-            .filter { it is Song || it is Album }
-        isLoading.value = false
-        firstLoadDone.value = true
-
         // Phase 2: Heavy multi-request operations — run in background without blocking the UI.
-        viewModelScope.launch(Dispatchers.IO) { getDailyDiscover() }
+        launchHomeTask { getDailyDiscover() }
 
-        viewModelScope.launch(Dispatchers.IO) { getCommunityPlaylists() }
+        launchHomeTask { getCommunityPlaylists() }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        launchHomeTask {
             YouTube.explore().onSuccess { page ->
                 explorePage.value = page.copy(
                     newReleaseAlbums = page.newReleaseAlbums.filterOutNulls().filterExplicit(hideExplicit),
@@ -660,7 +679,7 @@ class HomeViewModel @Inject constructor(
             }.onFailure { reportException(it) }
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        launchHomeTask {
             val artistRecommendations = database.mostPlayedArtists(fromTimeStamp, limit = 15).first()
                 .filter { it.artist.isYouTubeArtist }
                 .shuffled().take(4)
@@ -733,6 +752,18 @@ class HomeViewModel @Inject constructor(
                     homePage.value?.sections?.flatMap { it.items }.orEmpty()
         }
     }
+
+    private fun launchHomeTask(block: suspend () -> Unit) =
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                reportException(e)
+                Timber.e(e, "Background home loading failed")
+            }
+        }
 
     private val _isLoadingMore = MutableStateFlow(false)
     fun loadMoreYouTubeItems(continuation: String?) {
@@ -834,31 +865,38 @@ class HomeViewModel @Inject constructor(
         (this as List<T?>).filterNotNull()
 
     fun refresh() {
-        if (isRefreshing.value) return
-        isRefreshing.value = true
+        if (!isRefreshing.compareAndSet(false, true)) return
         speedDialPlayed()
         forYouPlayed()
         viewModelScope.launch(Dispatchers.IO) {
-            if (YouTube.cookie != null) loadForYouMix()
-            // If a chip is selected, reload the chip's content instead of the default home
-            val currentChip = selectedChip.value
-            if (currentChip != null) {
-                val hideExplicit = context.dataStore.get(HideExplicitKey, false)
-                val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-                val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
-                val nextSections = YouTube.home(params = currentChip.endpoint?.params).getOrNull()
-                if (nextSections != null) {
-                    homePage.value = nextSections.copy(
-                        chips = homePage.value?.chips,
-                        sections = nextSections.sections.mapNotNull { section ->
-                            section.copy(items = section.items.filterOutNulls().filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs).filterYoutubeShorts(hideYoutubeShorts))
-                        }
-                    )
+            try {
+                if (YouTube.cookie != null) loadForYouMix()
+                // If a chip is selected, reload the chip's content instead of the default home
+                val currentChip = selectedChip.value
+                if (currentChip != null) {
+                    val hideExplicit = context.dataStore.get(HideExplicitKey, false)
+                    val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
+                    val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
+                    val nextSections = YouTube.home(params = currentChip.endpoint?.params).getOrNull()
+                    if (nextSections != null) {
+                        homePage.value = nextSections.copy(
+                            chips = homePage.value?.chips,
+                            sections = nextSections.sections.mapNotNull { section ->
+                                section.copy(items = section.items.filterOutNulls().filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs).filterYoutubeShorts(hideYoutubeShorts))
+                            }
+                        )
+                    }
+                } else {
+                    load()
                 }
-            } else {
-                load()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                reportException(e)
+                Timber.e(e, "Failed to refresh home data")
+            } finally {
+                isRefreshing.value = false
             }
-            isRefreshing.value = false
         }
         // Run sync when user manually refreshes
         viewModelScope.launch(Dispatchers.IO) {
@@ -959,10 +997,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private var isHomeDataLoaded = false
+    private val isHomeDataLoaded = AtomicBoolean(false)
 
     fun loadHomeData() {
-        if (isHomeDataLoaded) return
+        if (!isHomeDataLoaded.compareAndSet(false, true)) return
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val cookie = context.dataStore.data
@@ -974,10 +1012,13 @@ class HomeViewModel @Inject constructor(
                     YouTube.cookie = cookie
                 }
 
-                isHomeDataLoaded = true
                 load()
+            } catch (e: CancellationException) {
+                isHomeDataLoaded.set(false)
+                throw e
             } catch (e: Exception) {
-                isHomeDataLoaded = false
+                isHomeDataLoaded.set(false)
+                reportException(e)
                 Timber.e(e, "Failed to load home data")
             }
         }

@@ -745,16 +745,7 @@
     <string name="recognition_notification_no_match">Nenhuma correspondência encontrada</string>
     <string name="recognition_notification_failed">Reconhecimento falhou</string>
     <string name="listen_on_blazify">Ouvir no blazify</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Seções visíveis</string>
-    <string name="android_auto_reorder_hint">Toque em uma seção para ativar ou desativá-la.\nPressione e segure o botão de arrastar para reordenar. A primeira seção será mostrada como padrão</string>
-    <string name="android_auto_youtube_playlists">Mostrar playlists sugeridas do YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">Exibe playlists recomendadas do Youtube Music na seção de playlists quando navegando com o Android Auto</string>
-    <string name="android_auto_target_playlist">Adição rápida de destino</string>
-    <string name="android_auto_target_playlist_desc">Escolha a playlist onde as músicas são salvas quando usando o botão Adicionar Rápido no Android Auto</string>
-    <string name="android_auto_target_playlist_auto">Não definido</string>
     <string name="added_to_playlist">Adicionado a playlist</string>
-    <string name="android_auto_target_playlist_not_set">Nenhuma playlist selecionada. Escolha uma nas configurações do Android Auto</string>
     <string name="time_transfer_title">Transferência de tempo</string>
     <string name="time_transfer_warning">AVISO: esta ação não pode ser desfeita quando completa. Crie um backup antes de prosseguir. Apenas músicas com pelo menos uma reprodução registrada são elegíveis</string>
     <string name="time_transfer_source_song">Música de origem</string>
@@ -1097,7 +1088,6 @@
     <string name="hint_stream">De onde o áudio vem</string>
     <string name="hint_content">Região, explícito, clipes</string>
     <string name="hint_lyrics">Fontes de letras e tradução automática</string>
-    <string name="hint_android_auto">Layout para o carro</string>
     <string name="hint_privacy">Histórico, pausas, dados de escuta</string>
     <string name="hint_storage">Cache, downloads, limpar dados</string>
     <string name="hint_backup">Exporte ou importe sua biblioteca</string>

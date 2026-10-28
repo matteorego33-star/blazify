@@ -762,16 +762,7 @@
     <string name="recognition_notification_no_match">Tidak ditemukan kecocokan</string>
     <string name="recognition_notification_failed">Pengenalan gagal</string>
     <string name="listen_on_blazify">Dengarkan di Arctic Fresh</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Bagian yang terlihat</string>
-    <string name="android_auto_reorder_hint">Ketuk bagian untuk mengaktifkan atau menonaktifkannya.\nTekan lama gagang seret untuk mengurutkan ulang. Bagian pertama akan ditampilkan secara default</string>
-    <string name="android_auto_youtube_playlists">Tampilkan playlist yang disarankan YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">Tampilkan playlist yang direkomendasikan YouTube Music di bagian playlist saat menjelajah dengan Android Auto</string>
-    <string name="android_auto_target_playlist">Tujuan tambah cepat</string>
-    <string name="android_auto_target_playlist_desc">Pilih playlist tempat lagu disimpan saat menggunakan tombol tambah cepat di Android Auto</string>
-    <string name="android_auto_target_playlist_auto">Belum diatur</string>
     <string name="added_to_playlist">Ditambahkan ke playlist</string>
-    <string name="android_auto_target_playlist_not_set">Tidak ada playlist yang dipilih. Pilih salah satu di pengaturan Android Auto</string>
     <string name="parsed_from_link">Diurai dari tautan</string>
     <string name="speed">Kecepatan Pemutaran</string>
     <string name="varispeed">Aktifkan varispeed</string>
@@ -1081,7 +1072,6 @@
     <string name="hint_stream">Asal audio diambil</string>
     <string name="hint_content">Wilayah, eksplisit, video musik</string>
     <string name="hint_lyrics">Sumber lirik dan terjemahan otomatis</string>
-    <string name="hint_android_auto">Tata letak di mobil</string>
     <string name="hint_privacy">Riwayat, jeda, data mendengarkan</string>
     <string name="hint_storage">Cache, unduhan, hapus data</string>
     <string name="hint_backup">Ekspor atau impor pustaka Anda</string>

@@ -26,7 +26,6 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.audiofx.AudioEffect
 import com.blazify.music.constants.EnableBetterLyricsKey
-import com.blazify.music.constants.AddToPlaylistAtTopKey
 import com.blazify.music.playback.audio.VolumeNormalizationAudioProcessor
 import com.blazify.music.utils.safeDataStoreEdit
 import android.net.ConnectivityManager
@@ -93,7 +92,6 @@ import androidx.media3.extractor.DefaultExtractorsFactory
 import androidx.media3.session.CommandButton
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaController
-import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaNotification
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -106,7 +104,6 @@ import com.blazify.innertube.models.WatchEndpoint
 import com.blazify.lastfm.LastFM
 import com.blazify.music.MainActivity
 import com.blazify.music.R
-import com.blazify.music.constants.AndroidAutoTargetPlaylistKey
 import com.blazify.music.constants.AudioNormalizationKey
 import com.blazify.music.constants.AudioOffload
 import com.blazify.music.constants.AudioQualityKey
@@ -151,7 +148,6 @@ import com.blazify.music.constants.SaveDataOnMobileKey
 import com.blazify.music.constants.HistoryDuration
 import com.blazify.music.constants.LastFMUseNowPlaying
 import com.blazify.music.constants.MediaSessionConstants
-import com.blazify.music.constants.MediaSessionConstants.CommandAddToTargetPlaylist
 import com.blazify.music.constants.MediaSessionConstants.CommandToggleLike
 import com.blazify.music.constants.MediaSessionConstants.CommandToggleRepeatMode
 import com.blazify.music.constants.MediaSessionConstants.CommandToggleShuffle
@@ -204,6 +200,7 @@ import com.blazify.music.extensions.toEnum
 import com.blazify.music.extensions.toMediaItem
 import com.blazify.music.extensions.toPersistQueue
 import com.blazify.music.extensions.toQueue
+import com.blazify.music.extensions.toggleRepeatMode
 import com.blazify.music.lyrics.BetterLyricsClient
 import com.blazify.music.lyrics.LyricsHelper
 import com.blazify.music.models.PersistPlayerState
@@ -291,7 +288,7 @@ private const val INSTANT_SILENCE_SKIP_SETTLE_MS = 350L
 @androidx.annotation.OptIn(UnstableApi::class)
 @AndroidEntryPoint
 class MusicService :
-    MediaLibraryService(),
+    MediaSessionService(),
     Player.Listener,
     PlaybackStatsListener.Callback {
     @Inject
@@ -302,9 +299,6 @@ class MusicService :
 
     @Inject
     lateinit var syncUtils: SyncUtils
-
-    @Inject
-    lateinit var mediaLibrarySessionCallback: MediaLibrarySessionCallback
 
     @Inject
     lateinit var equalizerService: EqualizerService
@@ -437,7 +431,7 @@ class MusicService :
     private var isCrossfading = false
     private var crossfadeJob: Job? = null
     private var isRunning = false
-    private var mediaSession: MediaLibrarySession? = null
+    private var mediaSession: MediaSession? = null
     private var controllerFuture: com.google.common.util.concurrent.ListenableFuture<MediaController>? = null
 
     private val playerInitialized = MutableStateFlow(false)
@@ -804,16 +798,60 @@ class MusicService :
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         setupAudioFocusRequest()
 
-        mediaLibrarySessionCallback.apply {
-            service = this@MusicService
-            toggleLike = ::toggleLike
-            toggleStartRadio = ::toggleStartRadio
-            toggleLibrary = ::toggleLibrary
-            addToTargetPlaylist = ::addToTargetPlaylist
-        }
+        val sessionCallback =
+            object : MediaSession.Callback {
+                override fun onConnect(
+                    session: MediaSession,
+                    controller: MediaSession.ControllerInfo,
+                ): MediaSession.ConnectionResult {
+                    val result = super.onConnect(session, controller)
+                    return MediaSession.ConnectionResult.accept(
+                        result.availableSessionCommands
+                            .buildUpon()
+                            .add(MediaSessionConstants.CommandToggleLike)
+                            .add(MediaSessionConstants.CommandToggleStartRadio)
+                            .add(MediaSessionConstants.CommandToggleLibrary)
+                            .add(MediaSessionConstants.CommandToggleShuffle)
+                            .add(MediaSessionConstants.CommandToggleRepeatMode)
+                            .build(),
+                        result.availablePlayerCommands,
+                    )
+                }
+
+                override fun onCustomCommand(
+                    session: MediaSession,
+                    controller: MediaSession.ControllerInfo,
+                    customCommand: androidx.media3.session.SessionCommand,
+                    args: Bundle,
+                ): com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> {
+                    when (customCommand.customAction) {
+                        MediaSessionConstants.ACTION_TOGGLE_LIKE -> toggleLike()
+                        MediaSessionConstants.ACTION_TOGGLE_START_RADIO -> toggleStartRadio()
+                        MediaSessionConstants.ACTION_TOGGLE_LIBRARY -> toggleLibrary()
+                        MediaSessionConstants.ACTION_TOGGLE_SHUFFLE ->
+                            session.player.shuffleModeEnabled = !session.player.shuffleModeEnabled
+                        MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE -> session.player.toggleRepeatMode()
+                    }
+                    return com.google.common.util.concurrent.Futures.immediateFuture(
+                        androidx.media3.session.SessionResult(
+                            androidx.media3.session.SessionResult.RESULT_SUCCESS,
+                        ),
+                    )
+                }
+
+                @Suppress("OVERRIDE_DEPRECATION")
+                override fun onPlaybackResumption(
+                    mediaSession: MediaSession,
+                    controller: MediaSession.ControllerInfo,
+                ): com.google.common.util.concurrent.ListenableFuture<MediaSession.MediaItemsWithStartPosition> =
+                    com.google.common.util.concurrent.Futures.immediateFuture(
+                        MediaSession.MediaItemsWithStartPosition(emptyList(), 0, C.TIME_UNSET),
+                    )
+            }
         mediaSession =
-            MediaLibrarySession
-                .Builder(this, player, mediaLibrarySessionCallback)
+            MediaSession
+                .Builder(this, player)
+                .setCallback(sessionCallback)
                 .setSessionActivity(
                     PendingIntent.getActivity(
                         this,
@@ -1197,7 +1235,7 @@ class MusicService :
                 sleepTimer?.player = newPlayer
 
                 try {
-                    mediaSession?.let { (it as MediaSession).player = newPlayer }
+                    mediaSession?.player = newPlayer
                 } catch (e: Exception) {
                     Timber.tag(TAG).e(e, "Failed to swap player in MediaSession")
                 }
@@ -1878,13 +1916,6 @@ class MusicService :
                     .setDisplayName(getString(R.string.start_radio))
                     .setIconResId(R.drawable.radio)
                     .setSessionCommand(CommandToggleStartRadio)
-                    .setEnabled(currentSong.value != null)
-                    .build(),
-                CommandButton
-                    .Builder()
-                    .setDisplayName(getString(R.string.android_auto_target_playlist))
-                    .setIconResId(R.drawable.playlist_add)
-                    .setSessionCommand(CommandAddToTargetPlaylist)
                     .setEnabled(currentSong.value != null)
                     .build(),
             ),
@@ -2572,34 +2603,6 @@ class MusicService :
                     }
                 }
                 currentMediaMetadata.value = player.currentMetadata
-            }
-        }
-    }
-
-    fun addToTargetPlaylist() {
-        scope.launch {
-            val currentSong = currentSong.first() ?: return@launch
-            val targetPlaylistId = dataStore.get(AndroidAutoTargetPlaylistKey, MediaSessionConstants.TARGET_PLAYLIST_AUTO)
-
-            if (targetPlaylistId == MediaSessionConstants.TARGET_PLAYLIST_AUTO) {
-                Handler(Looper.getMainLooper()).post {
-                    Toast
-                        .makeText(
-                            this@MusicService,
-                            getString(R.string.android_auto_target_playlist_not_set),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                }
-                return@launch
-            }
-
-            val targetPlaylist = database.playlist(targetPlaylistId).first()
-            if (targetPlaylist != null) {
-                database.addSongsToPlaylist(
-                    targetPlaylist,
-                    listOf(currentSong.id to null),
-                    prepend = dataStore.get(AddToPlaylistAtTopKey, true),
-                )
             }
         }
     }
@@ -5374,7 +5377,6 @@ class MusicService :
         connectivityObserver.unregister()
         abandonAudioFocus()
         closeAudioEffectSession()
-        mediaLibrarySessionCallback.release()
         mediaSession?.release()
         player.removeListener(this)
         sleepTimer?.let { player.removeListener(it) }
@@ -5977,7 +5979,7 @@ class MusicService :
         sleepTimer?.player = player
 
         try {
-            mediaSession?.let { (it as MediaSession).player = player }
+            mediaSession?.player = player
         } catch (e: Exception) {
             timber.log.Timber.e(e, "Failed to swap player in MediaSession")
         }

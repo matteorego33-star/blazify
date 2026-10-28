@@ -102,14 +102,6 @@ fun SettingsScreen(
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
     val isAndroid12OrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    val hasAndroidAuto = remember {
-        try {
-            context.packageManager.getPackageInfo("com.google.android.projection.gearhead", 0)
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
     val showChangelog = LocalChangelogState.current
     var showBugReport by remember { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }
@@ -154,11 +146,6 @@ fun SettingsScreen(
             add(SettingRow(R.drawable.lyrics, stringResource(R.string.lyrics), stringResource(R.string.hint_lyrics_home)) {
                 navController.navigate("settings/lyrics")
             })
-            if (hasAndroidAuto) {
-                add(SettingRow(R.drawable.ic_android_auto, stringResource(R.string.android_auto), stringResource(R.string.hint_android_auto)) {
-                    navController.navigate("settings/android_auto")
-                })
-            }
         },
         stringResource(R.string.settings_group_connections) to listOf(
             SettingRow(R.drawable.link, stringResource(R.string.integrations), stringResource(R.string.hint_integrations)) {

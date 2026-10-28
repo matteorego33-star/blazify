@@ -42,7 +42,7 @@ Arctic Fresh is a music player for Android devices, built with Kotlin and Jetpac
 * Playlist import from a file or a link
 * last.fm scrobbling and Discord presence, both optional and with your own credentials
 * Music recognition: hold up your phone and name what is playing
-* Android Auto and home-screen widgets
+* Home-screen widgets
 * Back up your whole library to a single file and restore it on another device
 
 <b>Privacy</b>

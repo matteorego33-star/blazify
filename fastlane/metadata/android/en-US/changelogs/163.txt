@@ -1,3 +1,3 @@
-Arctic Fresh is now the app's display name. Personal developer details and the in-app updater have been removed; updates are installed manually.
+Arctic Fresh is now the app's display name. Personal developer details, Android Auto integration and the in-app updater have been removed; updates are installed manually.
 
-Fixed stale queue results when switching songs from search and improved Home pagination to ignore duplicate or obsolete requests.
+Fixed stale queue results when switching songs from search and improved Home loading to prevent duplicate requests, clear stale progress indicators after errors and handle heavy recommendations in the background.

@@ -700,16 +700,7 @@
     <string name="time_transfer_listen_time_label">Dinleme süresi:</string>
     <string name="time_transfer_convert">Dönüştür</string>
     <string name="song_dropdown_more_results">Sonuçları daraltmak için yazmaya devam edin (%d daha fazla)</string>
-    <string name="android_auto_target_playlist_not_set">Hiçbir çalma listesi seçilmedi. Android Auto ayarlarından birini seçin</string>
     <string name="added_to_playlist">Oynatma listesine eklendi</string>
-    <string name="android_auto_target_playlist_auto">Ayarlanmadı</string>
-    <string name="android_auto_target_playlist_desc">Android Auto\'da hızlı ekleme düğmesi kullanılırken şarkıların kaydedileceği çalma listesini seçin</string>
-    <string name="android_auto_target_playlist">Hızlı ekleme hedefi</string>
-    <string name="android_auto_youtube_playlists_desc">Android Auto ile göz atarken çalma listeleri bölümünde YouTube Music önerilen çalma listelerini göster</string>
-    <string name="android_auto_youtube_playlists">YouTube\'un önerdiği oynatma listelerini göster</string>
-    <string name="android_auto_reorder_hint">Bir bölümü etkinleştirmek veya devre dışı bırakmak için o bölüme dokunun.\nSıralamayı değiştirmek için sürükleme tutamacına uzun süre basın. Varsayılan olarak ilk bölüm gösterilecektir</string>
-    <string name="android_auto_visible_sections">Görünür bölümler</string>
-    <string name="android_auto">Android Auto</string>
     <string name="listen_on_blazify">Arctic Fresh\'te dinle</string>
     <string name="recognition_notification_failed">Tanıma başarısız oldu</string>
     <string name="recognition_notification_no_match">Eşleşme bulunamadı</string>
@@ -1089,7 +1080,6 @@
     <string name="hint_stream">Sesin nereden alındığı</string>
     <string name="hint_content">Bölge, açık içerik, müzik videoları</string>
     <string name="hint_lyrics">Şarkı sözü kaynakları ve otomatik çeviri</string>
-    <string name="hint_android_auto">Araç içi düzen</string>
     <string name="hint_privacy">Geçmiş, duraklatmalar, dinleme verileri</string>
     <string name="hint_storage">Önbellek, indirilenler, verileri temizle</string>
     <string name="hint_backup">Kitaplığınızı dışa veya içe aktarın</string>

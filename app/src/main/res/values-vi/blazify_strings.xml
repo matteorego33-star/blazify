@@ -757,15 +757,7 @@
     <string name="delete_uploaded_songs_confirm">Bạn có chắc chắn muốn xóa %1$d bài hát đã tải lên không? Hành động này không thể hoàn tác được</string>
     <string name="deleted_n_songs">Đã xóa %1$d bài hát</string>
     <string name="deleting">Đang xóa…</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Các phần hiển thị</string>
-    <string name="android_auto_reorder_hint">Nhấn vào một phần để bật hoặc tắt phần đó.\nNhấn và giữ thanh kéo để sắp xếp lại thứ tự. Phần đầu tiên sẽ được hiển thị theo mặc định</string>
-    <string name="android_auto_youtube_playlists">Hiển thị danh sách phát được đề xuất trên YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">Hiển thị các danh sách phát được đề xuất của YouTube Music trong phần danh sách phát khi duyệt bằng Android Auto</string>
-    <string name="android_auto_target_playlist">Thêm điểm đến nhanh</string>
-    <string name="android_auto_target_playlist_desc">Chọn danh sách phát để lưu các bài hát khi sử dụng nút thêm nhanh trong Android Auto</string>
     <string name="added_to_playlist">Đã thêm vào danh sách phát</string>
-    <string name="android_auto_target_playlist_not_set">Chưa chọn danh sách phát nào. Vui lòng chọn một danh sách phát trong cài đặt Android Auto</string>
     <string name="time_transfer_warning">CẢNH BÁO: Thao tác này không thể hoàn tác sau khi hoàn tất. Hãy tạo bản sao lưu trước khi tiếp tục. Chỉ những bài hát có ít nhất một lần phát đã được ghi nhận mới đủ điều kiện</string>
     <string name="time_transfer_listen_time_label">Thời lượng:</string>
     <string name="autoplay">Tự động phát</string>
@@ -775,7 +767,6 @@
     <string name="switch_to_list_view">Chuyển sang chế độ xem danh sách</string>
     <string name="switch_to_grid_view">Chuyển sang chế độ xem dạng lưới</string>
     <string name="more_options">Tùy chọn khác</string>
-    <string name="android_auto_target_playlist_auto">Chưa thiết lập</string>
     <string name="time_transfer_title">Chuyển thời gian</string>
     <string name="time_transfer_source_song">Bài hát gốc</string>
     <string name="time_transfer_target_song">Bài hát đích</string>
@@ -1081,7 +1072,6 @@
     <string name="hint_stream">Nơi lấy âm thanh</string>
     <string name="hint_content">Khu vực, nội dung phản cảm, video ca nhạc</string>
     <string name="hint_lyrics">Nguồn lời bài hát và tự động dịch</string>
-    <string name="hint_android_auto">Bố cục trên ô tô</string>
     <string name="hint_privacy">Lịch sử, tạm dừng, dữ liệu nghe</string>
     <string name="hint_storage">Bộ nhớ đệm, tải xuống, xóa dữ liệu</string>
     <string name="hint_backup">Xuất hoặc nhập thư viện của bạn</string>

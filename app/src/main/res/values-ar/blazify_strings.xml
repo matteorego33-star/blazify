@@ -933,16 +933,7 @@
     <string name="pin">تثبيت</string>
     <string name="unpin">إلغاء التثبيت</string>
     <string name="restore_database_incompatible">تعذّرت استعادة النسخة الاحتياطية: إصدار قاعدة البيانات غير متوافق. تم الحفاظ على بياناتك الحالية.</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">الأقسام الظاهرة</string>
-    <string name="android_auto_reorder_hint">انقر على قسم لتفعيله أو تعطيله.\nاضغط مطولًا على مقبض السحب لإعادة الترتيب. سيُعرض القسم الأول افتراضيًا</string>
-    <string name="android_auto_youtube_playlists">عرض قوائم التشغيل المقترحة من YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">عرض قوائم التشغيل التي يوصي بها YouTube Music في قسم قوائم التشغيل أثناء التصفح عبر Android Auto</string>
-    <string name="android_auto_target_playlist">وجهة الإضافة السريعة</string>
-    <string name="android_auto_target_playlist_desc">اختر قائمة التشغيل التي تُحفظ فيها الأغاني عند استخدام زر الإضافة السريعة في Android Auto</string>
-    <string name="android_auto_target_playlist_auto">غير محدّدة</string>
     <string name="added_to_playlist">أُضيفت إلى قائمة التشغيل</string>
-    <string name="android_auto_target_playlist_not_set">لم تُحدَّد قائمة تشغيل. اختر واحدة من إعدادات Android Auto</string>
     <string name="time_transfer_title">نقل الوقت</string>
     <string name="time_transfer_warning">تحذير: لا يمكن التراجع عن هذا الإجراء بعد اكتماله. أنشئ نسخة احتياطية قبل المتابعة. الأغاني المؤهلة فقط هي التي سُجّل لها تشغيل واحد على الأقل</string>
     <string name="time_transfer_source_song">الأغنية المصدر</string>
@@ -1119,7 +1110,6 @@
     <string name="hint_stream">مصدر جلب الصوت</string>
     <string name="hint_content">المنطقة، المحتوى الصريح، الفيديوهات الموسيقية</string>
     <string name="hint_lyrics">مصادر الكلمات والترجمة التلقائية</string>
-    <string name="hint_android_auto">تخطيط السيارة</string>
     <string name="hint_privacy">السجل، الإيقافات المؤقتة، بيانات الاستماع</string>
     <string name="hint_storage">ذاكرة التخزين المؤقت، التنزيلات، مسح البيانات</string>
     <string name="hint_backup">تصدير مكتبتك أو استيرادها</string>

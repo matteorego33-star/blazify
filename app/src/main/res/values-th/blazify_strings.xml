@@ -754,16 +754,7 @@
     <string name="wizard_select_model">เลือกรุ่น</string>
     <string name="wizard_select_profiles">เลือกโปรไฟล์</string>
     <string name="wizard_search_model_hint">ค้นหารุ่นหูฟังของคุณ</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">ส่วนที่แสดง</string>
-    <string name="android_auto_reorder_hint">แตะที่แต่ละส่วนเพื่อเปิดหรือปิดการแสดงผล\nกดค้างที่ตัวจับลากเพื่อจัดเรียงลำดับใหม่ ส่วนแรกจะถูกแสดงเป็นค่าเริ่มต้น</string>
-    <string name="android_auto_youtube_playlists">แสดงเพลย์ลิสต์แนะนำจาก YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">แสดงเพลย์ลิสต์แนะนำจาก YouTube Music ในส่วนเพลย์ลิสต์ขณะใช้งาน Android Auto</string>
-    <string name="android_auto_target_playlist">ปลายทางการเพิ่มด่วน</string>
-    <string name="android_auto_target_playlist_desc">เลือกเพลย์ลิสต์ที่จะบันทึกเพลงเมื่อใช้ปุ่มเพิ่มด่วนใน Android Auto</string>
-    <string name="android_auto_target_playlist_auto">ยังไม่ได้ตั้งค่า</string>
     <string name="added_to_playlist">เพิ่มลงในเพลย์ลิสต์แล้ว</string>
-    <string name="android_auto_target_playlist_not_set">ยังไม่ได้เลือกเพลย์ลิสต์ โปรดเลือกในการตั้งค่า Android Auto</string>
     <string name="time_transfer_title">ย้ายเวลาในการฟัง</string>
     <string name="time_transfer_warning">คำเตือน: การดำเนินการนี้ไม่สามารถย้อนกลับได้หลังจากเสร็จสิ้น โปรดสำรองข้อมูลก่อนดำเนินการต่อ และสามารถใช้ได้เฉพาะเพลงที่มีประวัติการเล่นอย่างน้อย 1 ครั้งเท่านั้น</string>
     <string name="time_transfer_source_song">เพลงต้นทาง</string>

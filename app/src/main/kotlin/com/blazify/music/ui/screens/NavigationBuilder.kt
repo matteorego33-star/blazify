@@ -52,7 +52,6 @@ import com.blazify.music.ui.screens.search.SearchScreen
 import com.blazify.music.ui.screens.settings.AboutScreen
 import com.blazify.music.ui.screens.settings.AiSettings
 import com.blazify.music.ui.screens.settings.LyricsSettings
-import com.blazify.music.ui.screens.settings.AndroidAutoSettings
 import com.blazify.music.ui.screens.settings.AppearanceSettings
 import com.blazify.music.ui.screens.settings.LookAndFeelScreen
 import com.blazify.music.ui.screens.settings.BackupAndRestore
@@ -565,8 +564,5 @@ fun NavGraphBuilder.navigationBuilder(
 
     composable("recognition_history") {
         RecognitionHistoryScreen(navController)
-    }
-    composable("settings/android_auto") {
-        AndroidAutoSettings(navController, scrollBehavior)
     }
 }

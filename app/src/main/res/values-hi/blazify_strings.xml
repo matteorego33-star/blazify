@@ -906,16 +906,7 @@
     <string name="delete_uploaded_songs_confirm">क्या आप %1$d अपलोड किए गाने हटाना चाहते हैं? यह बदलाव वापस नहीं हो सकता</string>
     <string name="deleted_n_songs">%1$d गाने हटाए गए</string>
     <string name="deleting">हटाए जा रहे हैं…</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">दिखने वाले सेक्शन</string>
-    <string name="android_auto_reorder_hint">किसी सेक्शन को चालू या बंद करने के लिए उस पर टैप करें।\nक्रम बदलने के लिए ड्रैग हैंडल को दबाकर रखें। पहला सेक्शन डिफ़ॉल्ट रूप से दिखेगा</string>
-    <string name="android_auto_youtube_playlists">YouTube की सुझाई प्लेलिस्ट दिखाएँ</string>
-    <string name="android_auto_youtube_playlists_desc">Android Auto पर ब्राउज़ करते समय प्लेलिस्ट सेक्शन में YouTube Music की सुझाई गई प्लेलिस्ट दिखाएँ</string>
-    <string name="android_auto_target_playlist">झटपट जोड़ने की जगह</string>
-    <string name="android_auto_target_playlist_desc">वह प्लेलिस्ट चुनें जिसमें Android Auto के झटपट-जोड़ें बटन से गाने सेव हों</string>
-    <string name="android_auto_target_playlist_auto">सेट नहीं है</string>
     <string name="added_to_playlist">प्लेलिस्ट में जोड़ा गया</string>
-    <string name="android_auto_target_playlist_not_set">कोई प्लेलिस्ट नहीं चुनी गई। Android Auto सेटिंग में एक चुनें</string>
     <string name="time_transfer_title">समय ट्रांसफ़र</string>
     <string name="time_transfer_warning">चेतावनी: यह काम पूरा होने के बाद वापस नहीं किया जा सकता। आगे बढ़ने से पहले बैकअप बनाएँ। सिर्फ़ वही गाने चुने जा सकते हैं जो कम से कम एक बार बजे हों</string>
     <string name="time_transfer_source_song">स्रोत गाना</string>
@@ -1089,7 +1080,6 @@
     <string name="hint_stream">ऑडियो कहाँ से आता है</string>
     <string name="hint_content">क्षेत्र, अश्लील कॉन्टेंट, म्यूज़िक वीडियो</string>
     <string name="hint_lyrics">बोल के स्रोत और अपने आप अनुवाद</string>
-    <string name="hint_android_auto">कार में लेआउट</string>
     <string name="hint_privacy">इतिहास, रोक, सुनने का डेटा</string>
     <string name="hint_storage">कैश, डाउनलोड, डेटा मिटाएँ</string>
     <string name="hint_backup">अपनी लाइब्रेरी एक्सपोर्ट या इंपोर्ट करें</string>

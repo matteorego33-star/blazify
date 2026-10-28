@@ -755,16 +755,7 @@
     <string name="recognition_notification_no_match">Nie znaleziono dopasowania</string>
     <string name="recognition_notification_failed">Rozpoznawanie nie powiodło się</string>
     <string name="listen_on_blazify">Słuchaj na Arctic Fresh</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Widoczne sekcje</string>
-    <string name="android_auto_reorder_hint">Dotknij sekcji aby ją włączyć lub wyłączyć\nPrzytrzymaj ikonę przeciągania aby zmienić kolejność. Domyślnie wyświetlana będzie pierwsza sekcja.</string>
-    <string name="android_auto_youtube_playlists">Pokazuj playlisty sugerowane przez YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">Pokazuj playlisty rekomendowane przez YouTube Music w sekcji playlist podczas przeglądania w Android Auto</string>
-    <string name="android_auto_target_playlist">Lokalizacja szybkiego dodawania</string>
-    <string name="android_auto_target_playlist_desc">Wybierz playlistę gdzie piosenki będą zapisywane przy użyciu przycisku szybkiego dodawania w Android Auto</string>
-    <string name="android_auto_target_playlist_auto">Nie wybrano</string>
     <string name="added_to_playlist">Dodano do playlisty</string>
-    <string name="android_auto_target_playlist_not_set">Nie wybrano playlisty. Wybierz playlistę w ustawieniach Android Auto.</string>
     <string name="time_transfer_warning">UWAGA: Tej akcji nie można cofnąć. Utwórz plik kopii zapasowej przed kontynuowaniem. Możesz wybrać jedynie piosenki z przynajmniej jednym zarejestrowanym odtworzeniem/zdarzeniem.</string>
     <string name="time_transfer_source_song">Utwór źródłowy</string>
     <string name="time_transfer_target_song">Utwór docelowy</string>

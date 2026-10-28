@@ -86,8 +86,8 @@ Out now: [download it](https://github.com/rajendra7169/blazify/releases/latest).
 - New settings for text size, line spacing, glow, and animation style (Karaoke or Fade).
 
 **Your music, your way**
-- **Don't play this song.** Hidden songs stay out of queues, recommendations
-  and Android Auto. Manage them in Settings › Content › Hidden songs.
+- **Don't play this song.** Hidden songs stay out of queues and recommendations.
+  Manage them in Settings › Content › Hidden songs.
 - Choose whether new songs go to the top or the bottom of a playlist.
 - Play next picks now play in the order you pick them, and swipe to queue is on by default.
 - Podcasts remember their own playback speed.

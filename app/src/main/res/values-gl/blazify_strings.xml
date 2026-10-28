@@ -426,13 +426,7 @@
     <string name="discord_advanced_mode_description">Amosar opcións adicionais de personalización de Rich Presence</string>
     <string name="discord_presence">Presencia</string>
     <string name="discord_activity_type">Tipo de actividade</string>
-    <string name="android_auto_youtube_playlists">Amosar listas de reprodución suxeridas de YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">Amosar listas de reprodución recomendadas de YouTube Music na sección de listas de reprodución mentres navegas con Android Auto</string>
-    <string name="android_auto_target_playlist">Destino de engadido rápido</string>
-    <string name="android_auto_target_playlist_desc">Escolle a lista de reprodución onde as cancións se gardarán cando se prema o botón de engadido rápido en Android Auto</string>
-    <string name="android_auto_target_playlist_auto">Non establecido</string>
     <string name="added_to_playlist">Engadido á lista de reprodución</string>
-    <string name="android_auto_target_playlist_not_set">Ningunha lista de reprodución seleccionada. Escolle unha nos axustes de Android Auto</string>
     <string name="time_transfer_title">Transferencia de tempo</string>
     <string name="time_transfer_warning">ADVERTENCIA: esta acción non se pode desfacer unha vez completada. Crea unha copia de seguridade antes de proceder. Só se admiten cancións con algunha reprodución rexistrada</string>
     <string name="time_transfer_source_song">Canción de orixe</string>
@@ -487,9 +481,6 @@
     <string name="delete_uploaded_songs_confirm">Estás seguro que queres eliminar %1$d cancións subidas? Esta acción non se pode desfacer</string>
     <string name="deleted_n_songs">Eliminadas %1$d cancións</string>
     <string name="deleting">Eliminando…</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Seccións visibles</string>
-    <string name="android_auto_reorder_hint">Preme nunha sección para activala ou desactivala.\nMantén premido o xestor de arrastre para reordenar. A primeira sección amosarase por defecto</string>
     <string name="close_chip">Pechar</string>
     <string name="switch_to_list_view">Cambiar a vista de listaxe</string>
     <string name="switch_to_grid_view">Cambiar a vista de cadro</string>

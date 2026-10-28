@@ -472,16 +472,7 @@
     <string name="switch_to_list_view">লিস্ট ভিউতে পরিবর্তন করুন</string>
     <string name="switch_to_grid_view">গ্রিড ভিউতে পরিবর্তন করুন</string>
     <string name="more_options">আরও বিকল্প</string>
-    <string name="android_auto">অ্যান্ড্রয়েড অটো</string>
-    <string name="android_auto_visible_sections">দৃশ্যমান সেকশন</string>
-    <string name="android_auto_reorder_hint">কোনো সেকশন চালু বা বন্ধ করতে সেটিতে ট্যাপ করুন। পুনর্বিন্যাস করতে ড্র্যাগ হ্যান্ডেলটিতে দীর্ঘক্ষণ চাপ দিন। ডিফল্টরূপে প্রথম সেকশনটি দেখানো হবে</string>
-    <string name="android_auto_youtube_playlists">ইউটিউবের প্রস্তাবিত প্লেলিস্টগুলি দেখান</string>
-    <string name="android_auto_youtube_playlists_desc">অ্যান্ড্রয়েড অটো দিয়ে ব্রাউজ করার সময় প্লেলিস্ট বিভাগে ইউটিউব মিউজিকের প্রস্তাবিত প্লেলিস্টগুলি দেখান</string>
-    <string name="android_auto_target_playlist">দ্রুত যোগ করার গন্তব্য</string>
-    <string name="android_auto_target_playlist_desc">অ্যান্ড্রয়েড অটোতে কুইক-অ্যাড বাটন ব্যবহার করার সময়, গানগুলি যেখানে সেভ করা হবে সেই প্লেলিস্টটি বেছে নিন</string>
-    <string name="android_auto_target_playlist_auto">সেট করা হয়নি</string>
     <string name="added_to_playlist">প্লেলিস্টে যোগ করা হয়েছে</string>
-    <string name="android_auto_target_playlist_not_set">কোনো প্লেলিস্ট নির্বাচন করা হয়নি। অ্যান্ড্রয়েড অটো সেটিংস থেকে একটি বেছে নিন</string>
     <string name="time_transfer_title">সময় স্থানান্তর</string>
     <string name="time_transfer_warning">সতর্কীকরণ: একবার সম্পন্ন হলে এই কাজটি আর পূর্বাবস্থায় ফেরানো যাবে না। এগিয়ে যাওয়ার আগে একটি ব্যাকআপ তৈরি করুন। শুধুমাত্র অন্তত একটি নিবন্ধিত প্লে থাকা গানগুলোই যোগ্য বলে বিবেচিত হবে</string>
     <string name="time_transfer_source_song">উৎস সঙ্গীত</string>

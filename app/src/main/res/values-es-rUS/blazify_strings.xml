@@ -788,16 +788,7 @@
     <string name="delete_uploaded_songs">Eliminar canciones subidas</string>
     <string name="delete_uploaded_songs_confirm">¿Estás seguro de querer eliminar %1$d canciones subidas? Esta acción es irreversible</string>
     <string name="deleted_n_songs">Se eliminaron %1$d canciones</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Secciones visibles</string>
-    <string name="android_auto_reorder_hint">Toca una sección para activarla o desactivarla.\nMantén presionado para reordenar. La primera sección se mostrará por defecto</string>
-    <string name="android_auto_youtube_playlists">Mostrar listas de reproducción sugeridas por YouTube</string>
-    <string name="android_auto_youtube_playlists_desc">Muestra listas de reproducción sugeridas por YouTube Music en la sección de Playlists mientras navegas con Android Auto</string>
-    <string name="android_auto_target_playlist">Agregado rápido de destino</string>
-    <string name="android_auto_target_playlist_desc">Elige la lista de reproducción donde se guardarán las canciones al usar el botón de agregado rápido en Android Auto</string>
-    <string name="android_auto_target_playlist_auto">Sin configurar</string>
     <string name="added_to_playlist">Añadido a la lista de reproducción</string>
-    <string name="android_auto_target_playlist_not_set">Ninguna lista seleccionada, escoge una desde los ajustes de Android Auto</string>
     <string name="time_transfer_title">Tiempo de transferencia</string>
     <string name="time_transfer_warning">ADVERTENCIA: Esta acción es irreversible. Crea una copia de seguridad antes de continuar. Solo se incluirán canciones con al menos una reproducción</string>
     <string name="time_transfer_source_song">Canción de origen</string>
@@ -1097,7 +1088,6 @@
     <string name="hint_stream">De dónde se obtiene el audio</string>
     <string name="hint_content">Región, contenido explícito, videoclips</string>
     <string name="hint_lyrics">Fuentes de letras y traducción automática</string>
-    <string name="hint_android_auto">Diseño para el auto</string>
     <string name="hint_privacy">Historial, pausas, datos de escucha</string>
     <string name="hint_storage">Caché, descargas, borrar datos</string>
     <string name="hint_backup">Exporta o importa tu biblioteca</string>

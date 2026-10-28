@@ -33,7 +33,6 @@
         <intent>
             <action android:name="android.media.action.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL" />
         </intent>
-        <package android:name="com.google.android.projection.gearhead" />
     </queries>
     <application
         android:name=".App"
@@ -289,8 +288,6 @@
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="androidx.media3.session.MediaSessionService" />
-                <action android:name="androidx.media3.session.MediaLibraryService" />
-                <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
 
@@ -343,9 +340,6 @@
             </intent-filter>
         </receiver>
 
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc" />
         <!-- Music Widget -->
         <receiver
             android:name=".widget.MusicWidgetReceiver"

@@ -556,7 +556,6 @@
     <string name="play_on_app">Відтворити в Arctic Fresh</string>
     <string name="importing_playlist">Імпорт списку відтворення…</string>
     <string name="added_to_playlist">Додано до списку відтворення</string>
-    <string name="android_auto_target_playlist_not_set">Список відтворення не вибрано. Виберіть його в налаштуваннях Android Auto</string>
     <string name="widget_playlists">Списки відтворення</string>
     <string name="show_interval_indicator_desc">Показувати індикатор прогресу під час тривалих інструментальних пауз</string>
     <string name="respect_agent_positioning">Враховувати позиціонування виконавця</string>

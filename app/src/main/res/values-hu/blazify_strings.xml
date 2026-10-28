@@ -748,16 +748,7 @@
     <string name="recognition_notification_no_match">Nincs találat</string>
     <string name="recognition_notification_failed">Felismerés sikertelen</string>
     <string name="listen_on_blazify">Meghallgatás Arctic Fresh-en</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">Látható részek</string>
-    <string name="android_auto_reorder_hint">Koppintson egy szakaszra az engedélyezéséhez vagy letiltásához.\nNyomja meg hosszan a fogót az átrendezéshez. Alapértelmezés szerint az első szakasz jelenik meg</string>
-    <string name="android_auto_youtube_playlists">YouTube által javasolt lejátszási listák megjelenítése</string>
-    <string name="android_auto_youtube_playlists_desc">YouTube Music által ajánlott lejátszási listák megjelenítése a Lejátszási listák részben, amikor az Android Auto-val való böngészésnél</string>
-    <string name="android_auto_target_playlist">Gyors-hozzáadás cél</string>
-    <string name="android_auto_target_playlist_desc">Válassza ki a lejátszási listát, ahova a dalok mentésre kerülnek az Android Auto gyors hozzáadással</string>
-    <string name="android_auto_target_playlist_auto">Nincs beállítva</string>
     <string name="added_to_playlist">Hozzáadva a lejátszási listához</string>
-    <string name="android_auto_target_playlist_not_set">Nincs kiválasztva lejátszási lista. Válasszon egyet az Android Auto beállításaiban</string>
     <string name="time_transfer_title">Idő-átvitel</string>
     <string name="parsed_from_link">Linkből elemezve</string>
     <string name="lyrics_from_provider">%s dalszövegek</string>

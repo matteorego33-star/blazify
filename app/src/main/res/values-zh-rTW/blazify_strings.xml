@@ -703,16 +703,7 @@
     <string name="recognition_notification_processing">識別中…</string>
     <string name="recognition_notification_failed">識別失敗</string>
     <string name="listen_on_blazify">在 Arctic Fresh 收聽</string>
-    <string name="android_auto">Android Auto</string>
-    <string name="android_auto_visible_sections">部分可見</string>
-    <string name="android_auto_reorder_hint">點擊某個版塊即可啟用或停用它…\n長按拖曳手把可重新排序。預設會顯示第一部分</string>
-    <string name="android_auto_youtube_playlists">顯示 YouTube 建議的播放清單</string>
-    <string name="android_auto_youtube_playlists_desc">Android Auto 會顯示來自 YouTube Music 的推薦播放清單</string>
-    <string name="android_auto_target_playlist">快速新增</string>
-    <string name="android_auto_target_playlist_desc">在 Android Auto 中使用「快速新增」按鈕時，選擇要將歌曲儲存到的播放清單</string>
-    <string name="android_auto_target_playlist_auto">未設定</string>
     <string name="added_to_playlist">已新增至播放清單</string>
-    <string name="android_auto_target_playlist_not_set">未選擇播放清單。請在 Android Auto 設定中選擇一個</string>
     <string name="time_transfer_source_song">來源歌曲</string>
     <string name="time_transfer_target_song">目標歌曲</string>
     <string name="time_transfer_listen_time_label">收聽時間：</string>
@@ -1081,7 +1072,6 @@
     <string name="hint_stream">音訊的取得來源</string>
     <string name="hint_content">地區、露骨內容、音樂影片</string>
     <string name="hint_lyrics">歌詞來源和自動翻譯</string>
-    <string name="hint_android_auto">車用版面配置</string>
     <string name="hint_privacy">記錄、暫停、收聽資料</string>
     <string name="hint_storage">快取、下載、清除資料</string>
     <string name="hint_backup">匯出或匯入你的音樂庫</string>
